@@ -42,7 +42,7 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
-                    <installDirectory>/opt/openliberty</installDirectory>
+                    <installDirectory>/opt/wlp</installDirectory>
                     <serverName>programacionInternet</serverName>
                 </configuration>
             </plugin>
