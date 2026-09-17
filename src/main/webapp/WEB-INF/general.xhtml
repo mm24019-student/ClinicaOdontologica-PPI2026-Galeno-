@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title><ui:insert name="titulo"><h:outputText value="Sistema"/></ui:insert></title>
+        <h:outputStylesheet library="css" name="estilos.css" />
+    </h:head>
+    <h:body>
+        <div class="ui-g" style="margin:0;">
+
+            <!-- ===== CABECERA: 4 + 4 + 4 = 12 ===== -->
+            <div class="ui-g-12" style="padding:0;">
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <ui:insert name="logo">
+                            <h:graphicImage library="imagenes" name="a.jpeg" />
+                        </ui:insert>
+                    </div>
+                    <div class="ui-g-4" style="text-align:center;">
+                        <ui:insert name="titulo_pagina">Título de la página</ui:insert>
+                    </div>
+                    <div class="ui-g-4" style="text-align:right;">
+                        <ui:insert name="idioma">
+                            <h:form id="frmIdioma">
+                                <p:selectOneMenu value="#{localBean.idiomaActual}">
+                                    <f:selectItem itemLabel="Español" itemValue="es"/>
+                                    <f:selectItem itemLabel="English" itemValue="en"/>
+                                    <f:selectItem itemLabel="中文" itemValue="zh"/>
+                                    <p:ajax listener="#{localBean.onIdiomaChange}" update="@all"/>
+                                </p:selectOneMenu>
+                            </h:form>
+                        </ui:insert>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CUERPO: menú (2) + contenido (10) = 12 ===== -->
+            <div class="ui-g-12" style="padding:0;">
+                <div class="ui-g">
+                    <div class="ui-g-2">
+                        <ui:insert name="menu">
+                            <!-- menú lateral -->
+                        </ui:insert>
+                    </div>
+                    <div class="ui-g-10">
+                        <ui:insert name="contenido">
+                            Contenido por defecto
+                        </ui:insert>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== PIE DE PÁGINA: 12 ===== -->
+            <div class="ui-g-12" style="padding:0; text-align:center;">
+                <ui:insert name="pie">
+                    &#169; 2026 GaleanoSV
+                </ui:insert>
+            </div>
+
+        </div>
+    </h:body>
+</html>

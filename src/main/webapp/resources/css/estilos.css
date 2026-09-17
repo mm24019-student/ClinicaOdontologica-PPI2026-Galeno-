@@ -1,0 +1,75 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 17/09/2026, 16:24:44
+    Author     : oscar
+*/
+
+:root {
+    --azul: #0e7c86;
+    --azul-oscuro: #095a62;
+    --gris-claro: #f4f6f7;
+    --gris-borde: #dde3e5;
+    --texto: #263238;
+    --rojo: #c0392b;
+    --rojo-oscuro: #96281b;
+    --verde: #1a7a4c;
+    --verde-bg: #e3f6ea;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: var(--gris-claro);
+    color: var(--texto);
+    margin: 0;
+    padding: 30px 20px;
+}
+
+.tarjeta, .tarjeta-suelta {
+    background: white;
+    border: 1px solid var(--gris-borde);
+    border-radius: 10px;
+    padding: 24px 28px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+#tblTipoExamen { border-collapse: collapse; width: 100%; }
+
+.form-tipo-examen input[type="text"],
+.form-tipo-examen textarea {
+    border: 1px solid var(--gris-borde);
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-size: 14px;
+    width: 100%;
+}
+
+input[type="submit"], button {
+    border: none;
+    border-radius: 6px;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: var(--azul);
+    color: white;
+    margin-right: 8px;
+    margin-top: 10px;
+}
+input[type="submit"]:hover, button:hover { background-color: var(--azul-oscuro); }
+
+.mensajes { margin-bottom: 20px; }
+.msg-error, .msg-info {
+    display: block;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+.msg-error { background-color: #fdecea; color: var(--rojo-oscuro); border: 1px solid #f3c4bd; }
+.msg-info { background-color: var(--verde-bg); color: var(--verde); border: 1px solid #b9e6cb; }

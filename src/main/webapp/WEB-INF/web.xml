@@ -1,24 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
-   version="6.0">
+<web-app version="6.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
     <session-config>
         <session-timeout>
             30
         </session-timeout>
     </session-config>
-     <servlet>
-        <servlet-name>jakarta server faces</servlet-name>
+    <!-- Facelets: recargar el .xhtml en cada request (solo para desarrollo) -->
+    <context-param>
+        <param-name>jakarta.faces.FACELETS_REFRESH_PERIOD</param-name>
+        <param-value>0</param-value>
+    </context-param>
+    <!-- 1. Definición de FacesServlet -->
+    <context-param>
+        <param-name>jakarta.faces.CONFIG_FILES</param-name>
+        <param-value>/WEB-INF/jsf-config.xml</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Jakarta Server Faces</servlet-name>
         <servlet-class>jakarta.faces.webapp.FacesServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <!-- 2. Mapeo del Servlet (Extensiones comunes) -->
     <servlet-mapping>
-        <servlet-name>jakarta server faces</servlet-name>
+        <servlet-name>Jakarta Server Faces</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
-    <context-param>
-        <param-name>jakarta.faces.PROJECT_STAGE</param-name>
-        <param-value>Development</param-value>
-    </context-param>
+    <servlet-mapping>
+        <servlet-name>Jakarta Server Faces</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
 </web-app>
