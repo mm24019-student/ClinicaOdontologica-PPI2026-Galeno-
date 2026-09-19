@@ -4,22 +4,23 @@
       xmlns:h="jakarta.faces.html"
       xmlns:cc="jakarta.faces.composite"
       xmlns:p="primefaces">
-    
-      <cc:interface>
+
+    <cc:interface>
         <cc:attribute name="modelo" required="true"/>
+        <cc:attribute name="formulario" default="TipoExamen"/>
     </cc:interface>
 
     <cc:implementation>
         <p:panelGrid columns="3">
             <p:commandButton value="#{msg['crud.boton.crear']}" actionListener="#{cc.attrs.modelo.btnCrearhandler}"
                              rendered="#{cc.attrs.modelo.estado=='CREAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
+                             update=":frmTabla :mensajes :#{cc.attrs.formulario}"/>
             <p:commandButton value="#{msg['crud.boton.actualizar']}" actionListener="#{cc.attrs.modelo.btnModificarHandler}"
                              rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
+                             update=":frmTabla :mensajes :#{cc.attrs.formulario}"/>
             <p:commandButton value="#{msg['crud.boton.eliminar']}" actionListener="#{cc.attrs.modelo.btnEliminarHandler}"
                              rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
+                             update=":frmTabla :mensajes :#{cc.attrs.formulario}"/>
         </p:panelGrid>
     </cc:implementation>
 </html>
