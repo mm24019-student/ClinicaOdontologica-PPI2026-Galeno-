@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -15,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -42,10 +39,12 @@ public class Persona implements Serializable {
     @NotNull
     @Column(name = "id_persona")
     private UUID idPersona;
-    @Size(max = 255)
+    @Size(min = 3, max = 255)
+    @NotBlank
     @Column(name = "nombres")
     private String nombres;
-    @Size(max = 255)
+    @Size(min = 3, max = 255)
+    @NotBlank
     @Column(name = "apellidos")
     private String apellidos;
     @Column(name = "fecha_nacimiento")
@@ -156,5 +155,5 @@ public class Persona implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.Persona[ idPersona=" + idPersona + " ]";
     }
-    
+
 }

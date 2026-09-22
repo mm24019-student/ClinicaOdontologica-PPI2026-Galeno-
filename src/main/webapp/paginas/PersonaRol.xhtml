@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Página CRUD de PersonaRol: asigna un Rol a una Persona dentro de una Clínica -->
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Persona - Rol</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{personaRolModel}" var="r" id="tblPersonaRol"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idPersonaRol}"
+                             rendered="#{personaRolModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{personaRolModel.onRowSelect}"
+                            update=":frmTabla :PersonaRol :mensajes" resetValues="true"/>
+                    <p:column headerText="Persona">
+                        <p:outputLabel value="#{r.idPersona.nombres} #{r.idPersona.apellidos}"/>
+                    </p:column>
+                    <p:column headerText="Rol">
+                        <p:outputLabel value="#{r.idRol.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Clínica">
+                        <p:outputLabel value="#{r.idClinica.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Fecha de Creación">
+                        <h:outputText value="#{r.fechaCreacion}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+                                 actionListener="#{personaRolModel.btnNuevoHandler}"
+                                 update=":frmTabla :PersonaRol :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{personaRolModel.btnCancelar}"
+                                 update=":frmTabla :PersonaRol :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Persona - Rol</h2>
+            <h:form id="PersonaRol" styleClass="form-persona-rol">
+                <p:panelGrid columns="2" style="width:100%" rendered="#{personaRolModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{personaRolModel.registro.idPersonaRol}"/>
+
+                    <p:outputLabel value="Persona" for="cmbPersona"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{personaRolModel.idPersonaSeleccionada}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{personaRolModel.personas}" var="p"
+                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
+                        <p:ajax event="change" listener="#{personaRolModel.onPersonaChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Rol" for="cmbRol"/>
+                    <p:selectOneMenu id="cmbRol" style="width:100%" value="#{personaRolModel.idRolSeleccionado}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{personaRolModel.roles}" var="rl"
+                                       itemLabel="#{rl.nombre}" itemValue="#{rl.idRol.toString()}"/>
+                        <p:ajax event="change" listener="#{personaRolModel.onRolChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Clínica" for="cmbClinica"/>
+                    <p:selectOneMenu id="cmbClinica" style="width:100%" value="#{personaRolModel.idClinicaSeleccionada}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{personaRolModel.clinicas}" var="cl"
+                                       itemLabel="#{cl.nombre}" itemValue="#{cl.idClinica.toString()}"/>
+                        <p:ajax event="change" listener="#{personaRolModel.onClinicaChange}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid>
+                <g:botones_top modelo="#{personaRolModel}" formId="PersonaRol"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
