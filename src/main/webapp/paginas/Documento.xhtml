@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Página CRUD de Documento -->
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Documento</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{documentoModel}" var="r" id="tblDocumento"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idDocumento}"
+                             rendered="#{documentoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{documentoModel.onRowSelect}"
+                            update=":frmTabla :Documento :mensajes" resetValues="true"/>
+                    <p:column headerText="Persona">
+                        <p:outputLabel value="#{r.idPersona.nombres} #{r.idPersona.apellidos}"/>
+                    </p:column>
+                    <p:column headerText="Tipo">
+                        <p:outputLabel value="#{r.idTipoDocumento.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Valor">
+                        <p:outputLabel value="#{r.valor}"/>
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+                                 actionListener="#{documentoModel.btnNuevoHandler}"
+                                 update=":frmTabla :Documento :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{documentoModel.btnCancelar}"
+                                 update=":frmTabla :Documento :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Documento</h2>
+            <h:form id="Documento" styleClass="form-documento">
+                <p:panelGrid columns="2" style="width:100%" rendered="#{documentoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{documentoModel.registro.idDocumento}"/>
+
+                    <p:outputLabel value="Persona" for="cmbPersona"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{documentoModel.idPersonaSeleccionada}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{documentoModel.personas}" var="p"
+                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
+                        <p:ajax event="change" listener="#{documentoModel.onPersonaChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Tipo de Documento" for="cmbTipo"/>
+                    <p:selectOneMenu id="cmbTipo" style="width:100%" value="#{documentoModel.idTipoDocumentoSeleccionado}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{documentoModel.tiposDocumento}" var="t"
+                                       itemLabel="#{t.nombre}" itemValue="#{t.idTipoDocumento.toString()}"/>
+                        <p:ajax event="change" listener="#{documentoModel.onTipoDocumentoChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="txtValor" value="Valor"/>
+                    <p:inputText id="txtValor" style="width:100%" value="#{documentoModel.registro.valor}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{documentoModel}" formId="Documento"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

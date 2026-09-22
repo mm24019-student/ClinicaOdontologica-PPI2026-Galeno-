@@ -13,6 +13,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -40,12 +41,15 @@ public class TipoMedioContacto implements Serializable {
     @Column(name = "id_tipo_medio_contacto")
     private UUID idTipoMedioContacto;
     @Size(max = 155)
+    @NotBlank
     @Column(name = "nombre")
     private String nombre;
-    @Size(max = 2147483647)
+    @Size(min=3, max=250)
+    @NotBlank
     @Column(name = "indicaciones")
     private String indicaciones;
-    @Size(max = 2147483647)
+    @Size(min=3, max=250)
+    @NotBlank
     @Column(name = "expresion_regular")
     private String expresionRegular;
     @Column(name = "activo")
