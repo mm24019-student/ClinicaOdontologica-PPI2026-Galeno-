@@ -12,7 +12,7 @@
 
     <cc:implementation>
         <p:panelGrid columns="3">
-            <p:commandButton value="#{msg['crud.boton.crear']}" actionListener="#{cc.attrs.modelo.btnCrearhandler}"
+            <p:commandButton value="#{msg['crud.boton.crear']}" actionListener="#{cc.attrs.modelo.btnCrearhandler}" resetValues="true"
                              rendered="#{cc.attrs.modelo.estado=='CREAR'}"
                              update=":frmTabla :mensajes :#{cc.attrs.formulario}"/>
             <p:commandButton value="#{msg['crud.boton.actualizar']}" actionListener="#{cc.attrs.modelo.btnModificarHandler}"

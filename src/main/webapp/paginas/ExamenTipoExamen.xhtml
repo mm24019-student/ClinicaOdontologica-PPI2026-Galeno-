@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Examen por Tipo de Examen</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{examenTipoExamenModel}" var="r" id="tblExamenTipoExamen"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idExamenTipoExamen}"
+                             rendered="#{examenTipoExamenModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{examenTipoExamenModel.onRowSelect}"
+                            update=":frmTabla :ExamenTipoExamen :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idExamenTipoExamen}"/>
+                    </p:column>
+                    <p:column headerText="Examen">
+                        <p:outputLabel value="#{r.idExamen.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Tipo de examen">
+                        <p:outputLabel value="#{r.idTipoExamen.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Fecha de creación">
+                        <h:outputText value="#{r.fechaCreacion}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Observaciones">
+                        <p:outputLabel value="#{r.observaciones}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{examenTipoExamenModel.btnNuevoHandler}"
+                                 update=":frmTabla :ExamenTipoExamen :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{examenTipoExamenModel.btnCancelar()}"
+                                 update=":frmTabla :ExamenTipoExamen :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Examen por Tipo de Examen</h2>
+            <h:form id="ExamenTipoExamen" styleClass="form-examen-tipo-examen">
+                <p:panelGrid columns="2" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" size="70" value="#{examenTipoExamenModel.registro.idExamenTipoExamen}"/>
+
+                    <p:outputLabel value="Examen *" for="selExamen"/>
+                    <p:selectOneMenu id="selExamen" value="#{examenTipoExamenModel.registro.idExamen}"
+                                     converter="#{examenConverter}">
+                        <p:ajax event="change" update="txtDescExamen"/>
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{examenTipoExamenModel.examenes}" var="e"
+                                       itemValue="#{e}" itemLabel="#{e.nombre}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Descripción del examen"/>
+                    <h:outputText id="txtDescExamen" value="#{examenTipoExamenModel.registro.idExamen.observaciones}"/>
+
+                    <p:outputLabel value="Tipo de examen *" for="selTipo"/>
+                    <p:selectOneMenu id="selTipo" value="#{examenTipoExamenModel.registro.idTipoExamen}"
+                                     converter="#{tipoExamenConverter}">
+                        <p:ajax event="change" update="txtDescTipo"/>
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{examenTipoExamenModel.tiposExamen}" var="t"
+                                       itemValue="#{t}" itemLabel="#{t.nombre}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Descripción del tipo"/>
+                    <h:outputText id="txtDescTipo" value="#{examenTipoExamenModel.registro.idTipoExamen.observaciones}"/>
+
+                    <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                    <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                  value="#{examenTipoExamenModel.registro.fechaCreacion}"/>
+
+                    <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{examenTipoExamenModel.registro.observaciones}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{examenTipoExamenModel}" formulario="ExamenTipoExamen"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
