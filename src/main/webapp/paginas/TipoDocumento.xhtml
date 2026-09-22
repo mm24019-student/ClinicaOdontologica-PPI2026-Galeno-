@@ -1,0 +1,92 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Página CRUD de Tipo de Documento. Hereda cabecera/menú/pie de general.xhtml -->
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Tipo Documento</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+
+        <!-- ===== Tabla con todos los registros ===== -->
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <!-- Solo visible cuando no se está creando ni editando -->
+                <p:dataTable value="#{tipoDocumentoModel}" var="r" id="tblTipoDocumento"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idTipoDocumento}"
+                             rendered="#{tipoDocumentoModel.estado=='NINGUNO'}">
+                    <!--
+                        Al seleccionar una fila, carga ese registro en el
+                        formulario de abajo. resetValues="true" evita que
+                        queden pegados valores viejos de un registro anterior.
+                    -->
+                    <p:ajax event="rowSelect" listener="#{tipoDocumentoModel.onRowSelect}"
+                            update=":frmTabla :TipoDocumento :mensajes" resetValues="true"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idTipoDocumento}" />
+                    </p:column>
+                    <p:column headerText="Nombre">
+                        <p:outputLabel value="#{r.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Indicaciones">
+                        <p:outputLabel value="#{r.indicaciones}"/>
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
+                    </p:column>
+                </p:dataTable>
+
+                <!-- Pasa a modo "creación" -->
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+                                 actionListener="#{tipoDocumentoModel.btnNuevoHandler}"
+                                 update=":frmTabla :TipoDocumento :mensajes"/>
+                <!-- Vuelve al estado NINGUNO (muestra la tabla de nuevo) -->
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{tipoDocumentoModel.btnCancelar}"
+                                 update=":frmTabla :TipoDocumento :mensajes"/>
+            </h:form>
+        </div>
+
+        <!-- Mensajes de éxito/error del CRUD -->
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <!-- ===== Formulario de alta/edición ===== -->
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento Tipo de Documento</h2>
+            <!--
+                El id de este form ("TipoDocumento") debe coincidir con el
+                formId que le pasamos a g:botones_top más abajo, para que
+                sepa qué formulario refrescar al presionar sus botones.
+            -->
+            <h:form id="TipoDocumento" styleClass="form-tipo-documento">
+                <!-- Solo se ve mientras se está creando o editando -->
+                <p:panelGrid columns="2"  rendered="#{tipoDocumentoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{tipoDocumentoModel.registro.idTipoDocumento}"/>
+                    <p:outputLabel value="Nombre" for="txtNombre"/>
+                    <p:inputText id="txtNombre" style="width:100%" value="#{tipoDocumentoModel.registro.nombre}"/>
+                    <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
+                    <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" value="#{tipoDocumentoModel.registro.indicaciones}"/>
+                    <p:outputLabel for="txtExpresionRegular" value="Expresión Regular"/>
+                    <p:inputText id="txtExpresionRegular" style="width:100%" value="#{tipoDocumentoModel.registro.expresionRegular}"/>
+                    <p:outputLabel for="chkActivo" value="Activo"/>
+                    <p:selectBooleanCheckbox id="chkActivo" value="#{tipoDocumentoModel.registro.activo}"/>
+                </p:panelGrid>
+                <!-- Los 3 botones (Crear/Actualizar/Eliminar) según el estado actual -->
+                <g:botones_top modelo="#{tipoDocumentoModel}" formId="TipoDocumento"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

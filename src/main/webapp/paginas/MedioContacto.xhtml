@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- Página CRUD de MedioContacto -->
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Medio de Contacto</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{medioContactoModel}" var="r" id="tblMedioContacto"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idMedioContacto}"
+                             rendered="#{medioContactoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{medioContactoModel.onRowSelect}"
+                            update=":frmTabla :MedioContacto :mensajes" resetValues="true"/>
+                    <p:column headerText="Persona">
+                        <p:outputLabel value="#{r.idPersona.nombres} #{r.idPersona.apellidos}"/>
+                    </p:column>
+                    <p:column headerText="Tipo">
+                        <p:outputLabel value="#{r.idTipoMedioContacto.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Valor">
+                        <p:outputLabel value="#{r.valor}"/>
+                    </p:column>
+                    <p:column headerText="Fecha de Creación">
+                        <h:outputText value="#{r.fechaCreacion}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+                                 actionListener="#{medioContactoModel.btnNuevoHandler}"
+                                 update=":frmTabla :MedioContacto :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{medioContactoModel.btnCancelar}"
+                                 update=":frmTabla :MedioContacto :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Medio de Contacto</h2>
+            <h:form id="MedioContacto" styleClass="form-medio-contacto">
+                <p:panelGrid columns="2" style="width:100%" rendered="#{medioContactoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{medioContactoModel.registro.idMedioContacto}"/>
+
+                    <p:outputLabel value="Persona" for="cmbPersona"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{medioContactoModel.idPersonaSeleccionada}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{medioContactoModel.personas}" var="p"
+                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
+                        <p:ajax event="change" listener="#{medioContactoModel.onPersonaChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Tipo de Medio de Contacto" for="cmbTipo"/>
+                    <p:selectOneMenu id="cmbTipo" style="width:100%" value="#{medioContactoModel.idTipoMedioContactoSeleccionado}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{medioContactoModel.tiposMedioContacto}" var="t"
+                                       itemLabel="#{t.nombre}" itemValue="#{t.idTipoMedioContacto.toString()}"/>
+                        <p:ajax event="change" listener="#{medioContactoModel.onTipoMedioContactoChange}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="txtValor" value="Valor"/>
+                    <p:inputText id="txtValor" style="width:100%" value="#{medioContactoModel.registro.valor}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{medioContactoModel}" formId="MedioContacto"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
