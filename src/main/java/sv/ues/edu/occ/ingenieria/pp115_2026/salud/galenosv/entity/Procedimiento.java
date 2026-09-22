@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -13,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -26,10 +23,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "procedimiento", schema = "public")
 @NamedQueries({
-    @NamedQuery(name = "Procedimiento.findAll", query = "SELECT p FROM Procedimiento p"),
-    @NamedQuery(name = "Procedimiento.findByNombre", query = "SELECT p FROM Procedimiento p WHERE p.nombre = :nombre"),
-    @NamedQuery(name = "Procedimiento.findByActivo", query = "SELECT p FROM Procedimiento p WHERE p.activo = :activo"),
-    @NamedQuery(name = "Procedimiento.findByObservaciones", query = "SELECT p FROM Procedimiento p WHERE p.observaciones = :observaciones")})
+        @NamedQuery(name = "Procedimiento.findAll", query = "SELECT p FROM Procedimiento p"),
+        @NamedQuery(name = "Procedimiento.findByNombre", query = "SELECT p FROM Procedimiento p WHERE p.nombre = :nombre"),
+        @NamedQuery(name = "Procedimiento.findByActivo", query = "SELECT p FROM Procedimiento p WHERE p.activo = :activo"),
+        @NamedQuery(name = "Procedimiento.findByObservaciones", query = "SELECT p FROM Procedimiento p WHERE p.observaciones = :observaciones") })
 public class Procedimiento implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -38,8 +35,9 @@ public class Procedimiento implements Serializable {
     @NotNull
     @Column(name = "id_procedimiento")
     private UUID idProcedimiento;
-    @Size(max = 155)
+    @Size(min = 5, max = 156, message = "El nombre debe tener entre 5 y 156 caracteres")
     @Column(name = "nombre")
+    @NotBlank(message = "El nombre del procedimiento es obligatorio")
     private String nombre;
     @Column(name = "activo")
     private Boolean activo;
@@ -110,7 +108,8 @@ public class Procedimiento implements Serializable {
             return false;
         }
         Procedimiento other = (Procedimiento) object;
-        if ((this.idProcedimiento == null && other.idProcedimiento != null) || (this.idProcedimiento != null && !this.idProcedimiento.equals(other.idProcedimiento))) {
+        if ((this.idProcedimiento == null && other.idProcedimiento != null)
+                || (this.idProcedimiento != null && !this.idProcedimiento.equals(other.idProcedimiento))) {
             return false;
         }
         return true;
@@ -118,7 +117,8 @@ public class Procedimiento implements Serializable {
 
     @Override
     public String toString() {
-        return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.Procedimiento[ idProcedimiento=" + idProcedimiento + " ]";
+        return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.Procedimiento[ idProcedimiento="
+                + idProcedimiento + " ]";
     }
-    
+
 }

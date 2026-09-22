@@ -4,8 +4,7 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.io.Serializable;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 
 /**
  *
@@ -13,15 +12,16 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
  */
 @Stateless
 @LocalBean
-public class TipoDocumentoDAO extends DefaultDAO<TipoDocumento> implements Serializable {
+public class ProcedimientoPasoDAO extends DefaultDAO<ProcedimientoPaso>{
 
+    // Inyectamos el EntityManager, que es la conexión con la base de datos.
     @PersistenceContext(unitName = "Galeno-PU")
-    EntityManager em;
+    private EntityManager em;
 
+    // Entrega la conexión a DefaultDAO para que realice las operaciones.
     @Override
     public EntityManager getEntityManager() {
 
         return em;
     }
-
 }

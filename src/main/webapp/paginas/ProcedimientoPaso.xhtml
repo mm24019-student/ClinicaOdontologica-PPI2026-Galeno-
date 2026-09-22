@@ -1,0 +1,74 @@
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Paso de Procedimiento</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{procedimientoPasoModel}" var="r" id="tblProcedimientoPaso"
+                             paginator="true" rows="4" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idProcedimientoPaso}"
+                             rendered="#{procedimientoPasoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{procedimientoPasoModel.onRowSelect}"
+                            update=":frmTabla :ProcedimientoPaso :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idProcedimientoPaso}" />
+                    </p:column>
+                    <p:column headerText="Nombre">
+                        <p:outputLabel value="#{r.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Procedimiento">
+                        <p:outputLabel value="#{r.idProcedimiento.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Rol">
+                        <p:outputLabel value="#{r.idRol.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Fin">
+                        <p:outputLabel value="#{r.indicaFin ? 'SÍ' : 'NO'}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" actionListener="#{procedimientoPasoModel.btnNuevoHandler}"
+                                 update=":frmTabla :ProcedimientoPaso :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" actionListener="#{procedimientoPasoModel.btnCancelar()}"
+                                 update=":frmTabla :ProcedimientoPaso :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true" closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Paso Procedimiento</h2>
+            <h:form id="ProcedimientoPaso" styleClass="form-procedimiento-paso">
+                <p:panelGrid columns="2" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" size="70" value="#{procedimientoPasoModel.registro.idProcedimientoPaso}"/>
+                    <p:outputLabel value="Nombre" for="txtNombre"/>
+                    <p:inputText id="txtNombre" size="70" value="#{procedimientoPasoModel.registro.nombre}"/>
+                    <p:outputLabel value="Procedimiento" for="cmbProcedimiento"/>
+                    <p:selectOneMenu id="cmbProcedimiento" converter="procedimientoConverter" value="#{procedimientoPasoModel.registro.idProcedimiento}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{procedimientoPasoModel.procedimientos}" var="pr" itemValue="#{pr}" itemLabel="#{pr.nombre}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Rol" for="cmbRol"/>
+                    <p:selectOneMenu id="cmbRol" converter="rolConverter" value="#{procedimientoPasoModel.registro.idRol}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{procedimientoPasoModel.roles}" var="ro" itemValue="#{ro}" itemLabel="#{ro.nombre}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Indica fin" for="chkFin"/>
+                    <p:selectBooleanCheckbox id="chkFin" value="#{procedimientoPasoModel.registro.indicaFin}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{procedimientoPasoModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -18,6 +14,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
@@ -50,6 +47,8 @@ public class Consulta implements Serializable {
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaFin;
+    @Pattern(regexp = "^([A-Za-z0-9][A-Za-z0-9._/-]{0,49})?$",
+        message = "La referencia externa debe empezar con letra o número y solo puede llevar letras, números, punto, guion, guion bajo y diagonal (máximo 50 caracteres)")
     @Size(max = 2147483647)
     @Column(name = "referencia_externa")
     private String referenciaExterna;

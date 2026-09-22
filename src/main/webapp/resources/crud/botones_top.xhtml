@@ -1,25 +1,32 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:cc="jakarta.faces.composite"
-      xmlns:p="primefaces">
-    
-      <cc:interface>
-        <cc:attribute name="modelo" required="true"/>
-    </cc:interface>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:cc="jakarta.faces.composite" xmlns:p="primefaces">
 
-    <cc:implementation>
-        <p:panelGrid columns="3">
-            <p:commandButton value="#{msg['crud.boton.crear']}" actionListener="#{cc.attrs.modelo.btnCrearhandler}"
-                             rendered="#{cc.attrs.modelo.estado=='CREAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
-            <p:commandButton value="#{msg['crud.boton.actualizar']}" actionListener="#{cc.attrs.modelo.btnModificarHandler}"
-                             rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
-            <p:commandButton value="#{msg['crud.boton.eliminar']}" actionListener="#{cc.attrs.modelo.btnEliminarHandler}"
-                             rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}"
-                             update=":frmTabla :mensajes :TipoExamen"/>
-        </p:panelGrid>
-    </cc:implementation>
+<!--Componentes reutilizables para botones Crear, Actualizar y Eliminar  -->
+<cc:interface>
+    <!--Creamos componente modelo, required para decir que el componente recibe un valor obligatorio -->
+    <cc:attribute name="modelo" required="true" />
+    <!--default para decir que el componente puede o no recibir un valor,no es obligatrio en caso de no porposionar nada se usa frmTabla  -->
+    <cc:attribute name="tabla" default="frmTabla" />
+    <!--Igual que el anterio-->
+    <cc:attribute name="mensajes" default="mensajes" />
+</cc:interface>
+
+<cc:implementation>
+    <!--Value es el texto que se muestra en el boton , el extra que tiene crear resetValues es para limpiar los valores del formulario -->
+    <!--En actionListener le decimos a que metodo se debe llamar cuando se presiona el boton-->
+    <!--En rendered le decimos a que condiciones se debe mostrar el boton-->
+    <!--En update le decimos a que componentes se debe actualizar-->
+    <p:panelGrid columns="3">
+        <p:commandButton value="#{msg['crud.boton.crear']}" resetValues="true"
+            actionListener="#{cc.attrs.modelo.btnCrearhandler}" rendered="#{cc.attrs.modelo.estado=='CREAR'}"
+            update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
+        <p:commandButton value="#{msg['crud.boton.actualizar']}" actionListener="#{cc.attrs.modelo.btnModificarHandler}"
+            rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}" update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
+        <p:commandButton value="#{msg['crud.boton.eliminar']}" actionListener="#{cc.attrs.modelo.btnEliminarHandler}"
+            rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}" update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
+    </p:panelGrid>
+</cc:implementation>
+
 </html>

@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina"><h2>Procedimiento de Consulta</h2></ui:define>
+
+    <ui:define name="contenido">
+
+        <!-- 1) TABLA -->
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{consultaProcedimientoModel}" var="r" id="tblConsultaProcedimiento"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idConsultaProcedimiento}"
+                             rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{consultaProcedimientoModel.onRowSelect}"
+                            update=":frmTabla :ConsultaProcedimiento :mensajes"/>
+                    <p:column headerText="Consulta">
+                        <h:outputText value="#{consultaProcedimientoModel.etiquetaConsulta(r.idConsulta)}"/>
+                    </p:column>
+                    <p:column headerText="Procedimiento">
+                        <h:outputText value="#{consultaProcedimientoModel.nombreProcedimiento(r.idProcedimiento)}"/>
+                    </p:column>
+                    <p:column headerText="Inicio">
+                        <h:outputText value="#{r.fechaInicio}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Fin">
+                        <h:outputText value="#{r.fechaFin}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                 actionListener="#{consultaProcedimientoModel.btnNuevoHandler}"
+                                 update=":frmTabla :ConsultaProcedimiento :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{consultaProcedimientoModel.btnCancelar()}"
+                                 update=":frmTabla :ConsultaProcedimiento :mensajes"/>
+            </h:form>
+        </div>
+
+        <!-- 2) MENSAJES -->
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true" closable="true"/>
+        </div>
+
+        <!-- 3) FORMULARIO -->
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Procedimiento de Consulta</h2>
+            <h:form id="ConsultaProcedimiento">
+                <p:panelGrid columns="2" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}">
+
+                    <p:outputLabel value="Consulta" for="cmbConsulta"/>
+                    <p:selectOneMenu id="cmbConsulta" converter="consultaConverter"
+                                     required="true" requiredMessage="Seleccione la consulta"
+                                     value="#{consultaProcedimientoModel.registro.idConsulta}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{consultaProcedimientoModel.consultas}" var="c"
+                                       itemValue="#{c}"
+                                       itemLabel="#{consultaProcedimientoModel.etiquetaConsulta(c)}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Procedimiento" for="cmbProcedimiento"/>
+                    <p:selectOneMenu id="cmbProcedimiento"
+                                     required="true" requiredMessage="Seleccione el procedimiento"
+                                     value="#{consultaProcedimientoModel.registro.idProcedimiento}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{consultaProcedimientoModel.procedimientos}" var="pr"
+                                       itemValue="#{pr.idProcedimiento}" itemLabel="#{pr.nombre}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Fecha de inicio" for="dtInicio"/>
+                    <p:datePicker id="dtInicio" value="#{consultaProcedimientoModel.registro.fechaInicio}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Fecha de fin" for="dtFin"/>
+                    <p:datePicker id="dtFin" value="#{consultaProcedimientoModel.registro.fechaFin}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                    <p:inputTextarea id="txtObservaciones" rows="4" cols="60"
+                                     value="#{consultaProcedimientoModel.registro.observaciones}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{consultaProcedimientoModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

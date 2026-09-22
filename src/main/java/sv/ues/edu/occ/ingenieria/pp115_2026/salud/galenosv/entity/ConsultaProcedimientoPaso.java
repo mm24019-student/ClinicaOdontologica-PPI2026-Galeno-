@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -19,6 +15,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +35,7 @@ import java.util.UUID;
 public class ConsultaProcedimientoPaso implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    public static final String ESTADOS_VALIDOS_REGEX = "^(PENDIENTE|EN_PROCESO|COMPLETADO|CANCELADO)$";
     @Id
     @Basic(optional = false)
     @NotNull
@@ -49,6 +47,8 @@ public class ConsultaProcedimientoPaso implements Serializable {
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaFin;
+    @Pattern(regexp = ESTADOS_VALIDOS_REGEX,
+        message = "El estado debe ser PENDIENTE, EN_PROCESO, COMPLETADO o CANCELADO")
     @Size(max = 20)
     @Column(name = "estado")
     private String estado;

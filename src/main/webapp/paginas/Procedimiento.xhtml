@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Procedimiento</h2>
+    </ui:define>
+
+<!--Trozo de codigo de contenido de la pagina donde se muestra la tabla de procedimientos -->
+    <ui:define name="contenido">
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{procedimientoModel}" var="r" id="tblProcedimiento"
+                             paginator="true" rows="2" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idProcedimiento}"
+                             rendered="#{procedimientoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{procedimientoModel.onRowSelect}"
+                            update=":frmTabla :Procedimiento :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idProcedimiento}" />
+                    </p:column>
+                    <p:column headerText="Nombre">
+                        <p:outputLabel value="#{r.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
+                    </p:column>
+                    <p:column headerText="Observaciones">
+                        <p:outputLabel value="#{r.observaciones}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" actionListener="#{procedimientoModel.btnNuevoHandler}"
+                                 update=":frmTabla :Procedimiento :mensajes"/>
+                                 &nbsp;
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{procedimientoModel.btnCancelar()}"
+                                 update=":frmTabla :Procedimiento :mensajes"/>
+            </h:form>
+        </div>
+
+<!--Mensaje de confirmación -->
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+<!--Trozo de codigo que muestra el formulario de mantenimiento de procedimientos -->
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento Procedimiento</h2>
+            <h:form id="Procedimiento" styleClass="form-procedimiento">
+                <p:panelGrid columns="2" rendered="#{procedimientoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" size="70" value="#{procedimientoModel.registro.idProcedimiento}"/>
+                    <p:outputLabel value="Nombre" for="txtNombre"/>
+                    <p:inputText id="txtNombre" size="70" value="#{procedimientoModel.registro.nombre}"/>
+                    <p:outputLabel for="chkActivo" value="Activo"/>
+                    <p:selectBooleanCheckbox id="chkActivo" value="#{procedimientoModel.registro.activo}"/>
+                    <p:outputLabel for="txtObservaciones" value="Observaciones"/>
+                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoModel.registro.observaciones}"/>
+                </p:panelGrid>
+ <!--Botones de acción del formulario de mantenimiento -->
+                <g:botones_top modelo="#{procedimientoModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

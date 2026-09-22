@@ -13,19 +13,29 @@ import java.util.logging.Logger;
  *
  * @author antonio
  */
+//Clase abstracta DefaultDAO que implementa la interfaz InterfaceDAO y 
+//proporciona una implementación genérica de los métodos CRUD (crear, eliminar, actualizar, buscar y findRange) para entidades JPA.
 public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
     
+//Declaración de la constante serialVersionUID para la serialización de objetos
     private static final long serialVersionUID = 1L;
 
+
+//Declaración del método abstracto getEntityManager() que debe ser implementado por las subclases para proporcionar 
+//el EntityManager específico de la entidad.
     public abstract EntityManager getEntityManager();
 
     @SuppressWarnings("unchecked")
 
+//Declaración del método privado getEntityClass() que obtiene la clase de la entidad genérica T, 
+//para luego retornar la clase de la entidad genérica T utilizando reflexión. Este método se utiliza para obtener la clase de la entidad en tiempo de ejecución.
     private Class<T> getEntityClass() {
         ParameterizedType tipoParametrizado = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<T>) tipoParametrizado.getActualTypeArguments()[0];
     }
 
+//Implementación del método crear() para crear un registro en la base de datos. Verifica si el registro no es nulo,
+//si es válido, guarda el registro utilizando el EntityManager. Si ocurre algún error, se registra en el log y se lanza una excepción.
     @Override
     public void crear(T registro) throws IllegalArgumentException, IllegalStateException {
         if (registro != null) {
@@ -40,6 +50,8 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
         }
     }
 
+    //Implementación del método eliminar() para eliminar un registro de la base de datos. Verifica si el id no es nulo,
+    //busca el registro en la base de datos y lo elimina si existe. Si ocurre algún error, se registra en el log y se lanza una excepción.
     @Override
     public void eliminar(UUID id) throws IllegalArgumentException, IllegalStateException {
         if (id != null) {
@@ -61,6 +73,9 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
         }
     }
 
+//Implementación del método actualizar() para actualizar un registro en la base de datos. Verifica si el registro no es nulo,
+//si es válido, actualiza el registro utilizando el EntityManager. Si ocurre algún error,
+// se registra en el log y se lanza una excepción.
     @Override
     public T actualizar(T registro) throws IllegalArgumentException, IllegalStateException {
         if (registro != null) {
@@ -76,6 +91,9 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
 
     }
 
+//Implementación del método buscar() para buscar un registro en la base de datos por su id. Verifica si el id no es nulo,
+//si es válido, busca el registro utilizando el EntityManager. Si ocurre algún error,
+// se registra en el log y se lanza una excepción.
     @Override
     public T buscar(UUID id) throws IllegalArgumentException, IllegalStateException {
         if (id != null) {
@@ -94,6 +112,9 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
         return getEntityClass().getSimpleName() + ".findAll";
     }
 
+//Implementación del método findRange() para obtener un rango de registros de la base de datos. Verifica si los parámetros first y max son válidos,
+//si son válidos, crea una consulta utilizando el EntityManager y establece los resultados a partir de los parámetros first y max.
+//Si ocurre algún error, se registra en el log y se lanza una excepcion.
     @Override
     public List<T> findRange(int first, int max) throws IllegalArgumentException, IllegalStateException {
         if (first >= 0 && max > 0) {

@@ -137,6 +137,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     public void btnCancelar() {
         this.registro = null;
         this.estado = Estado_Crud.NINGUNO;
+       
     }
 
     public void btnCrearhandler(ActionEvent ae) {

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina"><h2>Paso de Procedimiento de Consulta</h2></ui:define>
+
+    <ui:define name="contenido">
+
+        <!-- 1) TABLA -->
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{consultaProcedimientoPasoModel}" var="r" id="tblConsultaProcedimientoPaso"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idConsultaProcedimientoPaso}"
+                             rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{consultaProcedimientoPasoModel.onRowSelect}"
+                            update=":frmTabla :ConsultaProcedimientoPaso :mensajes"/>
+                    <p:column headerText="Consulta / Procedimiento">
+                        <h:outputText value="#{consultaProcedimientoPasoModel.etiquetaConsultaProcedimiento(r.idConsultaProcedimiento)}"/>
+                    </p:column>
+                    <p:column headerText="Persona / Rol">
+                        <h:outputText value="#{consultaProcedimientoPasoModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
+                    </p:column>
+                    <p:column headerText="Inicio">
+                        <h:outputText value="#{r.fechaInicio}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Fin">
+                        <h:outputText value="#{r.fechaFin}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <h:outputText value="#{r.estado}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                 actionListener="#{consultaProcedimientoPasoModel.btnNuevoHandler}"
+                                 update=":frmTabla :ConsultaProcedimientoPaso :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{consultaProcedimientoPasoModel.btnCancelar()}"
+                                 update=":frmTabla :ConsultaProcedimientoPaso :mensajes"/>
+            </h:form>
+        </div>
+
+        <!-- 2) MENSAJES -->
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true" closable="true"/>
+        </div>
+
+        <!-- 3) FORMULARIO -->
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Paso de Consulta</h2>
+            <h:form id="ConsultaProcedimientoPaso">
+                <p:panelGrid columns="2" rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}">
+
+                    <p:outputLabel value="Consulta / Procedimiento" for="cmbConsultaProcedimiento"/>
+                    <p:selectOneMenu id="cmbConsultaProcedimiento" converter="consultaProcedimientoConverter"
+                                     required="true" requiredMessage="Seleccione el procedimiento de la consulta"
+                                     value="#{consultaProcedimientoPasoModel.registro.idConsultaProcedimiento}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{consultaProcedimientoPasoModel.consultasProcedimiento}" var="cp"
+                                       itemValue="#{cp}"
+                                       itemLabel="#{consultaProcedimientoPasoModel.etiquetaConsultaProcedimiento(cp)}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Persona / Rol" for="cmbPersonaRol"/>
+                    <p:selectOneMenu id="cmbPersonaRol" converter="personaRolConverter"
+                                     required="true" requiredMessage="Seleccione la persona y su rol"
+                                     value="#{consultaProcedimientoPasoModel.registro.idPersonaRol}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{consultaProcedimientoPasoModel.personasRol}" var="pr"
+                                       itemValue="#{pr}"
+                                       itemLabel="#{consultaProcedimientoPasoModel.etiquetaPersonaRol(pr)}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Fecha de inicio" for="dtInicio"/>
+                    <p:datePicker id="dtInicio" value="#{consultaProcedimientoPasoModel.registro.fechaInicio}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Fecha de fin" for="dtFin"/>
+                    <p:datePicker id="dtFin" value="#{consultaProcedimientoPasoModel.registro.fechaFin}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Estado" for="cmbEstado"/>
+                    <p:selectOneMenu id="cmbEstado" value="#{consultaProcedimientoPasoModel.registro.estado}">
+                        <f:selectItems value="#{consultaProcedimientoPasoModel.estados}"/>
+                    </p:selectOneMenu>
+                </p:panelGrid>
+                <g:botones_top modelo="#{consultaProcedimientoPasoModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

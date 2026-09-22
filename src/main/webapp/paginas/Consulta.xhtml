@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina"><h2>Consulta</h2></ui:define>
+
+    <ui:define name="contenido">
+
+        <!-- 1) TABLA: lista de consultas. Clic en una fila = editarla -->
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{consultaModel}" var="r" id="tblConsulta"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idConsulta}"
+                             rendered="#{consultaModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{consultaModel.onRowSelect}"
+                            update=":frmTabla :Consulta :mensajes"/>
+                    <p:column headerText="Inicio">
+                        <h:outputText value="#{r.fechaInicio}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Fin">
+                        <h:outputText value="#{r.fechaFin}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Referencia externa">
+                        <h:outputText value="#{r.referenciaExterna}"/>
+                    </p:column>
+                    <p:column headerText="Persona / Rol">
+                        <h:outputText value="#{consultaModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                 actionListener="#{consultaModel.btnNuevoHandler}"
+                                 update=":frmTabla :Consulta :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{consultaModel.btnCancelar()}"
+                                 update=":frmTabla :Consulta :mensajes"/>
+            </h:form>
+        </div>
+
+        <!-- 2) MENSAJES: avisos de éxito y de error -->
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true" closable="true"/>
+        </div>
+
+        <!-- 3) FORMULARIO: aparece al pulsar "Nuevo" o al elegir una fila -->
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Consulta</h2>
+            <h:form id="Consulta">
+                <p:panelGrid columns="2" rendered="#{consultaModel.estado!='NINGUNO'}">
+
+                    <p:outputLabel value="Fecha de inicio" for="dtInicio"/>
+                    <p:datePicker id="dtInicio" value="#{consultaModel.registro.fechaInicio}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Fecha de fin" for="dtFin"/>
+                    <p:datePicker id="dtFin" value="#{consultaModel.registro.fechaFin}"
+                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                    <p:outputLabel value="Referencia externa" for="txtReferencia"/>
+                    <p:inputText id="txtReferencia" size="40"
+                                 value="#{consultaModel.registro.referenciaExterna}"/>
+
+                    <p:outputLabel value="Persona / Rol" for="cmbPersonaRol"/>
+                    <p:selectOneMenu id="cmbPersonaRol" converter="personaRolConverter"
+                                     required="true" requiredMessage="Seleccione la persona y su rol"
+                                     value="#{consultaModel.registro.idPersonaRol}">
+                        <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                        <f:selectItems value="#{consultaModel.personasRol}" var="pr"
+                                       itemValue="#{pr}" itemLabel="#{consultaModel.etiquetaPersonaRol(pr)}"/>
+                    </p:selectOneMenu>
+                    <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                    <p:inputTextarea id="txtObservaciones" rows="4" cols="60"
+                                     value="#{consultaModel.registro.observaciones}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{consultaModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>

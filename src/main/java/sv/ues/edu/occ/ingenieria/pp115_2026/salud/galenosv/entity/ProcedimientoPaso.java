@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -15,6 +11,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -39,8 +36,11 @@ public class ProcedimientoPaso implements Serializable {
     @NotNull
     @Column(name = "id_procedimiento_paso")
     private UUID idProcedimientoPaso;
-    @Size(max = 155)
+    //Se valido de cuantos caracteres minimos y maximos se deben ingresar
+    @Size(min=5, max = 155)
     @Column(name = "nombre")
+    //Validar que no este vacio
+    @NotBlank
     private String nombre;
     @Column(name = "indica_fin")
     private Boolean indicaFin;
