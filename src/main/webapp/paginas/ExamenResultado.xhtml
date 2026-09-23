@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Resultado de Examen</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{examenResultadoModel}" var="r" id="tblExamenResultado"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idExamenResultado}"
+                             rendered="#{examenResultadoModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{examenResultadoModel.onRowSelect}"
+                            update=":frmTabla :ExamenResultado :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idExamenResultado}"/>
+                    </p:column>
+                    <p:column headerText="Fecha de creación">
+                        <h:outputText value="#{r.fechaCreacion}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Resultado">
+                        <p:outputLabel value="#{r.resultado}"/>
+                    </p:column>
+                    <p:column headerText="Interpretación">
+                        <p:outputLabel value="#{r.interpretacion}"/>
+                    </p:column>
+                    <p:column headerText="Orden de examen">
+                        <p:outputLabel value="#{r.idOrdenExamen.idOrdenExamen}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{examenResultadoModel.btnNuevoHandler}"
+                                 update=":frmTabla :ExamenResultado :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{examenResultadoModel.btnCancelar()}"
+                                 update=":frmTabla :ExamenResultado :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Resultado de Examen</h2>
+            <h:form id="ExamenResultado" styleClass="form-examen-resultado">
+                <p:panelGrid columns="2" rendered="#{examenResultadoModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" size="70" value="#{examenResultadoModel.registro.idExamenResultado}"/>
+
+                    <p:outputLabel value="Orden de examen" for="selOrden"/>
+                    <p:selectOneMenu id="selOrden" value="#{examenResultadoModel.registro.idOrdenExamen}"
+                                     converter="#{ordenExamenConverter}" required="true"
+                                     requiredMessage="Seleccione una orden de examen">
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{examenResultadoModel.ordenes}" var="o"
+                                       itemValue="#{o}" itemLabel="#{o.indicaciones} - #{o.idOrdenExamen}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                    <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                  value="#{examenResultadoModel.registro.fechaCreacion}"/>
+
+                    <p:outputLabel value="Resultado" for="txtResultado"/>
+                    <p:inputTextarea id="txtResultado" rows="3" cols="70" value="#{examenResultadoModel.registro.resultado}"/>
+
+                    <p:outputLabel value="Interpretación" for="txtInterpretacion"/>
+                    <p:inputTextarea id="txtInterpretacion" rows="3" cols="70" value="#{examenResultadoModel.registro.interpretacion}"/>
+
+                    <p:outputLabel value="Ruta del atestado" for="txtRuta"/>
+                    <p:inputText id="txtRuta" size="70" value="#{examenResultadoModel.registro.rutaAtestado}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{examenResultadoModel}" formulario="ExamenResultado"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

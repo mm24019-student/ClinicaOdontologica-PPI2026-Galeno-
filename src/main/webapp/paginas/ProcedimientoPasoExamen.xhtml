@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition template="/WEB-INF/general.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Examen por Paso de Procedimiento</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{procedimientoPasoExamenModel}" var="r" id="tblProcedimientoPasoExamen"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idProcedimientoPasoExamen}"
+                             rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{procedimientoPasoExamenModel.onRowSelect}"
+                            update=":frmTabla :ProcedimientoPasoExamen :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idProcedimientoPasoExamen}"/>
+                    </p:column>
+                    <p:column headerText="Examen">
+                        <p:outputLabel value="#{r.idExamen.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
+                    </p:column>
+                    <p:column headerText="Fecha de creación">
+                        <h:outputText value="#{r.fechaCreacion}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Observaciones">
+                        <p:outputLabel value="#{r.observaciones}"/>
+                    </p:column>
+                </p:dataTable>
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{procedimientoPasoExamenModel.btnNuevoHandler}"
+                                 update=":frmTabla :ProcedimientoPasoExamen :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{procedimientoPasoExamenModel.btnCancelar()}"
+                                 update=":frmTabla :ProcedimientoPasoExamen :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Examen por Paso de Procedimiento</h2>
+            <h:form id="ProcedimientoPasoExamen" styleClass="form-procedimiento-paso-examen">
+                <p:panelGrid columns="2" rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" size="70" value="#{procedimientoPasoExamenModel.registro.idProcedimientoPasoExamen}"/>
+
+                    <p:outputLabel value="Examen *" for="selExamen"/>
+                    <p:selectOneMenu id="selExamen" value="#{procedimientoPasoExamenModel.registro.idExamen}"
+                                     converter="#{examenConverter}">
+                        <p:ajax event="change" update="txtDescExamen"/>
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{procedimientoPasoExamenModel.examenes}" var="e"
+                                       itemValue="#{e}" itemLabel="#{e.nombre}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Descripción del examen"/>
+                    <h:outputText id="txtDescExamen" value="#{procedimientoPasoExamenModel.registro.idExamen.observaciones}"/>
+
+                    <p:outputLabel for="chkActivo" value="Activo"/>
+                    <p:selectBooleanCheckbox id="chkActivo" value="#{procedimientoPasoExamenModel.registro.activo}"/>
+
+                    <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                    <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                  value="#{procedimientoPasoExamenModel.registro.fechaCreacion}"/>
+
+                    <p:outputLabel value="Observaciones" for="txtObservaciones"/>
+                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{procedimientoPasoExamenModel}" formulario="ProcedimientoPasoExamen"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>
