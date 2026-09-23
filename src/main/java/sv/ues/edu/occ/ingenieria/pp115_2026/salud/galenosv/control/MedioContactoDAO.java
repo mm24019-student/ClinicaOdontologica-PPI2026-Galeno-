@@ -17,7 +17,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
  */
 @Stateless
 @LocalBean
-public class MedioContactoDAO extends DefaultDAO<MedioContacto> implements Serializable {
+public class MedioContactoDAO extends DefaultDAO<MedioContacto> {
 
     @PersistenceContext(unitName = "Galeno-PU")
     EntityManager em;

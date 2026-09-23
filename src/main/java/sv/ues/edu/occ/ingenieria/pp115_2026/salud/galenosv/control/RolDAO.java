@@ -4,7 +4,6 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import java.io.Serializable;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
@@ -15,7 +14,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  */
 @Stateless
 @LocalBean
-public class RolDAO extends DefaultDAO<Rol> implements Serializable {
+public class RolDAO extends DefaultDAO<Rol>{
 
     @PersistenceContext(unitName = "Galeno-PU")
     EntityManager em;

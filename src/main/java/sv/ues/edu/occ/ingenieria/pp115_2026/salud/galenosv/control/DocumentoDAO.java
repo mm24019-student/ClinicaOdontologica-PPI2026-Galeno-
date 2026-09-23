@@ -5,7 +5,6 @@ import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
@@ -17,7 +16,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
  */
 @Stateless
 @LocalBean
-public class DocumentoDAO extends DefaultDAO<Documento> implements Serializable {
+public class DocumentoDAO extends DefaultDAO<Documento>{
 
     @PersistenceContext(unitName = "Galeno-PU")
     EntityManager em;
