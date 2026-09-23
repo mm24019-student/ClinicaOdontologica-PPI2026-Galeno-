@@ -24,6 +24,9 @@
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idOrdenExamen}" />
                     </p:column>
+                    <p:column headerText="Consulta (estado)">
+                        <p:outputLabel value="#{r.idConsultaProcedimientoPaso.estado}"/>
+                    </p:column>
                     <p:column headerText="Fecha de creación">
                         <h:outputText value="#{r.fechaCreacion}">
                             <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
@@ -51,13 +54,30 @@
                 <p:panelGrid columns="2" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
                     <p:outputLabel value="ID" for="txtId"/>
                     <p:inputText id="txtId" size="70" value="#{ordenExamenModel.registro.idOrdenExamen}"/>
+
+                    <p:outputLabel value="Consulta (paso) *" for="selConsulta"/>
+                    <p:selectOneMenu id="selConsulta" value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
+                                     converter="#{consultaProcedimientoPasoConverter}">
+                        <p:ajax event="change" update="txtDescConsulta"/>
+                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                        <f:selectItems value="#{ordenExamenModel.pasosConsulta}" var="c"
+                                       itemValue="#{c}" itemLabel="#{c.estado} - #{c.idConsultaProcedimientoPaso}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel value="Detalle de la consulta"/>
+                    <h:panelGroup id="txtDescConsulta">
+                        <h:outputText value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso.fechaInicio}" rendered="#{ordenExamenModel.registro.idConsultaProcedimientoPaso != null}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                        </h:outputText>
+                    </h:panelGroup>
+
                     <p:outputLabel value="Fecha de creación" for="calFecha"/>
                     <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
                                   value="#{ordenExamenModel.registro.fechaCreacion}"/>
+
                     <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
                     <p:inputTextarea id="txtIndicaciones" rows="3" cols="70" value="#{ordenExamenModel.registro.indicaciones}"/>
                 </p:panelGrid>
-                <g:botones_top modelo="#{ordenExamenModel}"/>
             </h:form>
         </div>
     </ui:define>
