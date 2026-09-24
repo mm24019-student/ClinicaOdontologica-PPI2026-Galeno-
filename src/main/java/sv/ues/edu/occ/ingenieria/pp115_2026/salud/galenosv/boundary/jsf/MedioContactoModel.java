@@ -1,22 +1,21 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
-/**
- * @author oscar
- */
 @Named
 @ViewScoped
 public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
@@ -24,17 +23,13 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
     @Inject
     private MedioContactoDAO medioContactoDAO;
 
+    @Inject
+    private PersonaDAO personaDAO;
+    @Inject
+    private TipoMedioContactoDAO tipoMedioContactoDAO;
+
     private List<Persona> personas;
     private List<TipoMedioContacto> tiposMedioContacto;
-
-    private String idPersonaSeleccionada;
-    private String idTipoMedioContactoSeleccionado;
-
-    @PostConstruct
-    public void cargarCombos() {
-        this.personas = medioContactoDAO.listarPersonas();
-        this.tiposMedioContacto = medioContactoDAO.listarTiposMedioContacto();
-    }
 
     @Override
     protected InterfaceDAO<MedioContacto> getDAO() {
@@ -49,54 +44,52 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
     }
 
     @Override
-    protected void configurarNuevoRegistro(MedioContacto nuevoRegistro) {
-        this.idPersonaSeleccionada = null;
-        this.idTipoMedioContactoSeleccionado = null;
-    }
-
-    @Override
-    public void onRowSelect(SelectEvent<MedioContacto> event) {
-        super.onRowSelect(event);
-        this.idPersonaSeleccionada = (registro.getIdPersona() != null) ? registro.getIdPersona().getIdPersona().toString() : null;
-        this.idTipoMedioContactoSeleccionado = (registro.getIdTipoMedioContacto() != null) ? registro.getIdTipoMedioContacto().getIdTipoMedioContacto().toString() : null;
-    }
-
-    @Override
     protected UUID obtenerId(MedioContacto registro) {
         return registro.getIdMedioContacto();
     }
 
-    public void onPersonaChange() {
-        UUID id = (idPersonaSeleccionada != null && !idPersonaSeleccionada.isBlank()) ? UUID.fromString(idPersonaSeleccionada) : null;
-        registro.setIdPersona(medioContactoDAO.buscarPersona(id));
+    @Override
+    public void btnCrearhandler(ActionEvent ae) {
+        if (relacionesCompletas()) {
+            super.btnCrearhandler(ae);
+        }
     }
 
-    public void onTipoMedioContactoChange() {
-        UUID id = (idTipoMedioContactoSeleccionado != null && !idTipoMedioContactoSeleccionado.isBlank()) ? UUID.fromString(idTipoMedioContactoSeleccionado) : null;
-        registro.setIdTipoMedioContacto(medioContactoDAO.buscarTipoMedioContacto(id));
+    @Override
+    public void btnModificarHandler() {
+        if (relacionesCompletas()) {
+            super.btnModificarHandler();
+        }
+    }
+
+    private boolean relacionesCompletas() {
+        if (registro == null) {
+            return true;
+        }
+        if (registro.getIdPersona() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Seleccione una persona", "La persona es obligatoria"));
+            return false;
+        }
+        if (registro.getIdTipoMedioContacto() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Seleccione un tipo de medio de contacto", "El tipo es obligatorio"));
+            return false;
+        }
+        return true;
     }
 
     public List<Persona> getPersonas() {
+        if (personas == null) {
+            personas = personaDAO.findRange(0, 100);
+        }
         return personas;
     }
 
     public List<TipoMedioContacto> getTiposMedioContacto() {
+        if (tiposMedioContacto == null) {
+            tiposMedioContacto = tipoMedioContactoDAO.findRange(0, 100);
+        }
         return tiposMedioContacto;
-    }
-
-    public String getIdPersonaSeleccionada() {
-        return idPersonaSeleccionada;
-    }
-
-    public void setIdPersonaSeleccionada(String idPersonaSeleccionada) {
-        this.idPersonaSeleccionada = idPersonaSeleccionada;
-    }
-
-    public String getIdTipoMedioContactoSeleccionado() {
-        return idTipoMedioContactoSeleccionado;
-    }
-
-    public void setIdTipoMedioContactoSeleccionado(String idTipoMedioContactoSeleccionado) {
-        this.idTipoMedioContactoSeleccionado = idTipoMedioContactoSeleccionado;
     }
 }

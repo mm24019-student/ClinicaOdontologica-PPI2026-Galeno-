@@ -61,27 +61,30 @@
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{personaRolModel.registro.idPersonaRol}"/>
 
                     <p:outputLabel value="Persona" for="cmbPersona"/>
-                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{personaRolModel.idPersonaSeleccionada}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%"
+                                     value="#{personaRolModel.registro.idPersona}"
+                                     converter="#{personaConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{personaRolModel.personas}" var="p"
-                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
-                        <p:ajax event="change" listener="#{personaRolModel.onPersonaChange}"/>
+                                       itemValue="#{p}" itemLabel="#{p.nombres} #{p.apellidos}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel value="Rol" for="cmbRol"/>
-                    <p:selectOneMenu id="cmbRol" style="width:100%" value="#{personaRolModel.idRolSeleccionado}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbRol" style="width:100%"
+                                     value="#{personaRolModel.registro.idRol}"
+                                     converter="#{rolConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{personaRolModel.roles}" var="rl"
-                                       itemLabel="#{rl.nombre}" itemValue="#{rl.idRol.toString()}"/>
-                        <p:ajax event="change" listener="#{personaRolModel.onRolChange}"/>
+                                       itemValue="#{rl}" itemLabel="#{rl.nombre}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel value="Clínica" for="cmbClinica"/>
-                    <p:selectOneMenu id="cmbClinica" style="width:100%" value="#{personaRolModel.idClinicaSeleccionada}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbClinica" style="width:100%"
+                                     value="#{personaRolModel.registro.idClinica}"
+                                     converter="#{clinicaConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{personaRolModel.clinicas}" var="cl"
-                                       itemLabel="#{cl.nombre}" itemValue="#{cl.idClinica.toString()}"/>
-                        <p:ajax event="change" listener="#{personaRolModel.onClinicaChange}"/>
+                                       itemValue="#{cl}" itemLabel="#{cl.nombre}"/>
                     </p:selectOneMenu>
                 </p:panelGrid>
                 <g:botones_top modelo="#{personaRolModel}"/>

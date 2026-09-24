@@ -56,19 +56,21 @@
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{documentoModel.registro.idDocumento}"/>
 
                     <p:outputLabel value="Persona" for="cmbPersona"/>
-                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{documentoModel.idPersonaSeleccionada}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%"
+                                     value="#{documentoModel.registro.idPersona}"
+                                     converter="#{personaConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{documentoModel.personas}" var="p"
-                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
-                        <p:ajax event="change" listener="#{documentoModel.onPersonaChange}"/>
+                                       itemValue="#{p}" itemLabel="#{p.nombres} #{p.apellidos}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel value="Tipo de Documento" for="cmbTipo"/>
-                    <p:selectOneMenu id="cmbTipo" style="width:100%" value="#{documentoModel.idTipoDocumentoSeleccionado}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbTipo" style="width:100%"
+                                     value="#{documentoModel.registro.idTipoDocumento}"
+                                     converter="#{tipoDocumentoConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{documentoModel.tiposDocumento}" var="t"
-                                       itemLabel="#{t.nombre}" itemValue="#{t.idTipoDocumento.toString()}"/>
-                        <p:ajax event="change" listener="#{documentoModel.onTipoDocumentoChange}"/>
+                                       itemValue="#{t}" itemLabel="#{t.nombre}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel for="txtValor" value="Valor"/>

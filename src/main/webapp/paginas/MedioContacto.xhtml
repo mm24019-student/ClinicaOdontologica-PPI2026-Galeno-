@@ -61,19 +61,21 @@
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{medioContactoModel.registro.idMedioContacto}"/>
 
                     <p:outputLabel value="Persona" for="cmbPersona"/>
-                    <p:selectOneMenu id="cmbPersona" style="width:100%" value="#{medioContactoModel.idPersonaSeleccionada}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbPersona" style="width:100%"
+                                     value="#{medioContactoModel.registro.idPersona}"
+                                     converter="#{personaConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{medioContactoModel.personas}" var="p"
-                                       itemLabel="#{p.nombres} #{p.apellidos}" itemValue="#{p.idPersona.toString()}"/>
-                        <p:ajax event="change" listener="#{medioContactoModel.onPersonaChange}"/>
+                                       itemValue="#{p}" itemLabel="#{p.nombres} #{p.apellidos}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel value="Tipo de Medio de Contacto" for="cmbTipo"/>
-                    <p:selectOneMenu id="cmbTipo" style="width:100%" value="#{medioContactoModel.idTipoMedioContactoSeleccionado}">
-                        <f:selectItem itemLabel="Seleccione..." itemValue="" noSelectionOption="true"/>
+                    <p:selectOneMenu id="cmbTipo" style="width:100%"
+                                     value="#{medioContactoModel.registro.idTipoMedioContacto}"
+                                     converter="#{tipoMedioContactoConverter}">
+                        <f:selectItem itemLabel="Seleccione..." itemValue="#{null}" noSelectionOption="true"/>
                         <f:selectItems value="#{medioContactoModel.tiposMedioContacto}" var="t"
-                                       itemLabel="#{t.nombre}" itemValue="#{t.idTipoMedioContacto.toString()}"/>
-                        <p:ajax event="change" listener="#{medioContactoModel.onTipoMedioContactoChange}"/>
+                                       itemValue="#{t}" itemLabel="#{t.nombre}"/>
                     </p:selectOneMenu>
 
                     <p:outputLabel for="txtValor" value="Valor"/>

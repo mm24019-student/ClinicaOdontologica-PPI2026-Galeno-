@@ -1,21 +1,20 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.List;
 import java.util.UUID;
-import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
-/**
- * @author oscar
- */
 @Named
 @ViewScoped
 public class DocumentoModel extends AbstracCrudModel<Documento> {
@@ -23,17 +22,13 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     @Inject
     private DocumentoDAO documentoDAO;
 
+    @Inject
+    private PersonaDAO personaDAO;
+    @Inject
+    private TipoDocumentoDAO tipoDocumentoDAO;
+
     private List<Persona> personas;
     private List<TipoDocumento> tiposDocumento;
-
-    private String idPersonaSeleccionada;
-    private String idTipoDocumentoSeleccionado;
-
-    @PostConstruct
-    public void cargarCombos() {
-        this.personas = documentoDAO.listarPersonas();
-        this.tiposDocumento = documentoDAO.listarTiposDocumento();
-    }
 
     @Override
     protected InterfaceDAO<Documento> getDAO() {
@@ -46,54 +41,52 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     }
 
     @Override
-    protected void configurarNuevoRegistro(Documento nuevoRegistro) {
-        this.idPersonaSeleccionada = null;
-        this.idTipoDocumentoSeleccionado = null;
-    }
-
-    @Override
-    public void onRowSelect(SelectEvent<Documento> event) {
-        super.onRowSelect(event);
-        this.idPersonaSeleccionada = (registro.getIdPersona() != null) ? registro.getIdPersona().getIdPersona().toString() : null;
-        this.idTipoDocumentoSeleccionado = (registro.getIdTipoDocumento() != null) ? registro.getIdTipoDocumento().getIdTipoDocumento().toString() : null;
-    }
-
-    @Override
     protected UUID obtenerId(Documento registro) {
         return registro.getIdDocumento();
     }
 
-    public void onPersonaChange() {
-        UUID id = (idPersonaSeleccionada != null && !idPersonaSeleccionada.isBlank()) ? UUID.fromString(idPersonaSeleccionada) : null;
-        registro.setIdPersona(documentoDAO.buscarPersona(id));
+    @Override
+    public void btnCrearhandler(ActionEvent ae) {
+        if (relacionesCompletas()) {
+            super.btnCrearhandler(ae);
+        }
     }
 
-    public void onTipoDocumentoChange() {
-        UUID id = (idTipoDocumentoSeleccionado != null && !idTipoDocumentoSeleccionado.isBlank()) ? UUID.fromString(idTipoDocumentoSeleccionado) : null;
-        registro.setIdTipoDocumento(documentoDAO.buscarTipoDocumento(id));
+    @Override
+    public void btnModificarHandler() {
+        if (relacionesCompletas()) {
+            super.btnModificarHandler();
+        }
+    }
+
+    private boolean relacionesCompletas() {
+        if (registro == null) {
+            return true;
+        }
+        if (registro.getIdPersona() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Seleccione una persona", "La persona es obligatoria"));
+            return false;
+        }
+        if (registro.getIdTipoDocumento() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Seleccione un tipo de documento", "El tipo es obligatorio"));
+            return false;
+        }
+        return true;
     }
 
     public List<Persona> getPersonas() {
+        if (personas == null) {
+            personas = personaDAO.findRange(0, 100);
+        }
         return personas;
     }
 
     public List<TipoDocumento> getTiposDocumento() {
+        if (tiposDocumento == null) {
+            tiposDocumento = tipoDocumentoDAO.findRange(0, 100);
+        }
         return tiposDocumento;
-    }
-
-    public String getIdPersonaSeleccionada() {
-        return idPersonaSeleccionada;
-    }
-
-    public void setIdPersonaSeleccionada(String idPersonaSeleccionada) {
-        this.idPersonaSeleccionada = idPersonaSeleccionada;
-    }
-
-    public String getIdTipoDocumentoSeleccionado() {
-        return idTipoDocumentoSeleccionado;
-    }
-
-    public void setIdTipoDocumentoSeleccionado(String idTipoDocumentoSeleccionado) {
-        this.idTipoDocumentoSeleccionado = idTipoDocumentoSeleccionado;
     }
 }
