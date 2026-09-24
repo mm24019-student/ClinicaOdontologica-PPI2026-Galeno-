@@ -12,11 +12,12 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoExamen;
 
 @Named
 @ViewScoped
-public class ProcedimientoPasoExamenModel extends AbstracCrudModel<ProcedimientoPasoExamen> {
+public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<ProcedimientoPasoExamen, ProcedimientoPaso> {
 
     @Inject
     private ProcedimientoPasoExamenDAO ppeDAO;
@@ -42,6 +43,22 @@ public class ProcedimientoPasoExamenModel extends AbstracCrudModel<Procedimiento
     @Override
     protected UUID obtenerId(ProcedimientoPasoExamen registro) {
         return registro.getIdProcedimientoPasoExamen();
+    }
+
+    // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
+    @Override
+    protected List<ProcedimientoPasoExamen> buscarPorPadre(UUID idPadre) {
+        return ppeDAO.findByProcedimientoPaso(idPadre);
+    }
+
+    @Override
+    protected UUID obtenerIdPadre(ProcedimientoPaso padre) {
+        return padre.getIdProcedimientoPaso();
+    }
+
+    @Override
+    protected void asignarPadre(ProcedimientoPasoExamen hijo, ProcedimientoPaso padre) {
+        hijo.setIdProcedimientoPaso(padre);
     }
 
     // Valida el examen antes de guardar
