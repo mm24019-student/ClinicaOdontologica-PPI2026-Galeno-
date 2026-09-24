@@ -19,7 +19,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  */
 @Named
 @ViewScoped
-public class ProcedimientoPasoModel extends AbstracCrudModel<ProcedimientoPaso> {
+public class ProcedimientoPasoModel extends AbstracdetallecrudModel<ProcedimientoPaso, Procedimiento> {
 
     // Inyectamos el DAO, que es quien guarda, busca y elimina
     // registros de ProcedimientoPaso en la base de datos.
@@ -41,6 +41,22 @@ public class ProcedimientoPasoModel extends AbstracCrudModel<ProcedimientoPaso> 
     @Override
     protected InterfaceDAO<ProcedimientoPaso> getDAO() {
         return pdDAO;
+    }
+    
+    // ---- Los 3 métodos que pide AbstracDetalleCrudModel ----
+    @Override
+    protected List<ProcedimientoPaso> buscarPorPadre(UUID idPadre) {
+        return pdDAO.findByProcedimiento(idPadre);
+    }
+ 
+    @Override
+    protected UUID obtenerIdPadre(Procedimiento padre) {
+        return padre.getIdProcedimiento();
+    }
+ 
+    @Override
+    protected void asignarPadre(ProcedimientoPaso hijo, Procedimiento padre) {
+        hijo.setIdProcedimiento(padre);
     }
     
     public List<Procedimiento> getProcedimientos() {

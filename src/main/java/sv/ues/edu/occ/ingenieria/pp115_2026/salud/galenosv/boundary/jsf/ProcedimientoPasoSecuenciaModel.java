@@ -17,7 +17,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
  */
 @Named
 @ViewScoped
-public class ProcedimientoPasoSecuenciaModel extends AbstracCrudModel<ProcedimientoPasoSecuencia> {
+public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<ProcedimientoPasoSecuencia, ProcedimientoPaso> {
 
     @Inject
     private ProcedimientoPasoSecuenciaDAO dao;
@@ -39,6 +39,21 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracCrudModel<Procedimie
     @Override
     protected UUID obtenerId(ProcedimientoPasoSecuencia registro) {
         return registro.getIdProcedimientoPasoSecuencia();
+    }
+
+    @Override
+    protected List<ProcedimientoPasoSecuencia> buscarPorPadre(UUID idPadre) {
+        return dao.findByProcedimientoPaso(idPadre);
+    }
+
+    @Override
+    protected UUID obtenerIdPadre(ProcedimientoPaso padre) {
+        return padre.getIdProcedimientoPaso();
+    }
+
+    @Override
+    protected void asignarPadre(ProcedimientoPasoSecuencia hijo, ProcedimientoPaso padre) {
+        hijo.setIdProcedimientoPaso(padre);
     }
 
     // Lista para los dos combos (se carga solo la primera vez)
