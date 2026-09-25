@@ -1,11 +1,71 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html">
-    <h:head>
-        <title>Facelet Title</title>
-    </h:head>
-    <h:body>
-        Hello from Facelets
-    </h:body>
-</html>
+<!-- Página CRUD de Clinica -->
+<ui:composition template="/WEB-INF/general.xhtml"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:g="jakarta.faces.composite/crud">
+
+    <ui:define name="titulo_pagina">
+        <h2>Clínica</h2>
+    </ui:define>
+
+    <ui:define name="contenido">
+
+        <div class="tarjeta">
+            <h:form id="frmTabla">
+                <p:dataTable value="#{clinicaModel}" var="r" id="tblClinica"
+                             paginator="true" rows="10" style="width:100%"
+                             selectionMode="single" rowKey="#{r.idClinica}"
+                             rendered="#{clinicaModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{clinicaModel.onRowSelect}"
+                            update=":frmTabla :Clinica :mensajes" resetValues="true"/>
+                    <p:column headerText="Nombre">
+                        <p:outputLabel value="#{r.nombre}"/>
+                    </p:column>
+                    <p:column headerText="Tipo">
+                        <p:outputLabel value="#{r.tipo}"/>
+                    </p:column>
+                    <p:column headerText="Estado">
+                        <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
+                    </p:column>
+                </p:dataTable>
+
+                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+                                 actionListener="#{clinicaModel.btnNuevoHandler}"
+                                 update=":frmTabla :Clinica :mensajes"/>
+                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+                                 actionListener="#{clinicaModel.btnCancelar}"
+                                 update=":frmTabla :Clinica :mensajes"/>
+            </h:form>
+        </div>
+
+        <div class="mensajes">
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
+                        closable="true"/>
+        </div>
+
+        <div class="tarjeta-suelta">
+            <h2>Mantenimiento de Clínica</h2>
+            <h:form id="Clinica" styleClass="form-clinica">
+                <p:panelGrid columns="2" style="width:100%" rendered="#{clinicaModel.estado!='NINGUNO'}">
+                    <p:outputLabel value="ID" for="txtId"/>
+                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{clinicaModel.registro.idClinica}"/>
+                    <p:outputLabel value="Nombre" for="txtNombre"/>
+                    <p:inputText id="txtNombre" style="width:100%" value="#{clinicaModel.registro.nombre}"/>
+                    <p:outputLabel value="Tipo" for="txtTipo"/>
+                    <p:inputText id="txtTipo" style="width:100%" value="#{clinicaModel.registro.tipo}"/>
+                    <p:outputLabel for="txtComentarios" value="Comentarios"/>
+                    <p:inputTextarea id="txtComentarios" rows="3" style="width:100%" value="#{clinicaModel.registro.comentarios}"/>
+                    <p:outputLabel for="chkActivo" value="Activo"/>
+                    <p:selectBooleanCheckbox id="chkActivo" value="#{clinicaModel.registro.activo}"/>
+                </p:panelGrid>
+                <g:botones_top modelo="#{clinicaModel}"/>
+            </h:form>
+        </div>
+    </ui:define>
+
+</ui:composition>

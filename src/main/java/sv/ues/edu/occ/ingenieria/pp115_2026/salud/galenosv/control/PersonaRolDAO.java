@@ -58,4 +58,13 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol>{
         return id == null ? null : em.find(Clinica.class, id);
     }
 
+    // Devuelve solo los roles/clinica asignados a una persona especifica.
+    // Se usa en la pestana "Roles" dentro de la pantalla de Persona, en vez
+    // de traer siempre los 100 PersonaRol de todas las personas.
+    public List<PersonaRol> findByPersona(UUID idPersona) {
+        return buscarPorPadre(
+                "SELECT pr FROM PersonaRol pr WHERE pr.idPersona.idPersona = :id",
+                "id", idPersona);
+    }
+
 }
