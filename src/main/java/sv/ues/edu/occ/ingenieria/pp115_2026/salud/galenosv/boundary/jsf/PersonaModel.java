@@ -242,4 +242,8 @@ public class PersonaModel extends AbstracCrudModel<Persona> {
         }
         fc.addMessage(null, mensaje);
     }
+
+    public List<Clinica> getClinicasTabla() {
+        return clinicaDAO.findRange(0, 100);
+    }
 }

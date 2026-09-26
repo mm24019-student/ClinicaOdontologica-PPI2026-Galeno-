@@ -5,7 +5,6 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:f="jakarta.faces.core"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:g="jakarta.faces.composite/crud">
 
@@ -33,13 +32,9 @@
                         <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
                     </p:column>
                 </p:dataTable>
-
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
-                                 actionListener="#{clinicaModel.btnNuevoHandler}"
-                                 update=":frmTabla :Clinica :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
-                                 actionListener="#{clinicaModel.btnCancelar}"
-                                 update=":frmTabla :Clinica :mensajes"/>
+                
+                <g:Botones_Acciones modelo="#{clinicaModel}"/>
+                
             </h:form>
         </div>
 

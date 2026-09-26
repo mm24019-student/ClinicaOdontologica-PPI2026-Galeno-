@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:cc="jakarta.faces.composite" xmlns:p="primefaces">
+
+<!--Componentes reutilizables para botones Nuevo y Cancelar -->
+<cc:interface>
+    <cc:attribute name="modelo" required="true" />
+    <cc:attribute name="tabla" default="frmTabla" />
+    <cc:attribute name="mensajes" default="mensajes" />
+</cc:interface>
+
+<cc:implementation>
+    <p:panelGrid columns="2">
+        <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+            actionListener="#{cc.attrs.modelo.btnNuevoHandler}"
+            update="@all" />
+        <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
+            actionListener="#{cc.attrs.modelo.btnCancelar}"
+            update="@all" />
+    </p:panelGrid>
+</cc:implementation>
+</html>

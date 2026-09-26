@@ -38,12 +38,16 @@
                         <h:outputText value="#{consultaModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
                     </p:column>
                 </p:dataTable>
+                
+                <p:panelGrid>
                 <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
                                  actionListener="#{consultaModel.btnNuevoHandler}"
                                  update=":frmTabla :Consulta :mensajes"/>
                 <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
                                  actionListener="#{consultaModel.btnCancelar()}"
                                  update=":frmTabla :Consulta :mensajes"/>
+                </p:panelGrid>
+                
             </h:form>
         </div>
 
