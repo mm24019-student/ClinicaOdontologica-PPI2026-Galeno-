@@ -21,6 +21,8 @@
                              rendered="#{ordenExamenModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{ordenExamenModel.onRowSelect}"
                             update=":frmTabla :OrdenExamen :mensajes"/>
+                    <p:ajax event="rowSelect" listener="#{ordenExamenModel.seleccionarOrdenExamen}"
+                            update=":OrdenExamen:tabsOrden:pnlDetalleResultado"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idOrdenExamen}" />
                     </p:column>
@@ -51,33 +53,106 @@
         <div class="tarjeta-suelta">
             <h2>Mantenimiento de Orden de Examen</h2>
             <h:form id="OrdenExamen" styleClass="form-orden-examen">
-                <p:panelGrid columns="2" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
-                    <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{ordenExamenModel.registro.idOrdenExamen}"/>
 
-                    <p:outputLabel value="Consulta (paso) *" for="selConsulta"/>
-                    <p:selectOneMenu id="selConsulta" value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
-                                     converter="#{consultaProcedimientoPasoConverter}">
-                        <p:ajax event="change" update="txtDescConsulta"/>
-                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
-                        <f:selectItems value="#{ordenExamenModel.pasosConsulta}" var="c"
-                                       itemValue="#{c}" itemLabel="#{c.estado} - #{c.idConsultaProcedimientoPaso}"/>
-                    </p:selectOneMenu>
+                <p:tabView id="tabsOrden" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
 
-                    <p:outputLabel value="Detalle de la consulta"/>
-                    <h:panelGroup id="txtDescConsulta">
-                        <h:outputText value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso.fechaInicio}" rendered="#{ordenExamenModel.registro.idConsultaProcedimientoPaso != null}">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
-                        </h:outputText>
-                    </h:panelGroup>
+                    <p:tab title="Datos generales">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="ID" for="txtId"/>
+                            <p:inputText id="txtId" size="70" disabled="true" value="#{ordenExamenModel.registro.idOrdenExamen}"/>
 
-                    <p:outputLabel value="Fecha de creación" for="calFecha"/>
-                    <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
-                                  value="#{ordenExamenModel.registro.fechaCreacion}"/>
+                            <p:outputLabel value="Consulta (paso) *" for="acConsulta"/>
+                            <p:autoComplete id="acConsulta"
+                                             value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
+                                             completeMethod="#{ordenExamenModel.completarPasosConsulta}"
+                                             converter="#{consultaProcedimientoPasoConverter}"
+                                             var="c" itemLabel="#{c.estado} - #{c.idConsultaProcedimientoPaso}" itemValue="#{c}"
+                                             forceSelection="true" minQueryLength="0"
+                                             placeholder="Escriba el estado o el ID...">
+                                <p:ajax event="itemSelect" update="txtDescConsulta"/>
+                                <p:ajax event="change" update="txtDescConsulta"/>
+                            </p:autoComplete>
 
-                    <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
-                    <p:inputTextarea id="txtIndicaciones" rows="3" cols="70" value="#{ordenExamenModel.registro.indicaciones}"/>
-                </p:panelGrid>
+                            <p:outputLabel value="Detalle de la consulta"/>
+                            <h:panelGroup id="txtDescConsulta">
+                                <h:outputText value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso.fechaInicio}" rendered="#{ordenExamenModel.registro.idConsultaProcedimientoPaso != null}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                                </h:outputText>
+                            </h:panelGroup>
+
+                            <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                            <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                          timeZone="America/El_Salvador"
+                                          value="#{ordenExamenModel.registro.fechaCreacion}"/>
+
+                            <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
+                            <p:inputTextarea id="txtIndicaciones" rows="3" cols="70" value="#{ordenExamenModel.registro.indicaciones}"/>
+                        </p:panelGrid>
+                        <g:botones_top modelo="#{ordenExamenModel}"/>
+                    </p:tab>
+
+                    <!-- Pestaña anidada: resultados de esta orden -->
+                    <p:tab title="Resultados" disabled="#{ordenExamenModel.estado=='CREAR'}">
+                        <h:panelGroup id="pnlDetalleResultado">
+
+                            <p:dataTable id="tblExamenResultadoDetalle"
+                                         value="#{examenResultadoModel}" var="d"
+                                         rowKey="#{d.idExamenResultado}"
+                                         selectionMode="single"
+                                         emptyMessage="Esta orden no tiene resultados registrados todavía."
+                                         rendered="#{examenResultadoModel.estado=='NINGUNO'}">
+                                <p:ajax event="rowSelect" listener="#{examenResultadoModel.onRowSelect}"
+                                        update=":OrdenExamen:tabsOrden:pnlDetalleResultado"/>
+                                <p:column headerText="Fecha de creación">
+                                    <h:outputText value="#{d.fechaCreacion}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Resultado">
+                                    <p:outputLabel value="#{d.resultado}"/>
+                                </p:column>
+                                <p:column headerText="Interpretación">
+                                    <p:outputLabel value="#{d.interpretacion}"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:commandButton value="Nuevo resultado" actionListener="#{examenResultadoModel.btnNuevoHandler}"
+                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"
+                                             rendered="#{examenResultadoModel.estado=='NINGUNO'}"/>
+
+                            <p:panelGrid columns="2" rendered="#{examenResultadoModel.estado!='NINGUNO'}">
+                                <p:outputLabel value="Fecha de creación" for="calFechaResultado"/>
+                                <p:datePicker id="calFechaResultado" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                              timeZone="America/El_Salvador"
+                                              value="#{examenResultadoModel.registro.fechaCreacion}"/>
+
+                                <p:outputLabel value="Resultado" for="txtResultado"/>
+                                <p:inputTextarea id="txtResultado" rows="3" cols="50" value="#{examenResultadoModel.registro.resultado}"/>
+
+                                <p:outputLabel value="Interpretación" for="txtInterpretacion"/>
+                                <p:inputTextarea id="txtInterpretacion" rows="3" cols="50" value="#{examenResultadoModel.registro.interpretacion}"/>
+
+                                <p:outputLabel value="Ruta del atestado" for="txtRuta"/>
+                                <p:inputText id="txtRuta" size="50" value="#{examenResultadoModel.registro.rutaAtestado}"/>
+                            </p:panelGrid>
+
+                            <p:commandButton value="Guardar" actionListener="#{examenResultadoModel.btnCrearhandler}"
+                                             rendered="#{examenResultadoModel.estado=='CREAR'}"
+                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
+                            <p:commandButton value="Actualizar" actionListener="#{examenResultadoModel.btnModificarHandler}"
+                                             rendered="#{examenResultadoModel.estado=='MODIFICAR'}"
+                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
+                            <p:commandButton value="Eliminar" actionListener="#{examenResultadoModel.btnEliminarHandler}"
+                                             rendered="#{examenResultadoModel.estado=='MODIFICAR'}"
+                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
+                            <p:commandButton value="Cancelar" actionListener="#{examenResultadoModel.btnCancelar()}"
+                                             rendered="#{examenResultadoModel.estado!='NINGUNO'}"
+                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
+
+                        </h:panelGroup>
+                    </p:tab>
+
+                </p:tabView>
             </h:form>
         </div>
     </ui:define>

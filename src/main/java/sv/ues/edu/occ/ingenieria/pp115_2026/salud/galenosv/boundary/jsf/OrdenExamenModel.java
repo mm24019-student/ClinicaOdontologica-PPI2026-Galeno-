@@ -5,9 +5,11 @@ import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
@@ -23,6 +25,9 @@ public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
 
     @Inject
     private ConsultaProcedimientoPasoDAO cppDAO;
+
+    @Inject
+    private ExamenResultadoModel examenResultadoModel;
 
     private List<ConsultaProcedimientoPaso> pasosConsulta;
 
@@ -43,7 +48,6 @@ public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
         return registro.getIdOrdenExamen();
     }
 
-    // Valida la consulta antes de guardar (relacion obligatoria en BD)
     @Override
     public void btnCrearhandler(ActionEvent ae) {
         if (consultaSeleccionada()) {
@@ -67,11 +71,47 @@ public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
         return true;
     }
 
-    // Opciones del selector de consulta-procedimiento-paso
     public List<ConsultaProcedimientoPaso> getPasosConsulta() {
         if (pasosConsulta == null) {
             pasosConsulta = cppDAO.findRange(0, 100);
         }
         return pasosConsulta;
+    }
+
+    // NUEVO: fuente de sugerencias para el p:autoComplete de Consulta (paso)
+    public List<ConsultaProcedimientoPaso> completarPasosConsulta(String query) {
+
+        List<ConsultaProcedimientoPaso> resultado = new ArrayList<>();
+
+        String texto = query == null
+                ? ""
+                : query.trim().toLowerCase();
+
+        for (ConsultaProcedimientoPaso paso : getPasosConsulta()) {
+
+            String estado = paso.getEstado() == null
+                    ? ""
+                    : paso.getEstado().toLowerCase();
+
+            String id = paso.getIdConsultaProcedimientoPaso() == null
+                    ? ""
+                    : paso.getIdConsultaProcedimientoPaso().toString().toLowerCase();
+
+            if (texto.isEmpty() || estado.contains(texto) || id.contains(texto)) {
+                resultado.add(paso);
+            }
+
+            if (resultado.size() >= 20) {
+                break;
+            }
+        }
+
+        return resultado;
+    }
+
+    
+    public void seleccionarOrdenExamen(SelectEvent<OrdenExamen> event) {
+        OrdenExamen ordenSeleccionada = event.getObject();
+        examenResultadoModel.cargarPorOrdenExamen(ordenSeleccionada);
     }
 }
