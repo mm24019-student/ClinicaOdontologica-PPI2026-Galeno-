@@ -16,7 +16,7 @@
                 <div class="ui-g">
                     <div class="ui-g-4">
                         <ui:insert name="logo">
-                            <h:graphicImage library="imagenes" name="a.jpeg" />
+                            <h:graphicImage library="imagenes" name="logoGaleno2609.png" style="max-height:120px; width:auto;" />
                         </ui:insert>
                     </div>
                     <div class="ui-g-4" style="text-align:center;">
@@ -42,7 +42,44 @@
                 <div class="ui-g">
                     <div class="ui-g-2">
                         <ui:insert name="menu">
-                            <!-- menú lateral -->
+                            <p:menu styleClass="menu-lateral">
+                                <p:submenu label="Catálogos" icon="pi pi-tags">
+                                    <p:menuitem value="Tipo de Documento" outcome="/paginas/TipoDocumento.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoDocumento.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Tipo de Medio de Contacto" outcome="/paginas/TipoMedioContacto.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoMedioContacto.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Tipo de Examen" outcome="/paginas/TipoExamen.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoExamen.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Examen - Tipo de Examen" outcome="/paginas/ExamenTipoExamen.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenTipoExamen.xhtml' ? 'activo' : ''}"/>
+                                </p:submenu>
+                                <p:submenu label="Clínica" icon="pi pi-building">
+                                    <p:menuitem value="Clínica" outcome="/paginas/Clinica.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Clinica.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Persona" outcome="/paginas/Persona.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Persona.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Rol" outcome="/paginas/Rol.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Rol.xhtml' ? 'activo' : ''}"/>
+                                </p:submenu>
+                                <p:submenu label="Exámenes" icon="pi pi-file">
+                                    <p:menuitem value="Examen" outcome="/paginas/Examen.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Examen.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Orden de Examen" outcome="/paginas/OrdenExamen.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/OrdenExamen.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Resultado de Examen" outcome="/paginas/ExamenResultado.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenResultado.xhtml' ? 'activo' : ''}"/>
+                                </p:submenu>
+                                <p:submenu label="Procedimientos" icon="pi pi-list">
+                                    <p:menuitem value="Procedimiento" outcome="/paginas/Procedimiento.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Consulta de Procedimiento" outcome="/paginas/ConsultaProcedimiento.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ConsultaProcedimiento.xhtml' ? 'activo' : ''}"/>
+                                    <p:menuitem value="Paso de Consulta" outcome="/paginas/ConsultaProcedimientoPaso.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ConsultaProcedimientoPaso.xhtml' ? 'activo' : ''}"/>
+                                </p:submenu>
+                                <p:menuitem value="Consulta" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
+                                            styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
+                            </p:menu>
                         </ui:insert>
                     </div>
                     <div class="ui-g-10">

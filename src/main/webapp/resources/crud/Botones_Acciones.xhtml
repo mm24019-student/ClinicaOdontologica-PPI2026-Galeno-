@@ -11,8 +11,8 @@
 </cc:interface>
 
 <cc:implementation>
-    <p:panelGrid columns="2">
-        <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
+    <p:panelGrid columns="2" styleClass="botones-juntos">
+        <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
             actionListener="#{cc.attrs.modelo.btnNuevoHandler}"
             update="@all" />
         <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"

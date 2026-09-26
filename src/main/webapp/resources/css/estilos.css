@@ -1,75 +1,217 @@
-/*
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/CascadeStyleSheet.css to edit this template
-*/
-/* 
-    Created on : 17/09/2026, 16:24:44
-    Author     : oscar
-*/
-
 :root {
-    --azul: #0e7c86;
-    --azul-oscuro: #095a62;
-    --gris-claro: #f4f6f7;
-    --gris-borde: #dde3e5;
-    --texto: #263238;
-    --rojo: #c0392b;
-    --rojo-oscuro: #96281b;
-    --verde: #1a7a4c;
-    --verde-bg: #e3f6ea;
+    --marino: #2A1B65;
+    --marino-oscuro: #1D1247;
+    --teal: #00B2A9;
+    --teal-oscuro: #00887F;
+    --gris-borde: #E1E4EC;
+    --gris-claro: #F7F8FA;
+    --texto: #1D1247;
+    --rojo: #D64550;
+    --rojo-oscuro: #A02E37;
+    --verde: #1E8E77;
+    --verde-bg: #E1F5EE;
 }
 
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: var(--gris-claro);
-    color: var(--texto);
+    background-color: var(--gris-claro) !important;
+    color: var(--texto) !important;
     margin: 0;
     padding: 30px 20px;
 }
 
-.tarjeta, .tarjeta-suelta {
-    background: white;
-    border: 1px solid var(--gris-borde);
-    border-radius: 10px;
-    padding: 24px 28px 28px;
-    margin-bottom: 28px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+h1, h2, h3 {
+    color: var(--marino) !important;
+    font-weight: 700 !important;
+}
+h2 {
+    border-bottom: 3px solid var(--teal) !important;
+    padding-bottom: 8px !important;
+    display: inline-block;
 }
 
-#tblTipoExamen { border-collapse: collapse; width: 100%; }
+/* ===== Tarjetas / formularios propios ===== */
+.tarjeta, .tarjeta-suelta {
+    background: white !important;
+    border: 1px solid var(--gris-borde) !important;
+    border-top: 4px solid var(--teal) !important;
+    border-radius: 6px !important;
+    padding: 24px 28px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 10px rgba(42, 27, 101, 0.08) !important;
+}
 
 .form-tipo-examen input[type="text"],
 .form-tipo-examen textarea {
-    border: 1px solid var(--gris-borde);
-    border-radius: 6px;
+    border: 1px solid var(--gris-borde) !important;
+    border-radius: 6px !important;
     padding: 9px 11px;
     font-size: 14px;
     width: 100%;
 }
 
-input[type="submit"], button {
-    border: none;
-    border-radius: 6px;
-    padding: 9px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    background-color: var(--azul);
-    color: white;
-    margin-right: 8px;
-    margin-top: 10px;
+.mensajes {
+    margin-bottom: 20px;
 }
-input[type="submit"]:hover, button:hover { background-color: var(--azul-oscuro); }
-
-.mensajes { margin-bottom: 20px; }
 .msg-error, .msg-info {
     display: block;
     padding: 10px 16px;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
     margin-bottom: 10px;
 }
-.msg-error { background-color: #fdecea; color: var(--rojo-oscuro); border: 1px solid #f3c4bd; }
-.msg-info { background-color: var(--verde-bg); color: var(--verde); border: 1px solid #b9e6cb; }
+.msg-error {
+    background-color: #FCEAEB !important;
+    color: var(--rojo-oscuro) !important;
+    border: 1px solid var(--rojo) !important;
+}
+.msg-info {
+    background-color: var(--verde-bg) !important;
+    color: var(--verde) !important;
+    border: 1px solid #a9e0cb !important;
+}
+
+/* ===================================================== */
+/* ===== Overrides de PrimeFaces (tema saga-blue confirmado) */
+/* ===================================================== */
+
+/* Botones reales — SOLO .ui-button (no .ui-state-default genérico,
+   porque esa clase también la usan los <th> de la tabla y no queremos
+   que los encabezados de columna se vean como botones) */
+.ui-button, button.ui-button {
+    background: white !important;
+    border: 2px solid var(--marino) !important;
+    border-radius: 999px !important;
+    color: var(--marino) !important;
+    font-weight: 700 !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+.ui-button:hover, button.ui-button:hover {
+    background: var(--marino) !important;
+    color: white !important;
+}
+.ui-button .ui-button-text {
+    color: inherit !important;
+}
+
+/* Página activa del paginador: la pintamos aparte y con más
+   especificidad para que gane sobre el estilo genérico de botón */
+.ui-paginator .ui-paginator-page.ui-state-active {
+    background: var(--teal) !important;
+    border-color: var(--teal) !important;
+    color: white !important;
+}
+
+/* Barra del paginador y cabeceras de panel: clara, no bloque sólido */
+.ui-widget-header {
+    background: white !important;
+    color: var(--marino) !important;
+    border: none !important;
+    border-bottom: 2px solid var(--gris-borde) !important;
+    font-weight: 700 !important;
+}
+
+/* Encabezado de columnas de la tabla (th) — acá sí navy sólido,
+   pero SIN heredar el estilo de botón */
+.ui-datatable thead th {
+    background: var(--marino) !important;
+    color: white !important;
+    border-color: var(--marino-oscuro) !important;
+    font-weight: 700 !important;
+    border-radius: 0 !important;
+}
+
+/* Filas de tabla */
+.ui-datatable tbody tr.ui-datatable-even {
+    background-color: #FFFFFF !important;
+}
+.ui-datatable tbody tr.ui-datatable-odd {
+    background-color: var(--gris-claro) !important;
+}
+.ui-datatable tbody tr:hover {
+    background-color: #E6FBF9 !important;
+}
+.ui-datatable tbody tr.ui-state-highlight {
+    background-color: var(--teal) !important;
+    color: white !important;
+}
+
+/* Panel / contenedor general */
+.ui-widget-content {
+    border-color: var(--gris-borde) !important;
+}
+.ui-panel {
+    border-radius: 6px !important;
+    overflow: hidden;
+}
+
+/* Inputs, selects (p:selectOneMenu, autocomplete) */
+.ui-inputfield, input.ui-inputfield, textarea.ui-inputfield,
+.ui-selectonemenu, .ui-autocomplete-input {
+    border: 1px solid var(--gris-borde) !important;
+    border-radius: 6px !important;
+}
+.ui-selectonemenu-label {
+    color: var(--texto) !important;
+}
+.ui-selectonemenu:not(.ui-state-disabled).ui-state-focus,
+.ui-inputfield:focus {
+    border-color: var(--teal) !important;
+    box-shadow: 0 0 0 2px #E6FBF9 !important;
+}
+
+/* ===== Menú lateral de navegación ===== */
+.menu-lateral.ui-menu {
+    width: 100% !important;
+    border: 1px solid var(--gris-borde) !important;
+    border-radius: 6px !important;
+    background: white !important;
+    padding: 6px 0 !important;
+}
+.menu-lateral .ui-submenu-header {
+    background: transparent !important;
+    color: var(--marino) !important;
+    font-weight: 700 !important;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    border: none !important;
+    padding: 10px 14px 4px !important;
+}
+.menu-lateral .ui-menuitem-link {
+    color: var(--texto) !important;
+    padding: 8px 14px !important;
+    border-radius: 4px;
+}
+.menu-lateral .ui-menuitem-link:hover {
+    background: var(--gris-claro) !important;
+}
+.menu-lateral .ui-menuitem-link .ui-menuitem-icon {
+    color: var(--teal) !important;
+}
+.menu-lateral .ui-menuitem.activo > .ui-menuitem-link {
+    background: var(--teal) !important;
+    color: white !important;
+    font-weight: 700 !important;
+}
+.menu-lateral .ui-menuitem.activo > .ui-menuitem-link .ui-menuitem-icon {
+    color: white !important;
+}
+
+/* ===== Botones Nuevo/Cancelar más juntos ===== */
+.botones-juntos.ui-panelgrid {
+    border: none !important;
+    width: auto !important;
+    display: inline-table !important;
+}
+.botones-juntos.ui-panelgrid td.ui-panelgrid-cell {
+    border: none !important;
+    background: transparent !important;
+    width: auto !important;
+    padding: 0 6px 0 0 !important;
+}
