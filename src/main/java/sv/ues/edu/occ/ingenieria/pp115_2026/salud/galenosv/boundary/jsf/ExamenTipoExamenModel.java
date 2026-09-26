@@ -5,6 +5,7 @@ import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +32,7 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
 
     private List<Examen> examenes;
     private List<TipoExamen> tiposExamen;
+    private Examen examenPadre;
 
     @Override
     protected InterfaceDAO<ExamenTipoExamen> getDAO() {
@@ -41,6 +43,11 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
     protected ExamenTipoExamen crearRegistroNuevo() {
         ExamenTipoExamen r = new ExamenTipoExamen(UUID.randomUUID());
         r.setFechaCreacion(new Date());
+
+        if (examenPadre != null) {
+            r.setIdExamen(examenPadre);
+        }
+
         return r;
     }
 
@@ -94,5 +101,55 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
             tiposExamen = teDAO.findRange(0, 100);
         }
         return tiposExamen;
+    }
+
+    public void cargarPorExamen(Examen examen) {
+
+        examenPadre = examen;
+        registro = null;
+        estado = Estado_Crud.NINGUNO;
+
+        if (examen != null && examen.getIdExamen() != null) {
+
+            setWrappedData(
+                    eteDAO.findByExamen(examen.getIdExamen())
+            );
+
+        } else {
+
+            setWrappedData(new ArrayList<>());
+
+        }
+    }
+
+    public List<TipoExamen> completarTiposExamen(String query) {
+
+        List<TipoExamen> resultado = new ArrayList<>();
+
+        String texto = query == null
+                ? ""
+                : query.trim().toLowerCase();
+
+        for (TipoExamen tipo : getTiposExamen()) {
+
+            if (tipo.getActivo() != null
+                    && !tipo.getActivo()) {
+                continue;
+            }
+
+            String nombre = tipo.getNombre() == null
+                    ? ""
+                    : tipo.getNombre().toLowerCase();
+
+            if (texto.isEmpty() || nombre.contains(texto)) {
+                resultado.add(tipo);
+            }
+
+            if (resultado.size() >= 20) {
+                break;
+            }
+        }
+
+        return resultado;
     }
 }

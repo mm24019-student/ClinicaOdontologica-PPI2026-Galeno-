@@ -21,6 +21,8 @@
                              rendered="#{examenModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{examenModel.onRowSelect}"
                             update=":frmTabla :Examen :mensajes"/>
+                    <p:ajax event="rowSelect" listener="#{examenModel.seleccionarExamen}"
+                            update=":Examen:tabsExamen:pnlDetalleTipo"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idExamen}" />
                     </p:column>
@@ -49,18 +51,89 @@
         <div class="tarjeta-suelta">
             <h2>Mantenimiento de Examen</h2>
             <h:form id="Examen" styleClass="form-examen">
-                <p:panelGrid columns="2" rendered="#{examenModel.estado!='NINGUNO'}">
-                    <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{examenModel.registro.idExamen}"/>
-                    <p:outputLabel value="Nombre" for="txtNombre"/>
-                    <p:inputText id="txtNombre" size="70" maxlength="255" value="#{examenModel.registro.nombre}"/>
-                    <p:outputLabel for="chkActivo" value="Activo"/>
-                    <p:selectBooleanCheckbox id="chkActivo" value="#{examenModel.registro.activo}"/>
-                    <p:outputLabel for="txtObservaciones" value="Observaciones"/>
-                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{examenModel.registro.observaciones}"/>
-                </p:panelGrid>
-                <g:botones_top modelo="#{examenModel}"
-                               />
+
+                <p:tabView id="tabsExamen" rendered="#{examenModel.estado!='NINGUNO'}">
+
+                    <p:tab title="Datos generales">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="ID" for="txtId"/>
+                            <p:inputText id="txtId" size="70" disabled="true" value="#{examenModel.registro.idExamen}"/>
+                            <p:outputLabel value="Nombre" for="txtNombre"/>
+                            <p:inputText id="txtNombre" size="70" maxlength="255" value="#{examenModel.registro.nombre}"/>
+                            <p:outputLabel for="chkActivo" value="Activo"/>
+                            <p:selectBooleanCheckbox id="chkActivo" value="#{examenModel.registro.activo}"/>
+                            <p:outputLabel for="txtObservaciones" value="Observaciones"/>
+                            <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{examenModel.registro.observaciones}"/>
+                        </p:panelGrid>
+                        <g:botones_top modelo="#{examenModel}"/>
+                    </p:tab>
+
+                    <!-- Pestaña anidada: mini-CRUD de ExamenTipoExamen filtrado por este examen -->
+                    <p:tab title="Tipos de Examen" disabled="#{examenModel.estado=='CREAR'}">
+                        <h:panelGroup id="pnlDetalleTipo">
+
+                            <p:dataTable id="tblExamenTipoExamenDetalle"
+                                         value="#{examenTipoExamenModel}" var="d"
+                                         rowKey="#{d.idExamenTipoExamen}"
+                                         selectionMode="single"
+                                         emptyMessage="Este examen no tiene tipos asociados todavía."
+                                         rendered="#{examenTipoExamenModel.estado=='NINGUNO'}">
+                                <p:ajax event="rowSelect" listener="#{examenTipoExamenModel.onRowSelect}"
+                                        update=":Examen:tabsExamen:pnlDetalleTipo"/>
+                                <p:column headerText="Tipo de examen">
+                                    <p:outputLabel value="#{d.idTipoExamen.nombre}"/>
+                                </p:column>
+                                <p:column headerText="Fecha de creación">
+                                    <h:outputText value="#{d.fechaCreacion}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                                    </h:outputText>
+                                </p:column>
+                                <p:column headerText="Observaciones">
+                                    <p:outputLabel value="#{d.observaciones}"/>
+                                </p:column>
+                            </p:dataTable>
+
+                            <p:commandButton value="Nuevo tipo" actionListener="#{examenTipoExamenModel.btnNuevoHandler}"
+                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"
+                                             rendered="#{examenTipoExamenModel.estado=='NINGUNO'}"/>
+
+                            <p:panelGrid columns="2" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}">
+                                <p:outputLabel value="Tipo de examen *" for="acTipoExamen"/>
+                                <p:autoComplete id="acTipoExamen"
+                                                 value="#{examenTipoExamenModel.registro.idTipoExamen}"
+                                                 completeMethod="#{examenTipoExamenModel.completarTiposExamen}"
+                                                 converter="#{tipoExamenConverter}"
+                                                 var="t" itemLabel="#{t.nombre}" itemValue="#{t}"
+                                                 forceSelection="true" minQueryLength="0"
+                                                 placeholder="Escriba para buscar..."/>
+
+                                <p:outputLabel value="Fecha de creación" for="calFechaTipo"/>
+                                <p:datePicker id="calFechaTipo" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                              timeZone="America/El_Salvador"
+                                              value="#{examenTipoExamenModel.registro.fechaCreacion}"/>
+
+                                <p:outputLabel value="Observaciones" for="txtObsTipo"/>
+                                <p:inputTextarea id="txtObsTipo" rows="3" cols="50"
+                                                  value="#{examenTipoExamenModel.registro.observaciones}"/>
+                            </p:panelGrid>
+
+                            <p:commandButton value="Guardar" actionListener="#{examenTipoExamenModel.btnCrearhandler}"
+                                             rendered="#{examenTipoExamenModel.estado=='CREAR'}"
+                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
+                            <p:commandButton value="Actualizar" actionListener="#{examenTipoExamenModel.btnModificarHandler}"
+                                             rendered="#{examenTipoExamenModel.estado=='MODIFICAR'}"
+                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
+                            <p:commandButton value="Eliminar" actionListener="#{examenTipoExamenModel.btnEliminarHandler}"
+                                             rendered="#{examenTipoExamenModel.estado=='MODIFICAR'}"
+                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
+                            <p:commandButton value="Cancelar" actionListener="#{examenTipoExamenModel.btnCancelar()}"
+                                             rendered="#{examenTipoExamenModel.estado!='NINGUNO'}"
+                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
+
+                        </h:panelGroup>
+                    </p:tab>
+
+                </p:tabView>
             </h:form>
         </div>
     </ui:define>
