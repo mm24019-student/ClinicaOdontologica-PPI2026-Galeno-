@@ -11,6 +11,8 @@
     <cc:attribute name="tabla" default="frmTabla" />
     <!--Igual que el anterio-->
     <cc:attribute name="mensajes" default="mensajes" />
+
+    <cc:attribute name="process" default="@this" />
 </cc:interface>
 
 <cc:implementation>
@@ -19,13 +21,14 @@
     <!--En rendered le decimos a que condiciones se debe mostrar el boton-->
     <!--En update le decimos a que componentes se debe actualizar-->
     <p:panelGrid columns="3">
-        <p:commandButton value="#{msg['crud.boton.crear']}" resetValues="true"
+        <p:commandButton value="#{msg['crud.boton.crear']}" resetValues="true" process="#{cc.attrs.process}"
             actionListener="#{cc.attrs.modelo.btnCrearhandler}" rendered="#{cc.attrs.modelo.estado=='CREAR'}"
             update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
         <p:commandButton value="#{msg['crud.boton.actualizar']}" actionListener="#{cc.attrs.modelo.btnModificarHandler}"
             rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}" update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
         <p:commandButton value="#{msg['crud.boton.eliminar']}" actionListener="#{cc.attrs.modelo.btnEliminarHandler}"
-            rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}" update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
+            rendered="#{cc.attrs.modelo.estado=='MODIFICAR'}" process="#{cc.attrs.process}"
+            update="@form :#{cc.attrs.tabla} :#{cc.attrs.mensajes}" />
     </p:panelGrid>
 </cc:implementation>
 </html>

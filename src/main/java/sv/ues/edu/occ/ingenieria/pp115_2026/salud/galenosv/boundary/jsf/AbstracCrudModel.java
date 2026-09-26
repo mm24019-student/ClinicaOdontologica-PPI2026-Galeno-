@@ -44,6 +44,29 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     protected abstract T crearRegistroNuevo();
 
     protected abstract UUID obtenerId(T registro);
+    
+    protected boolean mostrarDialogo = false;
+ 
+    public boolean isMostrarDialogo() {
+        return mostrarDialogo;
+    }
+ 
+    public void setMostrarDialogo(boolean mostrarDialogo) {
+        this.mostrarDialogo = mostrarDialogo;
+    }
+ 
+    public void btnAbrirDialogo() {
+        this.mostrarDialogo = true;
+    }
+ 
+    // Se usa tanto desde un botón "Cerrar" como desde el evento close del
+    // propio p:dialog (ícono X), para que el estado del bean no quede
+    // desincronizado del diálogo cuando el usuario lo cierra sin guardar.
+    public void btnCerrarDialogo() {
+        this.mostrarDialogo = false;
+        this.estado = Estado_Crud.NINGUNO;
+        this.registro = null;
+    }
 
     // Hook opcional: las subclases pueden sobreescribirlo para inicializar
     // valores por defecto en el registro recién creado. Por defecto no hace nada.

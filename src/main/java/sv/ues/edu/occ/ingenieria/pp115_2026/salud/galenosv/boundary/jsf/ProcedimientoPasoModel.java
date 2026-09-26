@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
@@ -36,6 +37,8 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     private List<Procedimiento> procedimientos;
 
     private List<Rol> roles;
+    
+   
 
     // Le decimos a la clase padre qué DAO debe usar para las operaciones del CRUD.
     @Override
@@ -73,6 +76,19 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         return roles;
     }
 
+     public List<Rol> completarRoles(String query) {
+    if (roles == null) {
+        roles = rolDAO.findRange(0, 100);
+    }
+
+    String texto = query == null ? "" : query.trim().toLowerCase();
+
+    return roles.stream()
+            .filter(r -> r.getNombre() != null
+                    && r.getNombre().toLowerCase().contains(texto))
+            .collect(Collectors.toList());
+}
+    
     // Se ejecuta al pulsar "Nuevo": crea un registro vacío con un UUID generado
     // automáticamente y con "Activo" marcado por defecto. La clase padre lo
     // guarda en "registro" y el formulario lo muestra.
