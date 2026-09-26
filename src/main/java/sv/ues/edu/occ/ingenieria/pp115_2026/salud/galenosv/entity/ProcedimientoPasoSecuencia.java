@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -36,6 +37,7 @@ public class ProcedimientoPasoSecuencia implements Serializable {
     private UUID idProcedimientoPasoReferencia;
     @Size(max = 20)
     @Column(name = "tipo_secuencia")
+    @NotBlank
     private String tipoSecuencia;
     @JoinColumn(name = "id_procedimiento_paso", referencedColumnName = "id_procedimiento_paso")
     @ManyToOne(fetch = FetchType.LAZY)

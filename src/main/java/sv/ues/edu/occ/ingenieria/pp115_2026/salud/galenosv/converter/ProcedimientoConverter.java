@@ -14,7 +14,6 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
  * @author antonio
  */
 @FacesConverter(value = "procedimientoConverter", managed = true)
-
 public class ProcedimientoConverter implements Converter<Procedimiento> {
 
     @Inject

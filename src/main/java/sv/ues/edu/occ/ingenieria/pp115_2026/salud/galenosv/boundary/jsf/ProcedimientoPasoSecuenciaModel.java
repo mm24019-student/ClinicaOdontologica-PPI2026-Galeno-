@@ -3,8 +3,11 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaDAO;
@@ -25,6 +28,146 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
     private ProcedimientoPasoDAO pasoDAO;
 
     private List<ProcedimientoPaso> pasos;
+
+    private ProcedimientoPaso pasoReferenciaSeleccionado;
+
+    public ProcedimientoPaso getPasoReferenciaSeleccionado() {
+        return pasoReferenciaSeleccionado;
+    }
+
+    public void setPasoReferenciaSeleccionado(ProcedimientoPaso pasoReferenciaSeleccionado) {
+        this.pasoReferenciaSeleccionado = pasoReferenciaSeleccionado;
+
+        if (pasoReferenciaSeleccionado != null) {
+            registro.setIdProcedimientoPasoReferencia(
+                    pasoReferenciaSeleccionado.getIdProcedimientoPaso()
+            );
+        } else {
+            registro.setIdProcedimientoPasoReferencia(null);
+        }
+    }
+
+    // Usado por el p:autoComplete (reemplaza al p:selectOneListbox/p:dataTable
+    // para no pasar del límite de 3 tablas por pantalla). Guarda el objeto que
+    // el usuario eligió de las sugerencias; onAutocompleteSelect() reutiliza
+    // el método heredado que ya sabe cargar el formulario a partir del id.
+    private ProcedimientoPasoSecuencia seleccionAutocomplete;
+
+    public ProcedimientoPasoSecuencia getSeleccionAutocomplete() {
+        return seleccionAutocomplete;
+    }
+
+    public void setSeleccionAutocomplete(ProcedimientoPasoSecuencia seleccionAutocomplete) {
+        this.seleccionAutocomplete = seleccionAutocomplete;
+    }
+
+    // Listener del evento itemSelect del p:autoComplete. IMPORTANTE: se toma
+    // el objeto directamente de event.getObject() (igual que
+    // onRolAutocompleteSelect/onClinicaAutocompleteSelect en PersonaModel) en
+    // vez de leer this.seleccionAutocomplete, porque el value del componente
+    // no siempre queda actualizado a tiempo cuando corre este listener.
+    public void onItemSelect(SelectEvent<ProcedimientoPasoSecuencia> event) {
+        this.seleccionAutocomplete = event.getObject();
+        if (seleccionAutocomplete != null) {
+            btnSeleccionarRegistro(seleccionAutocomplete.getIdProcedimientoPasoSecuencia());
+        }
+    }
+
+    // Respaldo manual: botón "Seleccionar" junto al autocomplete. Aquí sí se
+    // puede confiar en this.seleccionAutocomplete porque el propio commandButton
+    // ya forzó la actualización normal del value antes de invocar este método.
+    public void btnSeleccionarHandler() {
+        if (seleccionAutocomplete != null) {
+            btnSeleccionarRegistro(seleccionAutocomplete.getIdProcedimientoPasoSecuencia());
+        }
+    }
+
+    // completeMethod del p:autoComplete: filtra SOLO las secuencias ya
+    // cargadas de este paso (getregistros(), no toda la tabla) por el mismo
+    // texto que se le muestra al usuario (tipo + nombre del paso de referencia).
+    public List<ProcedimientoPasoSecuencia> completarSecuencias(String query) {
+        List<ProcedimientoPasoSecuencia> lista = getregistros();
+        if (lista == null) {
+            return Collections.emptyList();
+        }
+        String texto = query == null ? "" : query.trim().toLowerCase();
+        return lista.stream()
+                .filter(s -> etiqueta(s).toLowerCase().contains(texto))
+                .collect(Collectors.toList());
+    }
+
+    // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por él.
+    // Público porque también se usa directamente como itemLabel en el XHTML.
+    // OJO: el guard de null es SOLO para s==null (el valor todavía no elegido en
+    // el campo; si se dejara el "—" escrito directo en el EL, PrimeFaces lo evalúa
+    // igual con var=null y queda un guion suelto). Un registro real con
+    // tipoSecuencia vacío (como los que insertaste a mano en la BD) NO debe dar
+    // cadena vacía, porque entonces ninguna búsqueda de texto lo encuentra nunca:
+    // se muestra como "(sin tipo)" para que siga siendo visible/buscable.
+    public String etiqueta(ProcedimientoPasoSecuencia s) {
+        if (s == null) {
+            return "";
+        }
+        String tipo = (s.getTipoSecuencia() == null || s.getTipoSecuencia().isBlank())
+                ? "(sin tipo)" : s.getTipoSecuencia();
+        String refNombre = nombrePaso(s.getIdProcedimientoPasoReferencia());
+        return refNombre.isBlank() ? tipo : tipo + " — " + refNombre;
+    }
+
+    // Al seleccionar una secuencia existente (desde el autocomplete de
+    // búsqueda), sincroniza también el objeto que ve el autocomplete
+    // "Paso de referencia": registro solo guarda el UUID
+    // (idProcedimientoPasoReferencia), pero el <p:autoComplete> necesita el
+    // objeto ProcedimientoPaso completo para poder mostrarlo.
+    @Override
+    public void btnSeleccionarRegistro(UUID id) {
+        super.btnSeleccionarRegistro(id);
+        sincronizarPasoReferencia();
+    }
+
+    private void sincronizarPasoReferencia() {
+        if (registro != null && registro.getIdProcedimientoPasoReferencia() != null) {
+            UUID idRef = registro.getIdProcedimientoPasoReferencia();
+            this.pasoReferenciaSeleccionado = getPasos().stream()
+                    .filter(p -> idRef.equals(p.getIdProcedimientoPaso()))
+                    .findFirst()
+                    .orElseGet(() -> pasoDAO.buscar(idRef));
+        } else {
+            this.pasoReferenciaSeleccionado = null;
+        }
+    }
+
+    // Se llama desde el botón "Gestionar Secuencia": antes solo abría el diálogo
+    // (btnAbrirDialogo) confiando en que cargarDe() ya se hubiera ejecutado por el
+    // tabChange de tabsPaso. Si el usuario no alternaba de pestaña, cargarDe nunca
+    // corría para el paso actual y el diálogo se abría con la lista vacía hasta
+    // cambiar de pestaña y volver. Ahora se recarga aquí mismo, siempre, al abrir.
+    public void abrirGestionSecuencia(ProcedimientoPaso padre) {
+        cargarDe(padre);
+        btnAbrirDialogo();
+    }
+
+    // Al cambiar de paso padre o cerrar el diálogo, limpiar también lo que
+    // haya quedado escrito/elegido en el autocomplete.
+    @Override
+    public void cargarDe(ProcedimientoPaso padre) {
+        super.cargarDe(padre);
+        this.seleccionAutocomplete = null;
+        this.pasoReferenciaSeleccionado = null;
+    }
+
+    @Override
+    public void btnCerrarDialogo() {
+        super.btnCerrarDialogo();
+        this.seleccionAutocomplete = null;
+        this.pasoReferenciaSeleccionado = null;
+    }
+
+    @Override
+    public void btnNuevoHandler(jakarta.faces.event.ActionEvent ae) {
+        super.btnNuevoHandler(ae);
+        this.pasoReferenciaSeleccionado = null;
+    }
 
     @Override
     protected InterfaceDAO<ProcedimientoPasoSecuencia> getDAO() {
@@ -64,15 +207,32 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         return pasos;
     }
 
-    // La referencia es un UUID suelto; este método busca el nombre del paso para mostrarlo en la tabla
+    public List<ProcedimientoPaso> completarPasos(String query) {
+        String texto = query == null ? "" : query.trim().toLowerCase();
+
+        return getPasos().stream()
+                .filter(p -> p.getNombre() != null
+                && p.getNombre().toLowerCase().contains(texto))
+                .collect(Collectors.toList());
+    }
+
+    // La referencia es un UUID suelto; este método busca el nombre del paso para mostrarlo en la tabla.
+    // Primero busca en la lista cacheada (getPasos(), limitada a 100 para no golpear la BD en cada
+    // llamada); si el paso referenciado no está en ese rango (más de 100 pasos en el sistema), se hace
+    // una búsqueda puntual por id en vez de conformarse con mostrar el UUID en crudo.
     public String nombrePaso(UUID id) {
         if (id == null) {
             return "";
         }
-        return getPasos().stream()
+        String nombreEnCache = getPasos().stream()
                 .filter(p -> id.equals(p.getIdProcedimientoPaso()))
                 .map(ProcedimientoPaso::getNombre)
                 .findFirst()
-                .orElse(id.toString());
+                .orElse(null);
+        if (nombreEnCache != null) {
+            return nombreEnCache;
+        }
+        ProcedimientoPaso encontrado = pasoDAO.buscar(id);
+        return encontrado != null ? encontrado.getNombre() : id.toString();
     }
 }
