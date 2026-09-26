@@ -47,4 +47,13 @@ public class DocumentoDAO extends DefaultDAO<Documento>{
         return id == null ? null : em.find(TipoDocumento.class, id);
     }
 
+    // Devuelve solo los documentos de una persona especifica. Se usa en la
+    // pestana "Documentos" dentro de la pantalla de Persona, en vez de traer
+    // siempre los 100 Documento de todas las personas.
+    public List<Documento> findByPersona(UUID idPersona) {
+        return buscarPorPadre(
+                "SELECT d FROM Documento d WHERE d.idPersona.idPersona = :id",
+                "id", idPersona);
+    }
+
 }

@@ -96,7 +96,7 @@
 
                         <h:panelGroup rendered="#{personaModel.estado=='CREAR'}" layout="block"
                                       style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
-                            Guarda primero los datos de la persona para poder asignarle roles.
+                            Guarda primero los datos de la persona para poder acceder a las demas funciones.
                         </h:panelGroup>
 
                         <g:botones_top modelo="#{personaModel}"/>
@@ -106,22 +106,22 @@
                     <p:tab title="Rol y Clinica" disabled="#{personaModel.estado != 'MODIFICAR'}">
 
                         <p:outputLabel value="Buscar clinica existente" style="font-weight:bold;"/>
-                        <p:autoComplete value="#{personaModel.nuevaClinica}"
-                                        completeMethod="#{personaModel.completarClinicas}"
+                        <p:autoComplete value="#{personaRolDetalleModel.nuevaClinica}"
+                                        completeMethod="#{personaRolDetalleModel.completarClinicas}"
                                         var="cl" itemLabel="#{cl.nombre}" itemValue="#{cl}"
                                         converter="#{clinicaConverter}" forceSelection="true"
                                         placeholder="Buscar clinica..." style="width:100%; margin:6px 0 16px 0; display:block;">
-                            <p:ajax event="itemSelect" listener="#{personaModel.onClinicaAutocompleteSelect}"
+                            <p:ajax event="itemSelect" listener="#{personaRolDetalleModel.onClinicaAutocompleteSelect}"
                                     process="@this" update="pnlResumenRol"/>
                         </p:autoComplete>
 
                         <p:outputLabel value="Buscar rol existente" style="font-weight:bold;"/>
-                        <p:autoComplete value="#{personaModel.nuevoRol}"
-                                        completeMethod="#{personaModel.completarRoles}"
+                        <p:autoComplete value="#{personaRolDetalleModel.nuevoRol}"
+                                        completeMethod="#{personaRolDetalleModel.completarRoles}"
                                         var="rl" itemLabel="#{rl.nombre}" itemValue="#{rl}"
                                         converter="rolConverter" forceSelection="true"
                                         placeholder="Buscar rol..." style="width:100%; margin:6px 0 16px 0; display:block;">
-                            <p:ajax event="itemSelect" listener="#{personaModel.onRolAutocompleteSelect}"
+                            <p:ajax event="itemSelect" listener="#{personaRolDetalleModel.onRolAutocompleteSelect}"
                                     process="@this" update="pnlResumenRol"/>
                         </p:autoComplete>
 
@@ -129,50 +129,153 @@
                                       style="padding:10px; margin-bottom:16px; border-radius:4px; background:#f5f7fa; border:1px solid #dbe2ea;">
 
                             <p:outputLabel value="Rol: "/>
-                            <b>#{personaModel.nuevoRol != null ? personaModel.nuevoRol.nombre : '(ninguno)'}</b>
+                            <b>#{personaRolDetalleModel.nuevoRol != null ? personaRolDetalleModel.nuevoRol.nombre : '(ninguno)'}</b>
 
                             &#160;&#160;
 
                             <p:outputLabel value="Clinica: "/>
-                            <b>#{personaModel.nuevaClinica != null ? personaModel.nuevaClinica.nombre : '(ninguna)'}</b>
+                            <b>#{personaRolDetalleModel.nuevaClinica != null ? personaRolDetalleModel.nuevaClinica.nombre : '(ninguna)'}</b>
 
                             <br/>
 
                             <p:commandButton value="Quitar rol"
                                              styleClass="ui-button-secondary"
                                              style="margin-right:8px;"
-                                             rendered="#{personaModel.nuevoRol != null}"
-                                             actionListener="#{personaModel.limpiarRolSeleccionado}"
+                                             rendered="#{personaRolDetalleModel.nuevoRol != null}"
+                                             actionListener="#{personaRolDetalleModel.limpiarRolSeleccionado}"
                                              process="@this"
                                              update="@form"/>
 
                             <p:commandButton value="Quitar clinica"
                                              styleClass="ui-button-secondary"
-                                             rendered="#{personaModel.nuevaClinica != null}"
-                                             actionListener="#{personaModel.limpiarClinicaSeleccionada}"
+                                             rendered="#{personaRolDetalleModel.nuevaClinica != null}"
+                                             actionListener="#{personaRolDetalleModel.limpiarClinicaSeleccionada}"
                                              process="@this"
                                              update="@form"/>
                         </h:panelGroup>
 
                         <p:commandButton value="Agregar asignación"
                                          style="margin-top:10px;"
-                                         actionListener="#{personaModel.agregarRol}"
+                                         actionListener="#{personaRolDetalleModel.agregarRol}"
                                          process="@this"
                                          update="@form :mensajes"/>
 
                         <h3 style="margin-top:20px;">Roles ya asignados a esta persona</h3>
-                        <p:dataView value="#{personaModel.rolesDePersona}" var="pr" layout="list"
+                        <p:dataView value="#{personaRolDetalleModel.rolesDePersona}" var="pr" layout="list"
                                     emptyMessage="Esta persona no tiene roles asignados">
                             <p:dataViewListItem>
                                 <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0;">
                                     <span>#{pr.idRol.nombre} - #{pr.idClinica.nombre}</span>
                                     <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger" style="width:2.2em;"
-                                                     actionListener="#{personaModel.eliminarRol(pr)}"
+                                                     actionListener="#{personaRolDetalleModel.eliminarRol(pr)}"
                                                      process="@this" update="@form :mensajes"/>
                                 </div>
                             </p:dataViewListItem>
                         </p:dataView>
 
+                    </p:tab>
+
+                    <!-- === Pestaña 3: Documentos ===
+                         Caso simple para AbstracdetallecrudModel: un solo
+                         campo de tipo (TipoDocumento, elegido vía autocomplete
+                         igual que Rol/Clinica) + flujo normal
+                         Nuevo -> formulario -> Crear/Actualizar/Eliminar. === -->
+                    <p:tab title="Documentos" disabled="#{personaModel.estado != 'MODIFICAR'}">
+
+                        <p:dataTable value="#{personaDocumentoModel}" var="d" id="tblDocumentos"
+                                     rowKey="#{d.idDocumento}" selectionMode="single"
+                                     paginator="true" rows="5" style="width:100%"
+                                     rendered="#{personaDocumentoModel.estado=='NINGUNO'}"
+                                     emptyMessage="Esta persona no tiene documentos">
+                            <p:ajax event="rowSelect" listener="#{personaDocumentoModel.onRowSelect}"
+                                    process="@this" update="@form"/>
+                            <p:column headerText="Tipo">
+                                <p:outputLabel value="#{d.idTipoDocumento.nombre}"/>
+                            </p:column>
+                            <p:column headerText="Valor">
+                                <p:outputLabel value="#{d.valor}"/>
+                            </p:column>
+                            <p:column headerText="Ruta física">
+                                <p:outputLabel value="#{d.rutaFisica}"/>
+                            </p:column>
+                        </p:dataTable>
+
+                        <p:commandButton value="Nuevo documento" style="margin:10px 0;"
+                                         actionListener="#{personaDocumentoModel.btnNuevoHandler}"
+                                         rendered="#{personaDocumentoModel.estado=='NINGUNO'}"
+                                         process="@this" update="@form"/>
+
+                        <p:panelGrid columns="2" style="width:100%"
+                                     rendered="#{personaDocumentoModel.estado!='NINGUNO'}">
+                            <p:outputLabel value="Tipo de Documento" for="acTipoDocumento"/>
+                            <p:autoComplete id="acTipoDocumento" style="width:100%"
+                                            value="#{personaDocumentoModel.registro.idTipoDocumento}"
+                                            completeMethod="#{personaDocumentoModel.completarTiposDocumento}"
+                                            var="td" itemLabel="#{td.nombre}" itemValue="#{td}"
+                                            converter="#{tipoDocumentoConverter}" forceSelection="true"
+                                            placeholder="Buscar tipo de documento..."/>
+
+                            <p:outputLabel value="Valor" for="txtValorDocumento"/>
+                            <p:inputText id="txtValorDocumento" style="width:100%"
+                                         value="#{personaDocumentoModel.registro.valor}"/>
+
+                            <p:outputLabel value="Ruta física" for="txtRutaDocumento"/>
+                            <p:inputText id="txtRutaDocumento" style="width:100%"
+                                         value="#{personaDocumentoModel.registro.rutaFisica}"/>
+                        </p:panelGrid>
+
+                        <g:botones_top modelo="#{personaDocumentoModel}" tabla="Persona:tblDocumentos"/>
+                        <p:commandButton value="#{msg['crud.boton.cancelar']}"
+                                         actionListener="#{personaDocumentoModel.btnCancelar}"
+                                         rendered="#{personaDocumentoModel.estado!='NINGUNO'}"
+                                         process="@this" update="@form"/>
+                    </p:tab>
+
+                    <!-- === Pestaña 4: Medios de Contacto ===
+                         Mismo caso simple que Documentos: tipo elegido vía
+                         autocomplete (TipoMedioContacto). === -->
+                    <p:tab title="Medios de Contacto" disabled="#{personaModel.estado != 'MODIFICAR'}">
+
+                        <p:dataTable value="#{personaMedioContactoModel}" var="mc" id="tblMediosContacto"
+                                     rowKey="#{mc.idMedioContacto}" selectionMode="single"
+                                     paginator="true" rows="5" style="width:100%"
+                                     rendered="#{personaMedioContactoModel.estado=='NINGUNO'}"
+                                     emptyMessage="Esta persona no tiene medios de contacto">
+                            <p:ajax event="rowSelect" listener="#{personaMedioContactoModel.onRowSelect}"
+                                    process="@this" update="@form"/>
+                            <p:column headerText="Tipo">
+                                <p:outputLabel value="#{mc.idTipoMedioContacto.nombre}"/>
+                            </p:column>
+                            <p:column headerText="Valor">
+                                <p:outputLabel value="#{mc.valor}"/>
+                            </p:column>
+                        </p:dataTable>
+
+                        <p:commandButton value="Nuevo medio de contacto" style="margin:10px 0;"
+                                         actionListener="#{personaMedioContactoModel.btnNuevoHandler}"
+                                         rendered="#{personaMedioContactoModel.estado=='NINGUNO'}"
+                                         process="@this" update="@form"/>
+
+                        <p:panelGrid columns="2" style="width:100%"
+                                     rendered="#{personaMedioContactoModel.estado!='NINGUNO'}">
+                            <p:outputLabel value="Tipo de Medio de Contacto" for="acTipoMedioContacto"/>
+                            <p:autoComplete id="acTipoMedioContacto" style="width:100%"
+                                            value="#{personaMedioContactoModel.registro.idTipoMedioContacto}"
+                                            completeMethod="#{personaMedioContactoModel.completarTiposMedioContacto}"
+                                            var="tmc" itemLabel="#{tmc.nombre}" itemValue="#{tmc}"
+                                            converter="#{tipoMedioContactoConverter}" forceSelection="true"
+                                            placeholder="Buscar tipo de medio de contacto..."/>
+
+                            <p:outputLabel value="Valor" for="txtValorMedioContacto"/>
+                            <p:inputText id="txtValorMedioContacto" style="width:100%"
+                                         value="#{personaMedioContactoModel.registro.valor}"/>
+                        </p:panelGrid>
+
+                        <g:botones_top modelo="#{personaMedioContactoModel}" tabla="Persona:tblMediosContacto"/>
+                        <p:commandButton value="#{msg['crud.boton.cancelar']}"
+                                         actionListener="#{personaMedioContactoModel.btnCancelar}"
+                                         rendered="#{personaMedioContactoModel.estado!='NINGUNO'}"
+                                         process="@this" update="@form"/>
                     </p:tab>
 
                 </p:tabView>

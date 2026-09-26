@@ -48,4 +48,13 @@ public class MedioContactoDAO extends DefaultDAO<MedioContacto> {
         return id == null ? null : em.find(TipoMedioContacto.class, id);
     }
 
+    // Devuelve solo los medios de contacto de una persona especifica. Se usa
+    // en la pestana "Medios de Contacto" dentro de la pantalla de Persona,
+    // en vez de traer siempre los 100 MedioContacto de todas las personas.
+    public List<MedioContacto> findByPersona(UUID idPersona) {
+        return buscarPorPadre(
+                "SELECT m FROM MedioContacto m WHERE m.idPersona.idPersona = :id",
+                "id", idPersona);
+    }
+
 }
