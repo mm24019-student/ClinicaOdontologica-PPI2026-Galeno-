@@ -54,22 +54,256 @@
                         closable="true"/>
         </div>
 
+        <!-- === DETALLE: 1 sola pantalla con 4 pestañas (Datos, Rol, Clinica,
+             Asignaciones). Las pestañas Rol/Clinica/Asignaciones vienen
+             deshabilitadas mientras estado != MODIFICAR.
+
+             activeIndex="#{personaModel.tabActivo}" + p:ajax tabChange:
+             sin esto, CUALQUIER ajax dentro del form (seleccionar fila,
+             crear/actualizar rol, autocomplete, etc.) hace que el tabView
+             se vuelva a renderizar en su pestaña 0 ("Datos de Persona"),
+             porque no tiene memoria de cuál pestaña estaba activa. Al atar
+             el índice al bean, cada acción dentro de una pestaña la deja
+             donde estaba.
+
+             process en los botones: como Rol/Clinica/Asignaciones viven
+             DENTRO del mismo <h:form id="Persona"> (no se pueden anidar
+             forms), por defecto cada p:commandButton valida TODOS los
+             campos visibles del form, no solo los suyos. Por eso cada botón
+             de acá abajo trae un process explícito. === -->
         <div class="tarjeta-suelta">
-            <h2>Mantenimiento de Persona</h2>
             <h:form id="Persona" styleClass="form-persona">
-                <p:panelGrid columns="2" style="width:100%" rendered="#{personaModel.estado!='NINGUNO'}">
-                    <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" style="width:100%" disabled="true" value="#{personaModel.registro.idPersona}"/>
-                    <p:outputLabel value="Nombres" for="txtNombres"/>
-                    <p:inputText id="txtNombres" style="width:100%" value="#{personaModel.registro.nombres}"/>
-                    <p:outputLabel value="Apellidos" for="txtApellidos"/>
-                    <p:inputText id="txtApellidos" style="width:100%" value="#{personaModel.registro.apellidos}"/>
-                    <p:outputLabel for="calFechaNacimiento" value="Fecha de Nacimiento"/>
-                    <p:datePicker id="calFechaNacimiento" style="width:100%" pattern="dd/MM/yyyy"
-                                  value="#{personaModel.registro.fechaNacimiento}" showIcon="true"
-                                  monthNavigator="true" yearNavigator="true" yearRange="1900:2026"/>
-                </p:panelGrid>
-                <g:botones_top modelo="#{personaModel}"/>
+
+                <p:tabView activeIndex="#{personaModel.tabActivo}" rendered="#{personaModel.estado!='NINGUNO'}">
+                    <p:ajax event="tabChange" update="@none"/>
+
+                    <!-- === Pestaña 1: Datos de Persona, sin cambios === -->
+                    <p:tab title="Datos de Persona">
+                        <p:panelGrid columns="2" style="width:100%">
+                            <p:outputLabel value="ID" for="txtId"/>
+                            <p:inputText id="txtId" style="width:100%" disabled="true" value="#{personaModel.registro.idPersona}"/>
+                            <p:outputLabel value="Nombres" for="txtNombres"/>
+                            <p:inputText id="txtNombres" style="width:100%" value="#{personaModel.registro.nombres}"/>
+                            <p:outputLabel value="Apellidos" for="txtApellidos"/>
+                            <p:inputText id="txtApellidos" style="width:100%" value="#{personaModel.registro.apellidos}"/>
+                            <p:outputLabel for="calFechaNacimiento" value="Fecha de Nacimiento"/>
+                            <p:datePicker id="calFechaNacimiento" style="width:100%" pattern="dd/MM/yyyy"
+                                          value="#{personaModel.registro.fechaNacimiento}" showIcon="true"
+                                          monthNavigator="true" yearNavigator="true" yearRange="1900:2026"/>
+                        </p:panelGrid>
+
+                        <h:panelGroup rendered="#{personaModel.estado=='CREAR'}" layout="block"
+                                      style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
+                            Guarda primero los datos de la persona para poder asignarle roles.
+                        </h:panelGroup>
+
+                        <g:botones_top modelo="#{personaModel}"/>
+                    </p:tab>
+
+                    <!-- === Pestaña 2: Rol === -->
+                    <p:tab title="Rol" disabled="#{personaModel.estado != 'MODIFICAR'}">
+
+                        <p:outputLabel value="Buscar rol existente (autocomplete)" style="font-weight:bold;"/>
+                        <p:autoComplete value="#{personaModel.nuevoRol}"
+                                        completeMethod="#{personaModel.completarRoles}"
+                                        var="rl" itemLabel="#{rl.nombre}" itemValue="#{rl}"
+                                        converter="rolConverter" forceSelection="true"
+                                        placeholder="Buscar rol..." style="width:100%; margin:6px 0 16px 0; display:block;">
+                            <p:ajax event="itemSelect" listener="#{personaModel.onRolAutocompleteSelect}"
+                                    process="@this" update="pnlResumenRol"/>
+                        </p:autoComplete>
+                        <h:panelGroup id="pnlResumenRol" layout="block"
+                                      style="padding:10px; margin-bottom:16px; border-radius:4px; background:#f5f7fa; border:1px solid #dbe2ea;">
+                            <p:outputLabel value="Rol: "/> <b>#{personaModel.nuevoRol != null ? personaModel.nuevoRol.nombre : '(ninguno)'}</b>
+                            &#160;&#160;
+                            <p:outputLabel value="Clinica: "/> <b>#{personaModel.nuevaClinica != null ? personaModel.nuevaClinica.nombre : '(ninguna)'}</b>
+                            <br/>
+                            <p:commandButton value="Agregar asignación" style="margin-top:8px; margin-right:8px;"
+                                             actionListener="#{personaModel.agregarRol}"
+                                             process="@this" update="@form :mensajes"/>
+                            <p:commandButton value="Quitar rol" styleClass="ui-button-secondary" style="margin-right:8px;"
+                                             rendered="#{personaModel.nuevoRol != null}"
+                                             actionListener="#{personaModel.limpiarRolSeleccionado}"
+                                             process="@this" update="@form"/>
+                            <p:commandButton value="Quitar clinica" styleClass="ui-button-secondary"
+                                             rendered="#{personaModel.nuevaClinica != null}"
+                                             actionListener="#{personaModel.limpiarClinicaSeleccionada}"
+                                             process="@this" update="@form"/>
+                        </h:panelGroup>
+
+                        <h3>O elige/crea un rol desde la tabla</h3>
+
+                        <p:dataTable value="#{rolModel}" var="rr" id="tblRolInline"
+                                     paginator="true" rows="5" style="width:100%"
+                                     selectionMode="single" rowKey="#{rr.idRol}"
+                                     rendered="#{rolModel.estado=='NINGUNO'}">
+                            <p:ajax event="rowSelect" listener="#{rolModel.onRowSelect}"
+                                    process="@this" update="@form :mensajes" resetValues="true"/>
+                            <p:column headerText="Nombre">
+                                <p:outputLabel value="#{rr.nombre}"/>
+                            </p:column>
+                            <p:column headerText="Observaciones">
+                                <p:outputLabel value="#{rr.observaciones}"/>
+                            </p:column>
+                            <p:column headerText="Estado">
+                                <p:outputLabel value="#{rr.activo?'ACTIVO':'INACTIVO'}"/>
+                            </p:column>
+                        </p:dataTable>
+
+                        <p:commandButton value="Nuevo rol" style="margin-right:10px; margin-top:10px;" resetValues="true"
+                                         actionListener="#{rolModel.btnNuevoHandler}"
+                                         process="@this" update="@form :mensajes"/>
+                        <p:commandButton value="Cancelar" style="margin-top:10px;" resetValues="true"
+                                         actionListener="#{rolModel.btnCancelar}"
+                                         process="@this" update="@form :mensajes"/>
+
+                        <p:panelGrid columns="2" style="width:100%; margin-top:10px;" rendered="#{rolModel.estado!='NINGUNO'}">
+                            <p:outputLabel value="ID" for="txtIdRolDet"/>
+                            <p:inputText id="txtIdRolDet" style="width:100%" disabled="true" value="#{rolModel.registro.idRol}"/>
+                            <p:outputLabel value="Nombre" for="txtNombreRolDet"/>
+                            <p:inputText id="txtNombreRolDet" style="width:100%" value="#{rolModel.registro.nombre}"/>
+                            <p:outputLabel for="txtObsRolDet" value="Observaciones"/>
+                            <p:inputTextarea id="txtObsRolDet" rows="3" style="width:100%" value="#{rolModel.registro.observaciones}"/>
+                            <p:outputLabel for="chkActivoRolDet" value="Activo"/>
+                            <p:selectBooleanCheckbox id="chkActivoRolDet" value="#{rolModel.registro.activo}"/>
+                        </p:panelGrid>
+
+                        <p:commandButton value="Crear rol" style="margin-right:10px;"
+                                         actionListener="#{rolModel.btnCrearhandler}" rendered="#{rolModel.estado=='CREAR'}"
+                                         process="@this txtNombreRolDet txtObsRolDet chkActivoRolDet"
+                                         update="@form :mensajes"/>
+                        <p:commandButton value="Actualizar rol" style="margin-right:10px;"
+                                         actionListener="#{rolModel.btnModificarHandler}" rendered="#{rolModel.estado=='MODIFICAR'}"
+                                         process="@this txtNombreRolDet txtObsRolDet chkActivoRolDet"
+                                         update="@form :mensajes"/>
+                        <p:commandButton value="Eliminar rol" style="margin-right:10px;"
+                                         actionListener="#{rolModel.btnEliminarHandler}" rendered="#{rolModel.estado=='MODIFICAR'}"
+                                         process="@this" update="@form :mensajes"/>
+                        <p:commandButton value="Usar este rol para asignar" styleClass="ui-button-success"
+                                         rendered="#{rolModel.estado=='MODIFICAR'}"
+                                         actionListener="#{personaModel.usarRol(rolModel.registro)}"
+                                         process="@this" update="@form :mensajes"/>
+                    </p:tab>
+
+                    <!-- === Pestaña 3: Clinica === -->
+                    <p:tab title="Clinica" disabled="#{personaModel.estado != 'MODIFICAR'}">
+
+                        <p:outputLabel value="Buscar clinica existente (autocomplete)" style="font-weight:bold;"/>
+                        <p:autoComplete value="#{personaModel.nuevaClinica}"
+                                        completeMethod="#{personaModel.completarClinicas}"
+                                        var="cl" itemLabel="#{cl.nombre}" itemValue="#{cl}"
+                                        converter="#{clinicaConverter}" forceSelection="true"
+                                        placeholder="Buscar clinica..." style="width:100%; margin:6px 0 16px 0; display:block;">
+                            <p:ajax event="itemSelect" listener="#{personaModel.onClinicaAutocompleteSelect}"
+                                    process="@this" update="pnlResumenClinica"/>
+                        </p:autoComplete>
+                        <h:panelGroup id="pnlResumenClinica" layout="block"
+                                      style="padding:10px; margin-bottom:16px; border-radius:4px; background:#f5f7fa; border:1px solid #dbe2ea;">
+                            <p:outputLabel value="Rol: "/> <b>#{personaModel.nuevoRol != null ? personaModel.nuevoRol.nombre : '(ninguno)'}</b>
+                            &#160;&#160;
+                            <p:outputLabel value="Clinica: "/> <b>#{personaModel.nuevaClinica != null ? personaModel.nuevaClinica.nombre : '(ninguna)'}</b>
+                            <br/>
+                            <p:commandButton value="Agregar asignación" style="margin-top:8px; margin-right:8px;"
+                                             actionListener="#{personaModel.agregarRol}"
+                                             process="@this" update="@form :mensajes"/>
+                            <p:commandButton value="Quitar rol" styleClass="ui-button-secondary" style="margin-right:8px;"
+                                             rendered="#{personaModel.nuevoRol != null}"
+                                             actionListener="#{personaModel.limpiarRolSeleccionado}"
+                                             process="@this" update="@form"/>
+                            <p:commandButton value="Quitar clinica" styleClass="ui-button-secondary"
+                                             rendered="#{personaModel.nuevaClinica != null}"
+                                             actionListener="#{personaModel.limpiarClinicaSeleccionada}"
+                                             process="@this" update="@form"/>
+                        </h:panelGroup>
+
+                        <h3>O elige/crea una clinica desde la tabla</h3>
+
+                        <p:dataTable value="#{clinicaModel}" var="cc" id="tblClinicaInline"
+                                     paginator="true" rows="5" style="width:100%"
+                                     selectionMode="single" rowKey="#{cc.idClinica}"
+                                     rendered="#{clinicaModel.estado=='NINGUNO'}">
+                            <p:ajax event="rowSelect" listener="#{clinicaModel.onRowSelect}"
+                                    process="@this" update="@form :mensajes" resetValues="true"/>
+                            <p:column headerText="Nombre">
+                                <p:outputLabel value="#{cc.nombre}"/>
+                            </p:column>
+                            <p:column headerText="Tipo">
+                                <p:outputLabel value="#{cc.tipo}"/>
+                            </p:column>
+                            <p:column headerText="Estado">
+                                <p:outputLabel value="#{cc.activo?'ACTIVO':'INACTIVO'}"/>
+                            </p:column>
+                        </p:dataTable>
+
+                        <p:commandButton value="Nueva clinica" style="margin-right:10px; margin-top:10px;" resetValues="true"
+                                         actionListener="#{clinicaModel.btnNuevoHandler}"
+                                         process="@this" update="@form :mensajes"/>
+                        <p:commandButton value="Cancelar" style="margin-top:10px;" resetValues="true"
+                                         actionListener="#{clinicaModel.btnCancelar}"
+                                         process="@this" update="@form :mensajes"/>
+
+                        <p:panelGrid columns="2" style="width:100%; margin-top:10px;" rendered="#{clinicaModel.estado!='NINGUNO'}">
+                            <p:outputLabel value="ID" for="txtIdClinicaDet"/>
+                            <p:inputText id="txtIdClinicaDet" style="width:100%" disabled="true" value="#{clinicaModel.registro.idClinica}"/>
+                            <p:outputLabel value="Nombre" for="txtNombreClinicaDet"/>
+                            <p:inputText id="txtNombreClinicaDet" style="width:100%" value="#{clinicaModel.registro.nombre}"/>
+                            <p:outputLabel value="Tipo" for="txtTipoClinicaDet"/>
+                            <p:inputText id="txtTipoClinicaDet" style="width:100%" value="#{clinicaModel.registro.tipo}"/>
+                            <p:outputLabel for="txtComentariosClinicaDet" value="Comentarios"/>
+                            <p:inputTextarea id="txtComentariosClinicaDet" rows="3" style="width:100%" value="#{clinicaModel.registro.comentarios}"/>
+                            <p:outputLabel for="chkActivoClinicaDet" value="Activo"/>
+                            <p:selectBooleanCheckbox id="chkActivoClinicaDet" value="#{clinicaModel.registro.activo}"/>
+                        </p:panelGrid>
+
+                        <p:commandButton value="Crear clinica" style="margin-right:10px;"
+                                         actionListener="#{clinicaModel.btnCrearhandler}" rendered="#{clinicaModel.estado=='CREAR'}"
+                                         process="@this txtNombreClinicaDet txtTipoClinicaDet txtComentariosClinicaDet chkActivoClinicaDet"
+                                         update="@form :mensajes"/>
+                        <p:commandButton value="Actualizar clinica" style="margin-right:10px;"
+                                         actionListener="#{clinicaModel.btnModificarHandler}" rendered="#{clinicaModel.estado=='MODIFICAR'}"
+                                         process="@this txtNombreClinicaDet txtTipoClinicaDet txtComentariosClinicaDet chkActivoClinicaDet"
+                                         update="@form :mensajes"/>
+                        <p:commandButton value="Eliminar clinica" style="margin-right:10px;"
+                                         actionListener="#{clinicaModel.btnEliminarHandler}" rendered="#{clinicaModel.estado=='MODIFICAR'}"
+                                         process="@this" update="@form :mensajes"/>
+                        <p:commandButton value="Usar esta clinica para asignar" styleClass="ui-button-success"
+                                         rendered="#{clinicaModel.estado=='MODIFICAR'}"
+                                         actionListener="#{personaModel.usarClinica(clinicaModel.registro)}"
+                                         process="@this" update="@form :mensajes"/>
+                    </p:tab>
+
+                    <!-- === Pestaña 4: Asignaciones === -->
+                    <p:tab title="Asignaciones" disabled="#{personaModel.estado != 'MODIFICAR'}">
+
+                        <p:panelGrid columns="2" style="width:100%; margin-bottom:16px;">
+                            <p:outputLabel value="Rol seleccionado:" style="font-weight:bold;"/>
+                            <h:outputText value="#{personaModel.nuevoRol.nombre}" rendered="#{personaModel.nuevoRol != null}"/>
+                            <h:outputText value="(ninguno, ve a la pestaña Rol)" rendered="#{personaModel.nuevoRol == null}"/>
+
+                            <p:outputLabel value="Clinica seleccionada:" style="font-weight:bold;"/>
+                            <h:outputText value="#{personaModel.nuevaClinica.nombre}" rendered="#{personaModel.nuevaClinica != null}"/>
+                            <h:outputText value="(ninguna, ve a la pestaña Clinica)" rendered="#{personaModel.nuevaClinica == null}"/>
+                        </p:panelGrid>
+
+                        <p:commandButton value="Agregar asignación"
+                                         actionListener="#{personaModel.agregarRol}"
+                                         process="@this" update="@form :mensajes"/>
+
+                        <h3 style="margin-top:20px;">Roles ya asignados a esta persona</h3>
+                        <p:dataView value="#{personaModel.rolesDePersona}" var="pr" layout="list"
+                                    emptyMessage="Esta persona no tiene roles asignados">
+                            <p:dataViewListItem>
+                                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0;">
+                                    <span>#{pr.idRol.nombre} - #{pr.idClinica.nombre}</span>
+                                    <p:commandButton icon="pi pi-trash" styleClass="ui-button-danger" style="width:2.2em;"
+                                                     actionListener="#{personaModel.eliminarRol(pr)}"
+                                                     process="@this" update="@form :mensajes"/>
+                                </div>
+                            </p:dataViewListItem>
+                        </p:dataView>
+                    </p:tab>
+
+                </p:tabView>
             </h:form>
         </div>
     </ui:define>

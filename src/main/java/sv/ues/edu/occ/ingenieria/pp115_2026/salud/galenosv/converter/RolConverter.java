@@ -1,4 +1,4 @@
-package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
+package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 
 
 import jakarta.faces.component.UIComponent;

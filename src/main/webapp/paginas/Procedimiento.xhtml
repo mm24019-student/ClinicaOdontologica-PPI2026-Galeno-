@@ -1,30 +1,29 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition template="/WEB-INF/general.xhtml"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets"
-      xmlns:g="jakarta.faces.composite/crud">
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
+
 
     <ui:define name="titulo_pagina">
         <h2>Procedimiento</h2>
     </ui:define>
 
+   
 <!--Trozo de codigo de contenido de la pagina donde se muestra la tabla de procedimientos -->
     <ui:define name="contenido">
         <div class="tarjeta">
             <h:form id="frmTabla">
                 <p:dataTable value="#{procedimientoModel}" var="r" id="tblProcedimiento"
-                             paginator="true" rows="2" style="width:100%"
+                             paginator="true" rows="10" style="width:100%"
                              selectionMode="single" rowKey="#{r.idProcedimiento}"
                              rendered="#{procedimientoModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{procedimientoModel.onRowSelect}"
                             update=":frmTabla :Procedimiento :mensajes"/>
-                    <p:column headerText="ID">
-                        <p:outputLabel value="#{r.idProcedimiento}" />
-                    </p:column>
                     <p:column headerText="Nombre">
                         <p:outputLabel value="#{r.nombre}"/>
                     </p:column>
@@ -37,7 +36,7 @@
                 </p:dataTable>
                 <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" actionListener="#{procedimientoModel.btnNuevoHandler}"
                                  update=":frmTabla :Procedimiento :mensajes"/>
-                                 &nbsp;
+                                 &#160;
                 <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{procedimientoModel.btnCancelar()}"
                                  update=":frmTabla :Procedimiento :mensajes"/>
             </h:form>
@@ -49,22 +48,181 @@
                         closable="true"/>
         </div>
 
-<!--Trozo de codigo que muestra el formulario de mantenimiento de procedimientos -->
+<!--Trozo de codigo que muestra el formulario de mantenimiento de procedimientos, con pestañas -->
         <div class="tarjeta-suelta">
             <h2>Mantenimiento Procedimiento</h2>
             <h:form id="Procedimiento" styleClass="form-procedimiento">
-                <p:panelGrid columns="2" rendered="#{procedimientoModel.estado!='NINGUNO'}">
-                    <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{procedimientoModel.registro.idProcedimiento}"/>
-                    <p:outputLabel value="Nombre" for="txtNombre"/>
-                    <p:inputText id="txtNombre" size="70" value="#{procedimientoModel.registro.nombre}"/>
-                    <p:outputLabel for="chkActivo" value="Activo"/>
-                    <p:selectBooleanCheckbox id="chkActivo" value="#{procedimientoModel.registro.activo}"/>
-                    <p:outputLabel for="txtObservaciones" value="Observaciones"/>
-                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoModel.registro.observaciones}"/>
-                </p:panelGrid>
- <!--Botones de acción del formulario de mantenimiento -->
-                <g:botones_top modelo="#{procedimientoModel}"/>
+
+                <p:tabView id="tabsProcedimiento" rendered="#{procedimientoModel.estado!='NINGUNO'}">
+
+                    <!-- El evento tabChange tiene que ir en el p:tabView, no dentro de un p:tab suelto -->
+                    <p:ajax event="tabChange" listener="#{procedimientoPasoModel.cargarDe(procedimientoModel.registro)}"
+                            update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+
+                    <!-- Pestaña 1: datos propios del procedimiento -->
+                    <p:tab title="Datos del procedimiento">
+                        <p:panelGrid columns="2">
+                            <p:outputLabel value="IDProcedimiento" for="txtIdProcedimiento"/>
+                            <p:inputText id="txtIdProcedimiento" disabled="true" size="70" value="#{procedimientoModel.registro.idProcedimiento}"/>
+                            <p:outputLabel value="Nombre" for="txtNombre"/>
+                            <p:inputText id="txtNombre" size="70" value="#{procedimientoModel.registro.nombre}"/>
+                            <p:outputLabel for="chkActivo" value="Activo"/>
+                            <p:selectBooleanCheckbox id="chkActivo" value="#{procedimientoModel.registro.activo}"/>
+                            <p:outputLabel for="txtObservaciones" value="Observaciones"/>
+                            <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoModel.registro.observaciones}"/>
+                        </p:panelGrid>
+                        <!--Botones de acción del formulario de mantenimiento -->
+                        <g:botones_top modelo="#{procedimientoModel}"/>
+                    </p:tab>
+
+                    <!-- Pestaña 2: pasos de ESTE procedimiento. Solo tiene sentido
+                         una vez que el procedimiento ya está guardado (MODIFICAR),
+                         porque un paso necesita un procedimiento ya existente. -->
+                    <p:tab title="Pasos del Procedimiento" disabled="#{procedimientoModel.estado!='MODIFICAR'}">
+
+                        <h:panelGroup id="pnlPasos">
+                            <p:dataTable value="#{procedimientoPasoModel}" var="ps" id="tblPasos"
+                                         paginator="true" rows="10" style="width:100%"
+                                         selectionMode="single" rowKey="#{ps.idProcedimientoPaso}"
+                                         rendered="#{procedimientoPasoModel.estado=='NINGUNO'}">
+                                <p:ajax event="rowSelect" listener="#{procedimientoPasoModel.onRowSelect}"
+                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                <p:column headerText="Nombre"><p:outputLabel value="#{ps.nombre}"/></p:column>
+                                <p:column headerText="Rol"><p:outputLabel value="#{ps.idRol.nombre}"/></p:column>
+                                <p:column headerText="Fin"><p:outputLabel value="#{ps.indicaFin ? 'SÍ' : 'NO'}"/></p:column>
+                            </p:dataTable>
+
+                            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                             actionListener="#{procedimientoPasoModel.btnNuevoHandler}"
+                                             rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"
+                                             update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+
+                            
+                          
+                            <p:panelGrid columns="2" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}">
+                                <p:outputLabel value="IDPaso" for="txtIdPaso"/>
+                                <p:inputText id="txtIdPaso" size="50" disabled="true" value="#{procedimientoPasoModel.registro.idProcedimientoPaso}"/>
+                                <p:outputLabel value="Nombre" for="txtNombrePaso"/>
+                                <p:inputText id="txtNombrePaso" size="50" value="#{procedimientoPasoModel.registro.nombre}"/>
+                                <p:outputLabel value="Rol" for="cmbRol"/>
+                                <p:selectOneMenu id="cmbRol" converter="rolConverter" value="#{procedimientoPasoModel.registro.idRol}">
+                                    <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                                    <f:selectItems value="#{procedimientoPasoModel.roles}" var="ro" itemValue="#{ro}" itemLabel="#{ro.nombre}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Indica fin" for="chkFin"/>
+                                <p:selectBooleanCheckbox id="chkFin" value="#{procedimientoPasoModel.registro.indicaFin}"/>
+                            </p:panelGrid>
+                            <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                           rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
+
+                            
+                                                       <!--Parte 3-->
+
+                            <p:tabView id="tabsPaso" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}">
+
+                                <!-- Los dos tabChange van aquí, en el p:tabView, no dentro de cada p:tab -->
+                                <p:ajax event="tabChange" listener="#{procedimientoPasoSecuenciaModel.cargarDe(procedimientoPasoModel.registro)}"
+                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                <p:ajax event="tabChange" listener="#{procedimientoPasoExamenModel.cargarDe(procedimientoPasoModel.registro)}"
+                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+
+                                <p:tab title="Secuencia del Procedimiento" disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}">
+
+                                    <h:panelGroup id="pnlSecuencias">
+                                        <p:dataTable value="#{procedimientoPasoSecuenciaModel}" var="sc" id="tblSecuencias"
+                                                     paginator="true" rows="10" style="width:100%"
+                                                     selectionMode="single" rowKey="#{sc.idProcedimientoPasoSecuencia}"
+                                                     rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}">
+                                            <p:ajax event="rowSelect" listener="#{procedimientoPasoSecuenciaModel.onRowSelect}"
+                                                    update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                            <p:column headerText="Tipo"><p:outputLabel value="#{sc.tipoSecuencia}"/></p:column>
+                                            <p:column headerText="Paso de referencia">
+                                                <p:outputLabel value="#{procedimientoPasoSecuenciaModel.nombrePaso(sc.idProcedimientoPasoReferencia)}"/>
+                                            </p:column>
+                                        </p:dataTable>
+
+                                        <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                                         actionListener="#{procedimientoPasoSecuenciaModel.btnNuevoHandler}"
+                                                         rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}"
+                                                         update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+
+                                        <p:panelGrid columns="2" rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}">
+                                            <p:outputLabel value="IDSecuencia" for="txtSecuencia"/>
+                                            <p:inputText id="txtSecuencia" maxlength="20" disabled="true" value="#{procedimientoPasoSecuenciaModel.registro.idProcedimientoPasoSecuencia}"/>
+                                            <p:outputLabel value="Tipo de secuencia" for="txtTipo"/>
+                                            <p:inputText id="txtTipo" maxlength="20" value="#{procedimientoPasoSecuenciaModel.registro.tipoSecuencia}"/>
+
+                                            <p:outputLabel value="Paso de referencia" for="cmbReferencia"/>
+                                            <p:selectOneMenu id="cmbReferencia" value="#{procedimientoPasoSecuenciaModel.registro.idProcedimientoPasoReferencia}">
+                                                <f:selectItem itemLabel="Seleccione..." noSelectionOption="true"/>
+                                                <f:selectItems value="#{procedimientoPasoSecuenciaModel.pasos}" var="pa"
+                                                               itemValue="#{pa.idProcedimientoPaso}"
+                                                               itemLabel="#{pa.idProcedimiento.nombre} - #{pa.nombre}"/>
+                                            </p:selectOneMenu>
+                                        </p:panelGrid>
+                                        <g:botones_top modelo="#{procedimientoPasoSecuenciaModel}"
+                                                       tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                                       rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}"/>
+                                    </h:panelGroup>
+                                </p:tab>
+                                
+                           <!--Parte 4-->
+
+
+                                <p:tab title="Procedimiento del Examen" disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}">
+
+                                    <h:panelGroup id="pnlExamenes">
+                                        <p:dataTable value="#{procedimientoPasoExamenModel}" var="pe" id="tblExamenes"
+                                                     paginator="true" rows="10" style="width:100%"
+                                                     selectionMode="single" rowKey="#{pe.idProcedimientoPasoExamen}"
+                                                     rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}">
+                                            <p:ajax event="rowSelect" listener="#{procedimientoPasoExamenModel.onRowSelect}"
+                                                    update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                            <p:column headerText="Examen"><p:outputLabel value="#{pe.idExamen.nombre}"/></p:column>
+                                            <p:column headerText="Estado"><p:outputLabel value="#{pe.activo?'ACTIVO':'INACTIVO'}"/></p:column>
+                                            <p:column headerText="Observaciones"><p:outputLabel value="#{pe.observaciones}"/></p:column>
+                                        </p:dataTable>
+
+                                        <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
+                                                         actionListener="#{procedimientoPasoExamenModel.btnNuevoHandler}"
+                                                         rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}"
+                                                         update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+
+                                        <p:panelGrid columns="2" rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}">
+                                            <p:outputLabel value="Examen *" for="selExamen"/>
+                                            <p:selectOneMenu id="selExamen" value="#{procedimientoPasoExamenModel.registro.idExamen}"
+                                                             converter="#{examenConverter}">
+                                                <p:ajax event="change" update="txtDescExamen"/>
+                                                <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
+                                                <f:selectItems value="#{procedimientoPasoExamenModel.examenes}" var="e"
+                                                               itemValue="#{e}" itemLabel="#{e.nombre}"/>
+                                            </p:selectOneMenu>
+
+                                            <p:outputLabel value="Descripción del examen"/>
+                                            <h:outputText id="txtDescExamen" value="#{procedimientoPasoExamenModel.registro.idExamen.observaciones}"/>
+
+                                            <p:outputLabel for="chkActivoExamen" value="Activo"/>
+                                            <p:selectBooleanCheckbox id="chkActivoExamen" value="#{procedimientoPasoExamenModel.registro.activo}"/>
+
+                                            <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                                            <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                                          value="#{procedimientoPasoExamenModel.registro.fechaCreacion}"/>
+
+                                            <p:outputLabel value="Observaciones" for="txtObsExamen"/>
+                                            <p:inputTextarea id="txtObsExamen" rows="3" cols="50" value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
+                                        </p:panelGrid>
+                                        <g:botones_top modelo="#{procedimientoPasoExamenModel}"
+                                                       tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                                       rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
+                                    </h:panelGroup>
+                                </p:tab>
+
+                            </p:tabView>
+                        </h:panelGroup>
+                    </p:tab>
+
+                </p:tabView>
             </h:form>
         </div>
     </ui:define>

@@ -15,11 +15,10 @@ import java.util.logging.Logger;
  */
 //Clase abstracta DefaultDAO que implementa la interfaz InterfaceDAO y 
 //proporciona una implementación genérica de los métodos CRUD (crear, eliminar, actualizar, buscar y findRange) para entidades JPA.
-public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
-    
+public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable {
+
 //Declaración de la constante serialVersionUID para la serialización de objetos
     private static final long serialVersionUID = 1L;
-
 
 //Declaración del método abstracto getEntityManager() que debe ser implementado por las subclases para proporcionar 
 //el EntityManager específico de la entidad.
@@ -129,5 +128,14 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable{
             }
         }
         throw new IllegalArgumentException("first debe ser >= 0 y max debe ser > 0");
+    }
+
+    // Helper para los DAO de entidades "detalle": arma y ejecuta una consulta
+    // JPQL que filtra por el padre, sin repetir el boilerplate de TypedQuery
+    // en cada DAO. Cada DAO solo aporta el JPQL propio de su relación.
+    protected List<T> buscarPorPadre(String jpql, String nombreParametro, UUID idPadre) {
+        TypedQuery<T> q = getEntityManager().createQuery(jpql, getEntityClass());
+        q.setParameter(nombreParametro, idPadre);
+        return q.getResultList();
     }
 }
