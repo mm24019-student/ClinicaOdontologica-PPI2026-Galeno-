@@ -73,8 +73,10 @@
                                     <p:menuitem value="#{msg['menu.procedimiento']}" outcome="/paginas/Procedimiento.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
+
                                 <p:menuitem value="#{msg['menu.consulta']}" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
                                             styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
+                                <p:submenu/>
                             </p:menu>
                         </ui:insert>
                     </div>
