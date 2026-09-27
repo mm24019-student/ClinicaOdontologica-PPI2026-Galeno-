@@ -4,7 +4,7 @@
     --teal: #00B2A9;
     --teal-oscuro: #00887F;
     --gris-borde: #E1E4EC;
-    --gris-claro: #F7F8FA;
+    --gris-claro: #EEF1F7;
     --texto: #1D1247;
     --rojo: #D64550;
     --rojo-oscuro: #A02E37;
@@ -21,7 +21,7 @@ body {
     background-color: var(--gris-claro) !important;
     color: var(--texto) !important;
     margin: 0;
-    padding: 30px 20px;
+    padding: 0 20px 20px;
 }
 
 h1, h2, h3 {
@@ -214,4 +214,32 @@ h2 {
     background: transparent !important;
     width: auto !important;
     padding: 0 6px 0 0 !important;
+}
+
+/* ===== Header (cabecera-app) ===== */
+.cabecera-app {
+    padding: 4px 0 !important;
+}
+.cabecera-app .ui-g {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.cabecera-app .ui-g-4 {
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+}
+.cabecera-app .ui-g-4:first-child {
+    justify-content: flex-start;
+    padding-left: 40px !important;
+}
+.cabecera-app .ui-g-4:nth-child(2) {
+    justify-content: center;
+}
+.cabecera-app .ui-g-4:nth-child(3) {
+    justify-content: flex-end;
+}
+.cabecera-app h2 {
+    font-size: 44px !important;
+    margin: 0 !important;
 }
