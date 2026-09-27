@@ -72,13 +72,11 @@
                                 <p:submenu label="Procedimientos" icon="pi pi-list">
                                     <p:menuitem value="Procedimiento" outcome="/paginas/Procedimiento.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="Consulta de Procedimiento" outcome="/paginas/ConsultaProcedimiento.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ConsultaProcedimiento.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="Paso de Consulta" outcome="/paginas/ConsultaProcedimientoPaso.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ConsultaProcedimientoPaso.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
+                                
                                 <p:menuitem value="Consulta" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
                                             styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
+                                <p:submenu/>
                             </p:menu>
                         </ui:insert>
                     </div>
