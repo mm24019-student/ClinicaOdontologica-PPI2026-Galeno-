@@ -40,12 +40,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
-                                 actionListener="#{personaModel.btnNuevoHandler}"
-                                 update=":frmTabla :Persona :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
-                                 actionListener="#{personaModel.btnCancelar}"
-                                 update=":frmTabla :Persona :mensajes"/>
+                <g:Botones_Acciones modelo="#{personaModel}"/>
             </h:form>
         </div>
 

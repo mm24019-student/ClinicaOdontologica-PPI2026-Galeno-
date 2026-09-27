@@ -13,6 +13,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -38,12 +39,14 @@ public class Examen implements Serializable {
     @NotNull
     @Column(name = "id_examen")
     private UUID idExamen;
-    @Size(max = 255)
+    @Size(min = 3, max = 255, message = "Los nombres deben tener entre 3 y 255 caracteres")
+    @NotBlank(message = "Los nombres no pueden quedar en blanco")
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "activo")
     private Boolean activo;
     @Size(max = 2147483647)
+    @NotBlank(message = "Las observaciones no pueden quedar en blanco")
     @Column(name = "observaciones")
     private String observaciones;
     @OneToMany(mappedBy = "idExamen", fetch = FetchType.LAZY)
@@ -130,5 +133,5 @@ public class Examen implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.Examen[ idExamen=" + idExamen + " ]";
     }
-    
+
 }

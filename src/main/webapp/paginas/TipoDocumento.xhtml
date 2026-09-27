@@ -44,14 +44,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <!-- Pasa a modo "creación" -->
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" style="margin-right:10px;" resetValues="true"
-                                 actionListener="#{tipoDocumentoModel.btnNuevoHandler}"
-                                 update=":frmTabla :TipoDocumento :mensajes"/>
-                <!-- Vuelve al estado NINGUNO (muestra la tabla de nuevo) -->
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
-                                 actionListener="#{tipoDocumentoModel.btnCancelar}"
-                                 update=":frmTabla :TipoDocumento :mensajes"/>
+                <g:Botones_Acciones modelo="#{tipoDocumentoModel}"/>
             </h:form>
         </div>
 

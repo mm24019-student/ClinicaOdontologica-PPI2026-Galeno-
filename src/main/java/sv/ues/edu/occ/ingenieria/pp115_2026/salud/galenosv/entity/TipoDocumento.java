@@ -13,6 +13,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -39,13 +40,16 @@ public class TipoDocumento implements Serializable {
     @NotNull
     @Column(name = "id_tipo_documento")
     private UUID idTipoDocumento;
-    @Size(max = 155)
+    @NotBlank(message = "El nombre no puede quedar en blanco")
+    @Size(min = 3, max = 155, message = "El nombre debe tener entre 3 y 155 caracteres")
     @Column(name = "nombre")
     private String nombre;
-    @Size(max = 2147483647)
+    @NotBlank(message = "Las indicaciones no pueden quedar en blanco")
+    @Size(min = 3, max = 255, message = "Las indicaciones deben tener entre 3 y 255 caracteres")
     @Column(name = "indicaciones")
     private String indicaciones;
-    @Size(max = 2147483647)
+    @NotBlank(message = "La expresión regular no puede quedar en blanco")
+    @Size(min = 3, max = 255, message = "La expresión regular debe tener entre 3 y 255 caracteres")
     @Column(name = "expresion_regular")
     private String expresionRegular;
     @Column(name = "activo")
@@ -132,5 +136,5 @@ public class TipoDocumento implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.TipoDocumento[ idTipoDocumento=" + idTipoDocumento + " ]";
     }
-    
+
 }

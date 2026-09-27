@@ -39,12 +39,12 @@ public class Persona implements Serializable {
     @NotNull
     @Column(name = "id_persona")
     private UUID idPersona;
-    @Size(min = 3, max = 255)
-    @NotBlank
+    @Size(min = 3, max = 255, message = "Los nombres deben tener entre 3 y 255 caracteres")
+    @NotBlank(message = "Los nombres no pueden quedar en blanco")
     @Column(name = "nombres")
     private String nombres;
-    @Size(min = 3, max = 255)
-    @NotBlank
+    @Size(min = 3, max = 255, message = "Los apellidos deben tener entre 3 y 255 caracteres")
+    @NotBlank(message = "Los apellidos no pueden quedar en blanco")
     @Column(name = "apellidos")
     private String apellidos;
     @Column(name = "fecha_nacimiento")

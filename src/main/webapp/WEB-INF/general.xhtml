@@ -44,36 +44,36 @@
                         <ui:insert name="menu">
                             <p:menu styleClass="menu-lateral">
                                 <p:submenu label="#{msg['menu.catalogos']}" icon="pi pi-tags">
-                                    <p:menuitem value="#{msg['menu.tipoDocumento']}" outcome="/paginas/TipoDocumento.xhtml"
+                                    <p:menuitem value="#{msg['menu.tipoDocumento']}" icon="pi pi-file-o" outcome="/paginas/TipoDocumento.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoDocumento.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.tipoMedioContacto']}" outcome="/paginas/TipoMedioContacto.xhtml"
+                                    <p:menuitem value="#{msg['menu.tipoMedioContacto']}" icon="pi pi-phone" outcome="/paginas/TipoMedioContacto.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoMedioContacto.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.tipoExamen']}" outcome="/paginas/TipoExamen.xhtml"
+                                    <p:menuitem value="#{msg['menu.tipoExamen']}" icon="pi pi-list" outcome="/paginas/TipoExamen.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoExamen.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.examenTipoExamen']}" outcome="/paginas/ExamenTipoExamen.xhtml"
+                                    <p:menuitem value="#{msg['menu.examenTipoExamen']}" icon="pi pi-sitemap" outcome="/paginas/ExamenTipoExamen.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenTipoExamen.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
                                 <p:submenu label="#{msg['menu.clinica.grupo']}" icon="pi pi-building">
-                                    <p:menuitem value="#{msg['menu.clinica']}" outcome="/paginas/Clinica.xhtml"
+                                    <p:menuitem value="#{msg['menu.clinica']}" icon="pi pi-building" outcome="/paginas/Clinica.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Clinica.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.persona']}" outcome="/paginas/Persona.xhtml"
+                                    <p:menuitem value="#{msg['menu.persona']}" icon="pi pi-user" outcome="/paginas/Persona.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Persona.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.rol']}" outcome="/paginas/Rol.xhtml"
+                                    <p:menuitem value="#{msg['menu.rol']}" icon="pi pi-id-card" outcome="/paginas/Rol.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Rol.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
                                 <p:submenu label="#{msg['menu.examenes']}" icon="pi pi-file">
-                                    <p:menuitem value="#{msg['menu.examen']}" outcome="/paginas/Examen.xhtml"
+                                    <p:menuitem value="#{msg['menu.examen']}" icon="pi pi-file-edit" outcome="/paginas/Examen.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Examen.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.ordenExamen']}" outcome="/paginas/OrdenExamen.xhtml"
+                                    <p:menuitem value="#{msg['menu.ordenExamen']}" icon="pi pi-book" outcome="/paginas/OrdenExamen.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/OrdenExamen.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.resultadoExamen']}" outcome="/paginas/ExamenResultado.xhtml"
+                                    <p:menuitem value="#{msg['menu.resultadoExamen']}" icon="pi pi-check-square" outcome="/paginas/ExamenResultado.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenResultado.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
                                 <p:submenu label="#{msg['menu.procedimientos']}" icon="pi pi-list">
-                                    <p:menuitem value="#{msg['menu.procedimiento']}" outcome="/paginas/Procedimiento.xhtml"
+                                    <p:menuitem value="#{msg['menu.procedimiento']}" icon="pi pi-cog" outcome="/paginas/Procedimiento.xhtml"
                                                 styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
                                 </p:submenu>
-                                
+
                                 <p:menuitem value="Consulta" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
                                             styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
                                 <p:submenu/>

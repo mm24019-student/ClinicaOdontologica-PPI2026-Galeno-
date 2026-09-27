@@ -16,6 +16,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -45,10 +46,12 @@ public class ExamenResultado implements Serializable {
     @Column(name = "fecha_creacion")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaCreacion;
-    @Size(max = 2147483647)
+    @NotBlank(message = "El resultado no puede quedar en blanco")
+    @Size(min = 3, max = 255, message = "El resultado debe tener entre 3 y 255 caracteres")
     @Column(name = "resultado")
     private String resultado;
-    @Size(max = 2147483647)
+    @NotBlank(message = "La interpretación no puede quedar en blanco")
+    @Size(min = 3, max = 255, message = "La interpretación debe tener entre 3 y 255 caracteres")
     @Column(name = "interpretacion")
     private String interpretacion;
     @Size(max = 2147483647)
@@ -137,5 +140,5 @@ public class ExamenResultado implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.ExamenResultado[ idExamenResultado=" + idExamenResultado + " ]";
     }
-    
+
 }

@@ -9,6 +9,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -36,16 +37,18 @@ public class Clinica implements Serializable {
     @Column(name = "id_clinica")
     private UUID idClinica;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
+    @NotNull(message = "El nombre no puede quedar en blanco")
+    @Size(min = 1, max = 255, message = "El nombre debe tener máximo 255 caracteres")
     @Column(name = "nombre")
     private String nombre;
     @Column(name = "activo")
     private Boolean activo;
-    @Size(max = 20)
+    @NotBlank(message = "El tipo no puede quedar en blanco")
+    @Size(min = 3, max = 20, message = "El tipo debe tener entre 3 y 20 caracteres")
     @Column(name = "tipo")
     private String tipo;
-    @Size(max = 2147483647)
+    @NotBlank(message = "Los comentarios no pueden quedar en blanco")
+    @Size(min = 3, max = 255, message = "Los comentarios deben tener entre 3 y 255 caracteres")
     @Column(name = "comentarios")
     private String comentarios;
     @OneToMany(mappedBy = "idClinica", fetch = FetchType.LAZY)
@@ -135,5 +138,5 @@ public class Clinica implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.Clinica[ idClinica=" + idClinica + " ]";
     }
-    
+
 }

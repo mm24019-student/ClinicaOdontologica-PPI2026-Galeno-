@@ -39,10 +39,7 @@
                         <p:outputLabel value="#{r.idOrdenExamen.idOrdenExamen}"/>
                     </p:column>
                 </p:dataTable>
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{examenResultadoModel.btnNuevoHandler}"
-                                 update=":frmTabla :ExamenResultado :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{examenResultadoModel.btnCancelar()}"
-                                 update=":frmTabla :ExamenResultado :mensajes"/>
+                <g:Botones_Acciones modelo="#{examenResultadoModel}"/>
             </h:form>
         </div>
 
@@ -54,12 +51,13 @@
         <div class="tarjeta-suelta">
             <h2>Mantenimiento de Resultado de Examen</h2>
             <h:form id="ExamenResultado" styleClass="form-examen-resultado">
-                <p:panelGrid columns="2" rendered="#{examenResultadoModel.estado!='NINGUNO'}">
+                <p:panelGrid columns="2" columnClasses="col-label,col-input" style="width:100%"
+                             rendered="#{examenResultadoModel.estado!='NINGUNO'}">
                     <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{examenResultadoModel.registro.idExamenResultado}"/>
+                    <p:inputText id="txtId" style="width:100%" value="#{examenResultadoModel.registro.idExamenResultado}"/>
 
                     <p:outputLabel value="Orden de examen" for="selOrden"/>
-                    <p:selectOneMenu id="selOrden" value="#{examenResultadoModel.registro.idOrdenExamen}"
+                    <p:selectOneMenu id="selOrden" style="width:100%" value="#{examenResultadoModel.registro.idOrdenExamen}"
                                      converter="#{ordenExamenConverter}" required="true"
                                      requiredMessage="Seleccione una orden de examen">
                         <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
@@ -68,17 +66,17 @@
                     </p:selectOneMenu>
 
                     <p:outputLabel value="Fecha de creación" for="calFecha"/>
-                    <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                    <p:datePicker id="calFecha" style="width:100%" showTime="true" pattern="dd/MM/yyyy HH:mm"
                                   value="#{examenResultadoModel.registro.fechaCreacion}"/>
 
                     <p:outputLabel value="Resultado" for="txtResultado"/>
-                    <p:inputTextarea id="txtResultado" rows="3" cols="70" value="#{examenResultadoModel.registro.resultado}"/>
+                    <p:inputTextarea id="txtResultado" style="width:100%" rows="3" value="#{examenResultadoModel.registro.resultado}"/>
 
                     <p:outputLabel value="Interpretación" for="txtInterpretacion"/>
-                    <p:inputTextarea id="txtInterpretacion" rows="3" cols="70" value="#{examenResultadoModel.registro.interpretacion}"/>
+                    <p:inputTextarea id="txtInterpretacion" style="width:100%" rows="3" value="#{examenResultadoModel.registro.interpretacion}"/>
 
                     <p:outputLabel value="Ruta del atestado" for="txtRuta"/>
-                    <p:inputText id="txtRuta" size="70" value="#{examenResultadoModel.registro.rutaAtestado}"/>
+                    <p:inputText id="txtRuta" style="width:100%" value="#{examenResultadoModel.registro.rutaAtestado}"/>
                 </p:panelGrid>
                 <g:botones_top modelo="#{examenResultadoModel}"/>
             </h:form>

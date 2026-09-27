@@ -40,16 +40,16 @@ public class TipoMedioContacto implements Serializable {
     @NotNull
     @Column(name = "id_tipo_medio_contacto")
     private UUID idTipoMedioContacto;
-    @Size(max = 155)
-    @NotBlank
+    @Size(min = 3, max = 155, message = "El nombre debe tener entre 3 y 155 caracteres")
+    @NotBlank(message = "El nombre no puede quedar en blanco")
     @Column(name = "nombre")
     private String nombre;
-    @Size(min=3, max=250)
-    @NotBlank
+    @Size(min = 3, max = 250, message = "Las indicaciones deben tener entre 3 y 250 caracteres")
+    @NotBlank(message = "Las indicaciones no pueden quedar en blanco")
     @Column(name = "indicaciones")
     private String indicaciones;
-    @Size(min=3, max=250)
-    @NotBlank
+    @Size(min = 3, max = 250, message = "La expresión regular debe tener entre 3 y 250 caracteres")
+    @NotBlank(message = "La expresión regular no puede quedar en blanco")
     @Column(name = "expresion_regular")
     private String expresionRegular;
     @Column(name = "activo")
@@ -136,5 +136,5 @@ public class TipoMedioContacto implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.TipoMedioContacto[ idTipoMedioContacto=" + idTipoMedioContacto + " ]";
     }
-    
+
 }

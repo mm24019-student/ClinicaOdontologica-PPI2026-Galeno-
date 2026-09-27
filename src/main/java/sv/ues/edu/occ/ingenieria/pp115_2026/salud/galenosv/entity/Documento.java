@@ -21,7 +21,7 @@ import java.util.UUID;
  * @author oscar
  */
 @Entity
-@Table(name = "documento",  schema = "public")
+@Table(name = "documento", schema = "public")
 @NamedQueries({
     @NamedQuery(name = "Documento.findAll", query = "SELECT d FROM Documento d"),
     @NamedQuery(name = "Documento.findByValor", query = "SELECT d FROM Documento d WHERE d.valor = :valor"),
@@ -34,11 +34,12 @@ public class Documento implements Serializable {
     @NotNull
     @Column(name = "id_documento")
     private UUID idDocumento;
-    @Size(min = 3, max = 250)
-    @NotBlank
+    @Size(min = 3, max = 250, message = "El valor debe tener entre 3 y 250 caracteres")
+    @NotBlank(message = "El valor no puede quedar en blanco")
     @Column(name = "valor")
     private String valor;
-    @Size(max = 2147483647)
+    @NotBlank(message = "La ruta física no puede quedar en blanco")
+    @Size(min = 3, max = 255, message = "La ruta física debe tener entre 3 y 255 caracteres")
     @Column(name = "ruta_fisica")
     private String rutaFisica;
     @JoinColumn(name = "id_persona", referencedColumnName = "id_persona")

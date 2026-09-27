@@ -36,10 +36,7 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{examenModel.btnNuevoHandler}"
-                                 update=":frmTabla :Examen :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{examenModel.btnCancelar()}"
-                                 update=":frmTabla :Examen :mensajes"/>
+                <g:Botones_Acciones modelo="#{examenModel}"/>
             </h:form>
         </div>
 

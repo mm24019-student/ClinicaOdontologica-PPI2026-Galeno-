@@ -37,8 +37,8 @@ public class MedioContacto implements Serializable {
     @NotNull
     @Column(name = "id_medio_contacto")
     private UUID idMedioContacto;
-    @Size(min = 3, max = 250)
-    @NotBlank
+    @Size(min = 3, max = 250, message = "El valor debe tener entre 3 y 250 caracteres")
+    @NotBlank(message = "El valor no puede quedar en blanco")
     @Column(name = "valor")
     private String valor;
     @Column(name = "fecha_creacion")
