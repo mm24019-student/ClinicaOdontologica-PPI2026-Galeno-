@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
@@ -18,10 +19,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
 @Named
 @ViewScoped
-public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
+public class OrdenExamenModel extends AbstracCrudTabsModel<OrdenExamen>{
 
     @Inject
     private OrdenExamenDAO oeDAO;
+
+    @Inject
+    private ExamenResultadoDAO erDAO;
 
     @Inject
     private ConsultaProcedimientoPasoDAO cppDAO;
@@ -35,12 +39,24 @@ public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
     protected InterfaceDAO<OrdenExamen> getDAO() {
         return oeDAO;
     }
+    
+    @Override
+    protected void resetearHijos() {
+        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
+        // no debe conservar el registro/estado de la orden anterior.
+        examenResultadoModel.cargarDe(null);
+    }
 
     @Override
-    protected OrdenExamen crearRegistroNuevo() {
+    protected OrdenExamen crearRegistroNuevoBase() {
         OrdenExamen o = new OrdenExamen(UUID.randomUUID());
         o.setFechaCreacion(new Date());
         return o;
+    }
+
+    @Override
+    protected boolean tieneRegistrosDependientes(OrdenExamen registro) {
+        return !erDAO.findByOrdenExamen(registro.getIdOrdenExamen()).isEmpty();
     }
 
     @Override
@@ -109,9 +125,15 @@ public class OrdenExamenModel extends AbstracCrudModel<OrdenExamen> {
         return resultado;
     }
 
-    
+    @Override
+    public void onRowSelect(SelectEvent<OrdenExamen> event) {
+        super.onRowSelect(event);
+        activeTabIndex = 0;
+    }
+
     public void seleccionarOrdenExamen(SelectEvent<OrdenExamen> event) {
         OrdenExamen ordenSeleccionada = event.getObject();
-        examenResultadoModel.cargarPorOrdenExamen(ordenSeleccionada);
+        examenResultadoModel.cargarDe(ordenSeleccionada);
     }
+
 }

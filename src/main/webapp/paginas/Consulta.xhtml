@@ -46,23 +46,15 @@
                         <h:outputText value="#{consultaModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
                     </p:column>
                 </p:dataTable>
-                <!-- NUEVO -->
-                <p:commandButton value="#{msg['crud.boton.nuevo']}"
-                                 resetValues="true"
-                                 actionListener="#{consultaModel.btnNuevoHandler}"
-                                 update=":frmTabla :Consulta :mensajes"/>
-                <!-- CANCELAR -->
-
-                <p:commandButton value="#{msg['crud.boton.cancelar']}"
-                                 actionListener="#{consultaModel.btnCancelar()}"
-                                 update=":frmTabla :Consulta :mensajes"/>
+             
+                <g:Botones_Acciones modelo="#{consultaModel}"/>
             </h:form>
         </div>
 
         <!-- MENSAJES-->
 
         <div class="mensajes">
-            <p:messages id="mensajes"  globalOnly="false"   showDetail="true" showSummary="true" closable="true"/>
+            <p:messages id="mensajes"  globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
 
         <!-- FORMULARIO PRINCIPAL DE CONSULTA-->
@@ -70,8 +62,8 @@
             <h2>Mantenimiento Consulta</h2>
             <h:form id="Consulta"
                     styleClass="form-consulta">
-                <p:tabView id="tabsConsulta"
-                           widgetVar="tabsConsulta"
+                <p:tabView id="tabsConsulta" binding="#{consultaModel.tabView}"
+                           widgetVar="tabsConsulta" activeIndex="#{consultaModel.activo}"
                            rendered="#{consultaModel.estado!='NINGUNO'}">
 
                     <!-- Un solo listener para las 3 pestañas: decide qué recargar
@@ -122,9 +114,9 @@
                         </h:panelGroup>
                     </p:tab>
                     <!-- PESTAÑA 2: PROCEDIMIENTOS DE LA CONSULTA -->
-                    <p:tab title="Procedimientos de la Consulta"
-                           disabled="#{consultaModel.estado!='MODIFICAR'}">
-                        <h:panelGroup id="pnlProcedimientos">
+                    <p:tab title="Procedimientos de la Consulta" 
+                           disabled="#{consultaModel.estado!='MODIFICAR'}" >
+                        <h:panelGroup id="pnlProcedimientos"  >
                             <!-- TABLA DE PROCEDIMIENTOS-->
                             <p:dataTable value="#{consultaProcedimientoModel}"
                                          var="ps"
@@ -138,7 +130,7 @@
 
                                 <p:ajax event="rowSelect"
                                         listener="#{consultaProcedimientoModel.onRowSelect}"
-                                        update=":Consulta:tabsConsulta :mensajes"/>
+                                        update=":Consulta:tabsConsulta :mensajes" resetValues="true"/>
 
                                 <p:column headerText="Procedimiento">
                                     <h:outputText
@@ -163,14 +155,11 @@
 
                             </p:dataTable>
                             <!-- NUEVO PROCEDIMIENTO -->
-                            <p:commandButton value="#{msg['crud.boton.nuevo']}"
-                                             resetValues="true"
-                                             actionListener="#{consultaProcedimientoModel.btnNuevoHandler}"
-                                             rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}"
-                                             update=":Consulta:tabsConsulta"/>
+                            <g:Botones_Acciones modelo="#{consultaProcedimientoModel}"
+                                                mostrarCancelar="false" rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}" />
 
                             <!-- FORMULARIO DEL PROCEDIMIENTO-->
-                            <p:panelGrid columns="2"
+                            <p:panelGrid columns="2" 
                                          rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}">
                                 <p:outputLabel value="Procedimiento" for="acProcedimientoConsulta"/>
 
@@ -205,9 +194,13 @@
                             </p:panelGrid>
 
                             <!-- BOTONES CRUD DEL PROCEDIMIENTO-->
-                            <g:botones_top modelo="#{consultaProcedimientoModel}" process="@form"
+                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                               <g:botones_top modelo="#{consultaProcedimientoModel}" process="@form"
                                            tabla="Consulta:tabsConsulta:pnlProcedimientos"
                                            rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
+                               <g:Botones_Acciones modelo="#{consultaProcedimientoModel}"
+                                                   mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
+                            </div>
                         </h:panelGroup>
                     </p:tab>
 
@@ -215,10 +208,10 @@
                     <!-- Solo tiene sentido una vez que hay un ConsultaProcedimiento
                          seleccionado/guardado (MODIFICAR en la pestaña 2), porque
                          un paso necesita un ConsultaProcedimiento ya existente. -->
-                    <p:tab title="Pasos del Procedimiento"
+                    <p:tab title="Pasos del Procedimiento" 
                            disabled="#{consultaProcedimientoModel.estado!='MODIFICAR'}">
 
-                        <h:panelGroup id="pnlPasosConsultaProcedimiento">
+                        <h:panelGroup id="pnlPasosConsultaProcedimiento" > 
                             <!-- TABLA DE PASOS -->
                             <p:dataTable value="#{consultaProcedimientoPasoModel}"
                                          var="cpp"
@@ -232,7 +225,7 @@
 
                                 <p:ajax event="rowSelect"
                                         listener="#{consultaProcedimientoPasoModel.onRowSelect}"
-                                        update=":Consulta:tabsConsulta:pnlPasosConsultaProcedimiento :mensajes"/>
+                                        update=":Consulta:tabsConsulta:pnlPasosConsultaProcedimiento :mensajes" resetValues="true"/>
 
                                 <p:column headerText="Estado">
                                     <h:outputText value="#{cpp.estado}"/>
@@ -256,11 +249,8 @@
                             </p:dataTable>
 
                             <!-- NUEVO PASO -->
-                            <p:commandButton value="#{msg['crud.boton.nuevo']}"
-                                             resetValues="true"
-                                             actionListener="#{consultaProcedimientoPasoModel.btnNuevoHandler}"
-                                             rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}"
-                                             update=":Consulta:tabsConsulta:pnlPasosConsultaProcedimiento"/>
+                             <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}"
+                       mostrarCancelar="false" rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}" />
 
                             <!-- FORMULARIO DEL PASO -->
                             <p:panelGrid columns="2"
@@ -272,7 +262,7 @@
                                 </p:selectOneMenu>
 
                                 <p:outputLabel value="Persona / Rol" for="acPersonaRolPaso"/>
-                                <p:autoComplete id="acPersonaRolPaso"
+                                <p:autoComplete id="acPersonaRolPaso" required="true" requiredMessage="Seleccione una Persona/Rol"
                                                 value="#{consultaProcedimientoPasoModel.registro.idPersonaRol}"
                                                 completeMethod="#{consultaProcedimientoPasoModel.completarPersonasRol}"
                                                 var="pr"
@@ -300,9 +290,13 @@
                             </p:panelGrid>
 
                             <!-- BOTONES CRUD DEL PASO -->
-                            <g:botones_top modelo="#{consultaProcedimientoPasoModel}" process="@form"
-                                           tabla="Consulta:tabsConsulta:pnlPasosConsultaProcedimiento"
-                                           rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}"/>
+                             <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                                
+                                 <g:botones_top modelo="#{consultaProcedimientoPasoModel}"/>
+                                    <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}"
+                                mostrarNuevo="false" rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}" />
+                            </div>
+                            
                         </h:panelGroup>
                     </p:tab>
                 </p:tabView>

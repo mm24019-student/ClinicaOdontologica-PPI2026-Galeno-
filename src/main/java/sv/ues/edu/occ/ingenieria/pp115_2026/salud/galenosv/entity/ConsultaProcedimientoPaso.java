@@ -38,7 +38,6 @@ public class ConsultaProcedimientoPaso implements Serializable {
     public static final String ESTADOS_VALIDOS_REGEX = "^(PENDIENTE|EN_PROCESO|COMPLETADO|CANCELADO)$";
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_consulta_procedimiento_paso")
     private UUID idConsultaProcedimientoPaso;
     @Column(name = "fecha_inicio")
@@ -46,6 +45,7 @@ public class ConsultaProcedimientoPaso implements Serializable {
     private Date fechaInicio;
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull(message="Debe ingresar fecha fin")
     private Date fechaFin;
     @Pattern(regexp = ESTADOS_VALIDOS_REGEX,
         message = "El estado debe ser PENDIENTE, EN_PROCESO, COMPLETADO o CANCELADO")

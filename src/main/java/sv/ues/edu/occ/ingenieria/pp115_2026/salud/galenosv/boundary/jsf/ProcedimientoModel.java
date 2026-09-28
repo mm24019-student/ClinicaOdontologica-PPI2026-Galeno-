@@ -4,6 +4,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
+import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
@@ -16,12 +17,23 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 @Named
 //Utilizamos ViewScoped para que la clase tenga un alcance de vista, es decir, que se mantenga viva mientras el usuario esté en la misma vista.
 @ViewScoped
-public class ProcedimientoModel extends AbstracCrudModel<Procedimiento> {
+public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento>{
 
 //Inyectamos el ProcedimientoDAO para poder utilizar sus métodos en la clase ProcedimientoModel.
     @Inject
     private ProcedimientoDAO pdDAO;
+    
+   @Inject
+    private ProcedimientoPasoModel ProcedimientoPasoModel;
+    
+@Override
+    protected void resetearHijos() {
+        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
+        // no debe conservar el registro/estado de la orden anterior.
+        ProcedimientoPasoModel.cargarDe(null);
+    }
 
+    
 //Este es el método getDAO() que devuelve el ProcedimientoDAO inyectado, 
 //para que la clase AbstracCrudModel pueda utilizarlo para realizar operaciones CRUD sobre la entidad Procedimiento.
     @Override
@@ -32,8 +44,8 @@ public class ProcedimientoModel extends AbstracCrudModel<Procedimiento> {
 //Este es el método crearRegistroNuevo() que crea un nuevo objeto Procedimiento con un UUID generado aleatoriamente y
 //lo marca como activo,
     @Override
-    protected Procedimiento crearRegistroNuevo() {
-        Procedimiento p = new Procedimiento(UUID.randomUUID());
+    protected Procedimiento crearRegistroNuevoBase() {
+       Procedimiento p = new Procedimiento(UUID.randomUUID());
         p.setActivo(Boolean.TRUE);
         return p;
     }
@@ -43,6 +55,12 @@ public class ProcedimientoModel extends AbstracCrudModel<Procedimiento> {
     @Override
     protected UUID obtenerId(Procedimiento registro) {
         return registro.getIdProcedimiento();
+    }
+    
+    @Override
+    public void onRowSelect(SelectEvent<Procedimiento> event) {
+        super.onRowSelect(event);
+        activeTabIndex = 0;
     }
 
 }

@@ -3,21 +3,23 @@
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:cc="jakarta.faces.composite" xmlns:p="primefaces">
 
-<!--Componentes reutilizables para botones Nuevo y Cancelar -->
-<cc:interface>
-    <cc:attribute name="modelo" required="true" />
-    <cc:attribute name="tabla" default="frmTabla" />
-    <cc:attribute name="mensajes" default="mensajes" />
-</cc:interface>
+    <!--Componentes reutilizables para botones Nuevo y Cancelar -->
+    <cc:interface>
+        <cc:attribute name="modelo" required="true" />
+        <cc:attribute name="tabla" default="frmTabla" />
+        <cc:attribute name="mensajes" default="mensajes" />
+        <cc:attribute name="mostrarNuevo" type="java.lang.Boolean" default="true" />
+        <cc:attribute name="mostrarCancelar" type="java.lang.Boolean" default="true" />
+    </cc:interface>
 
-<cc:implementation>
-    <p:panelGrid columns="2" styleClass="botones-juntos">
-        <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
-            actionListener="#{cc.attrs.modelo.btnNuevoHandler}"
-            update="@all" />
-        <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true"
-            actionListener="#{cc.attrs.modelo.btnCancelar}"
-            update="@all" />
-    </p:panelGrid>
-</cc:implementation>
+    <cc:implementation>
+        <p:panelGrid columns="2" styleClass="botones-juntos">
+            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" 
+                             actionListener="#{cc.attrs.modelo.btnNuevoHandler}" update="@all" 
+                             rendered="#{cc.attrs.mostrarNuevo}"/>
+            <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" 
+                             actionListener="#{cc.attrs.modelo.btnCancelar}" update="@all" rendered="#{cc.attrs.mostrarCancelar}"/>
+        </p:panelGrid>
+    </cc:implementation>
+
 </html>

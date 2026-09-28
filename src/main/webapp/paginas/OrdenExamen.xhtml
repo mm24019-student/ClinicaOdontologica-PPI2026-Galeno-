@@ -38,23 +38,19 @@
                         <p:outputLabel value="#{r.indicaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{ordenExamenModel.btnNuevoHandler}"
-                                 update=":frmTabla :OrdenExamen :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{ordenExamenModel.btnCancelar()}"
-                                 update=":frmTabla :OrdenExamen :mensajes"/>
+                <g:Botones_Acciones modelo="#{ordenExamenModel}" />
             </h:form>
         </div>
 
         <div class="mensajes">
-            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
-                        closable="true"/>
+            <p:messages id="mensajes"  globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
 
         <div class="tarjeta-suelta">
             <h2>Mantenimiento de Orden de Examen</h2>
             <h:form id="OrdenExamen" styleClass="form-orden-examen">
 
-                <p:tabView id="tabsOrden" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
+                <p:tabView id="tabsOrden"  binding="#{ordenExamenModel.tabView}" activeIndex="#{ordenExamenModel.activo}" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
 
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
@@ -63,12 +59,12 @@
 
                             <p:outputLabel value="Consulta (paso) *" for="acConsulta"/>
                             <p:autoComplete id="acConsulta"
-                                             value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
-                                             completeMethod="#{ordenExamenModel.completarPasosConsulta}"
-                                             converter="#{consultaProcedimientoPasoConverter}"
-                                             var="c" itemLabel="#{c.estado} - #{c.idConsultaProcedimientoPaso}" itemValue="#{c}"
-                                             forceSelection="true" minQueryLength="0"
-                                             placeholder="Escriba el estado o el ID...">
+                                            value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
+                                            completeMethod="#{ordenExamenModel.completarPasosConsulta}"
+                                            converter="#{consultaProcedimientoPasoConverter}"
+                                            var="c" itemLabel="#{c.estado}#{c.idConsultaProcedimientoPaso}" itemValue="#{c}"
+                                            forceSelection="true" minQueryLength="0"
+                                            placeholder="Escriba el estado o el ID...">
                                 <p:ajax event="itemSelect" update="txtDescConsulta"/>
                                 <p:ajax event="change" update="txtDescConsulta"/>
                             </p:autoComplete>
@@ -102,7 +98,7 @@
                                          emptyMessage="Esta orden no tiene resultados registrados todavía."
                                          rendered="#{examenResultadoModel.estado=='NINGUNO'}">
                                 <p:ajax event="rowSelect" listener="#{examenResultadoModel.onRowSelect}"
-                                        update=":OrdenExamen:tabsOrden:pnlDetalleResultado"/>
+                                        update=":OrdenExamen:tabsOrden:pnlDetalleResultado" resetValues="true"/>
                                 <p:column headerText="Fecha de creación">
                                     <h:outputText value="#{d.fechaCreacion}">
                                         <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
@@ -116,10 +112,8 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <p:commandButton value="Nuevo resultado" actionListener="#{examenResultadoModel.btnNuevoHandler}"
-                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"
-                                             rendered="#{examenResultadoModel.estado=='NINGUNO'}"/>
-
+                            <g:Botones_Acciones modelo="#{examenResultadoModel}" mostrarCancelar="false" rendered="#{examenResultadoModel.estado=='NINGUNO'}"/>
+                            
                             <p:panelGrid columns="2" rendered="#{examenResultadoModel.estado!='NINGUNO'}">
                                 <p:outputLabel value="Fecha de creación" for="calFechaResultado"/>
                                 <p:datePicker id="calFechaResultado" showTime="true" pattern="dd/MM/yyyy HH:mm"
@@ -135,19 +129,11 @@
                                 <p:outputLabel value="Ruta del atestado" for="txtRuta"/>
                                 <p:inputText id="txtRuta" size="50" value="#{examenResultadoModel.registro.rutaAtestado}"/>
                             </p:panelGrid>
-
-                            <p:commandButton value="Guardar" actionListener="#{examenResultadoModel.btnCrearhandler}"
-                                             rendered="#{examenResultadoModel.estado=='CREAR'}"
-                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
-                            <p:commandButton value="Actualizar" actionListener="#{examenResultadoModel.btnModificarHandler}"
-                                             rendered="#{examenResultadoModel.estado=='MODIFICAR'}"
-                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
-                            <p:commandButton value="Eliminar" actionListener="#{examenResultadoModel.btnEliminarHandler}"
-                                             rendered="#{examenResultadoModel.estado=='MODIFICAR'}"
-                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
-                            <p:commandButton value="Cancelar" actionListener="#{examenResultadoModel.btnCancelar()}"
-                                             rendered="#{examenResultadoModel.estado!='NINGUNO'}"
-                                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado :mensajes"/>
+                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                                <g:botones_top modelo="#{examenResultadoModel}"/>
+                                <g:Botones_Acciones modelo="#{examenResultadoModel}"
+                                mostrarNuevo="false" rendered="#{examenResultadoModel.estado!='NINGUNO'}" />
+                            </div>
 
                         </h:panelGroup>
                     </p:tab>

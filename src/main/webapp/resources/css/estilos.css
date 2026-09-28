@@ -216,6 +216,14 @@ h2 {
     padding: 0 6px 0 0 !important;
 }
 
+/* ===== Botones Actualizar/Eliminar/Cancelar estilo para separados ===== */
+.pasos-botones .ui-panelgrid-cell {
+    border: none !important;
+    background: transparent !important;
+    width: auto !important;
+    padding: 0 10px 0 0 !important;
+}
+
 /* ===== Header (cabecera-app) ===== */
 .cabecera-app {
     padding: 4px 0 !important;
@@ -243,3 +251,4 @@ h2 {
     font-size: 44px !important;
     margin: 0 !important;
 }
+

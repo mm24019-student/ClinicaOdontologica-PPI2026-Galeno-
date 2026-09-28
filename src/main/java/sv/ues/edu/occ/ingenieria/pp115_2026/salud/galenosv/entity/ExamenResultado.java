@@ -55,6 +55,7 @@ public class ExamenResultado implements Serializable {
     @Column(name = "interpretacion")
     private String interpretacion;
     @Size(max = 2147483647)
+    @NotBlank(message = "Falta la ruta del comprobante")
     @Column(name = "ruta_atestado")
     private String rutaAtestado;
     @JoinColumn(name = "id_orden_examen", referencedColumnName = "id_orden_examen")

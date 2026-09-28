@@ -23,10 +23,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "procedimiento", schema = "public")
 @NamedQueries({
-        @NamedQuery(name = "Procedimiento.findAll", query = "SELECT p FROM Procedimiento p"),
-        @NamedQuery(name = "Procedimiento.findByNombre", query = "SELECT p FROM Procedimiento p WHERE p.nombre = :nombre"),
-        @NamedQuery(name = "Procedimiento.findByActivo", query = "SELECT p FROM Procedimiento p WHERE p.activo = :activo"),
-        @NamedQuery(name = "Procedimiento.findByObservaciones", query = "SELECT p FROM Procedimiento p WHERE p.observaciones = :observaciones") })
+    @NamedQuery(name = "Procedimiento.findAll", query = "SELECT p FROM Procedimiento p"),
+    @NamedQuery(name = "Procedimiento.findByNombre", query = "SELECT p FROM Procedimiento p WHERE p.nombre = :nombre"),
+    @NamedQuery(name = "Procedimiento.findByActivo", query = "SELECT p FROM Procedimiento p WHERE p.activo = :activo"),
+    @NamedQuery(name = "Procedimiento.findByObservaciones", query = "SELECT p FROM Procedimiento p WHERE p.observaciones = :observaciones")})
 public class Procedimiento implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,6 +42,7 @@ public class Procedimiento implements Serializable {
     @Column(name = "activo")
     private Boolean activo;
     @Size(max = 2147483647)
+    @NotBlank(message = "Las observaciones no pueden quedar en blanco")
     @Column(name = "observaciones")
     private String observaciones;
     @OneToMany(mappedBy = "idProcedimiento", fetch = FetchType.LAZY)

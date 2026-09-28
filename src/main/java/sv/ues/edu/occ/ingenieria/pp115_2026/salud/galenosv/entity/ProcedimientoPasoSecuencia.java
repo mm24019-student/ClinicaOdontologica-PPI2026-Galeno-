@@ -11,7 +11,6 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.UUID;
@@ -30,18 +29,18 @@ public class ProcedimientoPasoSecuencia implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
     @Column(name = "id_procedimiento_paso_secuencia")
     private UUID idProcedimientoPasoSecuencia;
     @Column(name = "id_procedimiento_paso_referencia")
     private UUID idProcedimientoPasoReferencia;
     @Size(max = 20)
     @Column(name = "tipo_secuencia")
-    @NotBlank
+    @NotBlank(message = "Debe seleccionar un tipoSecuencia")
     private String tipoSecuencia;
     @JoinColumn(name = "id_procedimiento_paso", referencedColumnName = "id_procedimiento_paso")
     @ManyToOne(fetch = FetchType.LAZY)
     private ProcedimientoPaso idProcedimientoPaso;
+
 
     public ProcedimientoPasoSecuencia() {
     }
@@ -106,5 +105,5 @@ public class ProcedimientoPasoSecuencia implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.ProcedimientoPasoSecuencia[ idProcedimientoPasoSecuencia=" + idProcedimientoPasoSecuencia + " ]";
     }
-    
+
 }

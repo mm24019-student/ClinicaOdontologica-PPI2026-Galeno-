@@ -40,7 +40,7 @@ public class ProcedimientoPaso implements Serializable {
     @Size(min=5, max = 155)
     @Column(name = "nombre")
     //Validar que no este vacio
-    @NotBlank
+    @NotBlank(message=" El nombre no puede estar vacio")
     private String nombre;
     @Column(name = "indica_fin")
     private Boolean indicaFin;
@@ -53,6 +53,7 @@ public class ProcedimientoPaso implements Serializable {
     private Procedimiento idProcedimiento;
     @JoinColumn(name = "id_rol", referencedColumnName = "id_rol")
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull(message = "Debe seleccionar un rol")
     private Rol idRol;
 
     public ProcedimientoPaso() {

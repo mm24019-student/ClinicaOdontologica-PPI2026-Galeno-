@@ -38,27 +38,35 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
 
     protected T registro;
 
+    // Hook: por defecto asumimos que la entidad no tiene hijos. Las subclases
+// cuya entidad SÍ puede tener registros dependientes (ej. OrdenExamen
+// tiene ExamenResultado, Procedimiento tiene ProcedimientoPaso) lo
+// sobreescriben para chequear antes de intentar borrar.
+    protected boolean tieneRegistrosDependientes(T registro) {
+        return false;
+    }
+
     // ---- Métodos que cada subclase debe implementar ----
     protected abstract InterfaceDAO<T> getDAO();
 
     protected abstract T crearRegistroNuevo();
 
     protected abstract UUID obtenerId(T registro);
-    
+
     protected boolean mostrarDialogo = false;
- 
+
     public boolean isMostrarDialogo() {
         return mostrarDialogo;
     }
- 
+
     public void setMostrarDialogo(boolean mostrarDialogo) {
         this.mostrarDialogo = mostrarDialogo;
     }
- 
+
     public void btnAbrirDialogo() {
         this.mostrarDialogo = true;
     }
- 
+
     // Se usa tanto desde un botón "Cerrar" como desde el evento close del
     // propio p:dialog (ícono X), para que el estado del bean no quede
     // desincronizado del diálogo cuando el usuario lo cierra sin guardar.
@@ -128,14 +136,27 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         FacesMessage mensaje;
         List<T> lista = getregistros();
         if (lista != null && !lista.isEmpty() && id != null) {
-            try {
-                getDAO().eliminar(id);
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro eliminado con exito", "Registro borrado");
-                this.estado = Estado_Crud.NINGUNO;
-                this.registro = null;
-                setWrappedData(getDAO().findRange(0, 100));
-            } catch (Exception ex) {
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se puede eliminar el registro", ex.getMessage());
+
+            if (this.registro != null && tieneRegistrosDependientes(this.registro)) {
+                mensaje = new FacesMessage(FacesMessage.SEVERITY_WARN,
+                        "No se puede eliminar el registro",
+                        "Tiene registros relacionados que dependen de él. Elimínelos primero.");
+            } else {
+                try {
+                    getDAO().eliminar(id);
+                    mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro eliminado con exito", "Registro borrado");
+                    this.estado = Estado_Crud.NINGUNO;
+                    this.registro = null;
+                    setWrappedData(getDAO().findRange(0, 100));
+                } catch (Exception ex) {
+                    // Ya no mostramos ex.getMessage() crudo (la excepción de JPA
+                    // completa) — casi siempre es justo este mismo caso: una
+                    // restricción de llave foránea que no cubrimos en el chequeo
+                    // de arriba, o algún otro problema de base de datos.
+                    mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "No se puede eliminar el registro",
+                            "Tiene registros relacionados que dependen de él, o ocurrió un error al eliminarlo.");
+                }
             }
         } else {
             mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Seleccione algun registro");
@@ -160,7 +181,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     public void btnCancelar() {
         this.registro = null;
         this.estado = Estado_Crud.NINGUNO;
-       
+
     }
 
     public void btnCrearhandler(ActionEvent ae) {

@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -104,12 +102,6 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     }
 
     @Override
-    public void btnCerrarDialogo() {
-        super.btnCerrarDialogo();
-        this.seleccionAutocomplete = null;
-    }
-
-    @Override
     protected InterfaceDAO<ProcedimientoPasoExamen> getDAO() {
         return ppeDAO;
     }
@@ -141,30 +133,6 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     @Override
     protected void asignarPadre(ProcedimientoPasoExamen hijo, ProcedimientoPaso padre) {
         hijo.setIdProcedimientoPaso(padre);
-    }
-
-    // Valida el examen antes de guardar
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (examenSeleccionado()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (examenSeleccionado()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean examenSeleccionado() {
-        if (registro != null && registro.getIdExamen() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un examen", "El examen es obligatorio"));
-            return false;
-        }
-        return true;
     }
 
     // Opciones del selector de examen (se cargan una vez por vista)

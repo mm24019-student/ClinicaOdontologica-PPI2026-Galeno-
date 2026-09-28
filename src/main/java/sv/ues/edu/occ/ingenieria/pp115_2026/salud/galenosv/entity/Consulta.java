@@ -13,8 +13,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
@@ -46,14 +46,15 @@ public class Consulta implements Serializable {
     private Date fechaInicio;
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull(message="Debe ingresar fecha fin")
     private Date fechaFin;
-    @Pattern(regexp = "^([A-Za-z0-9][A-Za-z0-9._/-]{0,49})?$",
-        message = "La referencia externa debe empezar con letra o número y solo puede llevar letras, números, punto, guion, guion bajo y diagonal (máximo 50 caracteres)")
+    @NotBlank(message = "La referencia externa debe empezar con letra o número y solo puede llevar letras, números, punto, guion,ejem RF-02912")
     @Size(max = 2147483647)
     @Column(name = "referencia_externa")
     private String referenciaExterna;
     @Size(max = 2147483647)
     @Column(name = "observaciones")
+    @NotBlank(message = "Las observaciones no pueden quedar vacias")
     private String observaciones;
     @JoinColumn(name = "id_persona_rol", referencedColumnName = "id_persona_rol")
     @ManyToOne(fetch = FetchType.LAZY)

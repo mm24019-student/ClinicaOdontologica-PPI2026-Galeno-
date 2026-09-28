@@ -1,5 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -72,6 +73,16 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
             btnSeleccionarRegistro(seleccionAutocomplete.getIdProcedimientoPasoSecuencia());
         }
     }
+    
+     private boolean consultaSeleccionada() {
+        if (registro != null && registro.getIdProcedimientoPasoSecuencia() == null) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Seleccione una consulta", "El paso de consulta es obligatorio"));
+            return false;
+        }
+        return true;
+    }
+
 
     // Respaldo manual: botón "Seleccionar" junto al autocomplete. Aquí sí se
     // puede confiar en this.seleccionAutocomplete porque el propio commandButton

@@ -3,28 +3,20 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
 @Named
 @ViewScoped
-public class ExamenResultadoModel extends AbstracCrudModel<ExamenResultado> {
+public class ExamenResultadoModel extends AbstracdetallecrudModel<ExamenResultado, OrdenExamen> {
 
     @Inject
     private ExamenResultadoDAO erDAO;
-
-    @Inject
-    private OrdenExamenDAO oeDAO;
-
-    private List<OrdenExamen> ordenes;
-    private OrdenExamen ordenPadre;
 
     @Override
     protected InterfaceDAO<ExamenResultado> getDAO() {
@@ -35,9 +27,6 @@ public class ExamenResultadoModel extends AbstracCrudModel<ExamenResultado> {
     protected ExamenResultado crearRegistroNuevo() {
         ExamenResultado r = new ExamenResultado(UUID.randomUUID());
         r.setFechaCreacion(new Date());
-        if (ordenPadre != null) {
-            r.setIdOrdenExamen(ordenPadre);
-        }
         return r;
     }
 
@@ -45,24 +34,22 @@ public class ExamenResultadoModel extends AbstracCrudModel<ExamenResultado> {
     protected UUID obtenerId(ExamenResultado registro) {
         return registro.getIdExamenResultado();
     }
+    // Trae de la base solo los resultados de la orden indicada
 
-    public List<OrdenExamen> getOrdenes() {
-        if (ordenes == null) {
-            ordenes = oeDAO.findRange(0, 100);
-        }
-        return ordenes;
+    @Override
+    protected List<ExamenResultado> buscarPorPadre(UUID idPadre) {
+        return erDAO.findByOrdenExamen(idPadre);
     }
 
-    // NUEVO: análogo a cargarPorExamen
-    public void cargarPorOrdenExamen(OrdenExamen orden) {
-        ordenPadre = orden;
-        registro = null;
-        estado = Estado_Crud.NINGUNO;
+// UUID del padre (OrdenExamen)
+    @Override
+    protected UUID obtenerIdPadre(OrdenExamen padre) {
+        return padre.getIdOrdenExamen();
+    }
 
-        if (orden != null && orden.getIdOrdenExamen() != null) {
-            setWrappedData(erDAO.findByOrdenExamen(orden.getIdOrdenExamen()));
-        } else {
-            setWrappedData(new ArrayList<>());
-        }
+// Cómo asignar el padre a un resultado nuevo
+    @Override
+    protected void asignarPadre(ExamenResultado hijo, OrdenExamen padre) {
+        hijo.setIdOrdenExamen(padre);
     }
 }

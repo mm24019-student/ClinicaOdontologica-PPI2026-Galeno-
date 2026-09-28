@@ -41,15 +41,14 @@
 
         <!--Mensaje de confirmación -->
         <div class="mensajes">
-            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
-                        closable="true"/>
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
         <!--Trozo de codigo que muestra el formulario de mantenimiento de procedimientos, con pestañas -->
         <div class="tarjeta-suelta">
             <h2>Mantenimiento Procedimiento</h2>
             <h:form id="Procedimiento" styleClass="form-procedimiento">
 
-                <p:tabView id="tabsProcedimiento" rendered="#{procedimientoModel.estado!='NINGUNO'}">
+                <p:tabView id="tabsProcedimiento"  binding="#{procedimientoModel.tabView}" activeIndex="#{procedimientoModel.activo}" rendered="#{procedimientoModel.estado!='NINGUNO'}">
 
                     <!-- El evento tabChange tiene que ir en el p:tabView, no dentro de un p:tab suelto -->
                     <p:ajax event="tabChange" listener="#{procedimientoPasoModel.cargarDe(procedimientoModel.registro)}"
@@ -82,17 +81,14 @@
                                          selectionMode="single" rowKey="#{ps.idProcedimientoPaso}"
                                          rendered="#{procedimientoPasoModel.estado=='NINGUNO'}">
                                 <p:ajax event="rowSelect" listener="#{procedimientoPasoModel.onRowSelect}"
-                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                        update="@form" resetValues="true"/>
                                 <p:column headerText="Nombre"><p:outputLabel value="#{ps.nombre}"/></p:column>
                                 <p:column headerText="Rol"><p:outputLabel value="#{ps.idRol.nombre}"/></p:column>
                                 <p:column headerText="Fin"><p:outputLabel value="#{ps.indicaFin ? 'SÍ' : 'NO'}"/></p:column>
                             </p:dataTable>
 
-                            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
-                                             actionListener="#{procedimientoPasoModel.btnNuevoHandler}"
-                                             rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"
-                                             update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
+                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" 
+                                                mostrarCancelar="false" rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"/>
 
 
                             <p:panelGrid columns="2" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}">
@@ -107,173 +103,155 @@
                                 <p:outputLabel value="Indica fin" for="chkFin"/>
                                 <p:selectBooleanCheckbox id="chkFin" value="#{procedimientoPasoModel.registro.indicaFin}"/>
                             </p:panelGrid>
-                            <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
-                                           rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
 
+                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                                <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                               rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
 
-                            <!--Parte 3-->
-
+                                 <g:Botones_Acciones modelo="#{procedimientoPasoModel}"
+                                                     mostrarNuevo="false" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}" />
+                            </div>
 
                             <p:tabView id="tabsPaso" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}">
 
-                                <!-- Los dos tabChange van aquí, en el p:tabView, no dentro de cada p:tab -->
                                 <p:ajax event="tabChange" listener="#{procedimientoPasoSecuenciaModel.cargarDe(procedimientoPasoModel.registro)}"
-                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                        update="@form"/>
                                 <p:ajax event="tabChange" listener="#{procedimientoPasoExamenModel.cargarDe(procedimientoPasoModel.registro)}"
-                                        update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
+                                        update="@form"/>
 
                                 <p:tab title="Secuencia y Examen del Procedimiento" disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}">
 
                                     <h:panelGroup id="pnlSecuencias">
-                                        <!-- En vez de mostrar la tabla siempre visible, se abre bajo demanda en un diálogo emergente.
-                                             abrirGestionSecuencia recarga la lista de este paso antes de abrir el diálogo,
-                                             para no depender de que ya se haya disparado el tabChange de tabsPaso -->
                                         <p:commandButton value="Gestionar Secuencia" icon="pi pi-sitemap" resetValues="true"
                                                          actionListener="#{procedimientoPasoSecuenciaModel.abrirGestionSecuencia(procedimientoPasoModel.registro)}"
-                                                         update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                        <p:dialog header="Secuencia del Procedimiento" widgetVar="dlgSecuencia"
-                                                  modal="true"  width="650" style="max-width:95vw"
-                                                  visible="#{procedimientoPasoSecuenciaModel.mostrarDialogo}">
-
-                                            <p:ajax event="close" listener="#{procedimientoPasoSecuenciaModel.btnCerrarDialogo}"
-                                                    update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                            <!-- p:autoComplete en vez de p:selectOneListbox/p:dataTable: el usuario
-                                                 escribe y, al elegir una sugerencia, esta misma ventana emergente
-                                                 pasa a mostrar el formulario para editar o eliminar esa secuencia -->
-                                            <p:outputLabel value="Buscar secuencia existente" style="font-weight:bold;"
-                                                           rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}"/>
-                                            <div style="display:flex; gap:6px; align-items:flex-start; width:100%; box-sizing:border-box;">
-                                                <p:autoComplete id="acSecuencias" style="flex:1 1 auto; width:1%; min-width:0;"
-                                                                value="#{procedimientoPasoSecuenciaModel.seleccionAutocomplete}"
-                                                                completeMethod="#{procedimientoPasoSecuenciaModel.completarSecuencias}"
-                                                                var="sc" itemValue="#{sc}"
-                                                                itemLabel="#{procedimientoPasoSecuenciaModel.etiqueta(sc)}"
-                                                                converter="procedimientoPasoSecuenciaConverter" forceSelection="true"
-                                                                scrollHeight="220"
-                                                                emptyMessage="No hay secuencias que coincidan"
-                                                                placeholder="Escriba el tipo de secuencia o el paso de referencia..."
-                                                                rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}">
-                                                    <p:ajax event="itemSelect" listener="#{procedimientoPasoSecuenciaModel.onItemSelect}"
-                                                            process="@this" update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-                                                </p:autoComplete>
-                                            </div>
-
-                                            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
-                                                             actionListener="#{procedimientoPasoSecuenciaModel.btnNuevoHandler}"
-                                                             rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}"
-                                                             update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                            <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
-                                                         columnClasses="ui-grid-col-4,ui-grid-col-8"
-                                                         rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}">
-                                                <p:outputLabel value="IDSecuencia" for="txtSecuencia"/>
-                                                <p:inputText id="txtSecuencia" style="width:100%; box-sizing:border-box;"
-                                                             disabled="true" value="#{procedimientoPasoSecuenciaModel.registro.idProcedimientoPasoSecuencia}"/>
-                                                <p:outputLabel value="Tipo de secuencia" for="txtTipo"/>
-                                                <p:inputText id="txtTipo" style="width:100%; box-sizing:border-box;" maxlength="20"
-                                                             value="#{procedimientoPasoSecuenciaModel.registro.tipoSecuencia}"/>
-
-                                                <p:outputLabel value="Paso de referencia" for="acReferencia"/>
-                                                <p:autoComplete id="acReferencia"
-                                                                value="#{procedimientoPasoSecuenciaModel.pasoReferenciaSeleccionado}"
-                                                                completeMethod="#{procedimientoPasoSecuenciaModel.completarPasos}"
-                                                                var="pa" itemValue="#{pa}" itemLabel="#{pa.nombre}" converter="procedimientoPasoConverter" forceSelection="true" placeholder="Buscar paso..." style="width:100%;">
-                                                </p:autoComplete>
-                                            </p:panelGrid>
-                                            <g:botones_top modelo="#{procedimientoPasoSecuenciaModel}"
-                                                           tabla="Procedimiento:tabsProcedimiento:pnlPasos"
-                                                           process="@form"
-                                                           rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}"/>
-                                        </p:dialog>
+                                                         update="@form"/>
                                     </h:panelGroup>
 
-                                    <!-- Parte 4: fusionado en el mismo tab que "Secuencia del Procedimiento" -->
-
                                     <h:panelGroup id="pnlExamenes">
-                                        <!-- Mismo patrón que "Secuencia del Procedimiento": tabla oculta detrás
-                                             de un diálogo emergente para no pasar del límite de 3 tablas por
-                                             pantalla. abrirGestionExamen recarga la lista de este paso antes
-                                             de abrir el diálogo, para no depender del tabChange de tabsPaso -->
                                         <p:commandButton value="Gestionar Examen del Procedimiento" icon="pi pi-file-check" resetValues="true"
                                                          actionListener="#{procedimientoPasoExamenModel.abrirGestionExamen(procedimientoPasoModel.registro)}"
-                                                         update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                        <p:dialog header="Procedimiento del Examen" widgetVar="dlgExamen"
-                                                  modal="true" width="650" style="max-width:95vw"
-                                                  visible="#{procedimientoPasoExamenModel.mostrarDialogo}">
-
-                                            <p:ajax event="close" listener="#{procedimientoPasoExamenModel.btnCerrarDialogo}"
-                                                    update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                            <!-- p:autoComplete en vez de p:dataTable: el usuario escribe y, al
-                                                 elegir una sugerencia, esta misma ventana pasa a mostrar el
-                                                 formulario para editar o eliminar ese examen del paso -->
-                                            <p:outputLabel value="Buscar examen existente" style="font-weight:bold;"
-                                                           rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}"/>
-                                            <div style="display:flex; gap:6px; align-items:flex-start; width:100%; box-sizing:border-box;">
-                                                <p:autoComplete id="acExamenes" style="flex:1 1 auto; width:1%; min-width:0;"
-                                                                value="#{procedimientoPasoExamenModel.seleccionAutocomplete}"
-                                                                completeMethod="#{procedimientoPasoExamenModel.completarExamenes}"
-                                                                var="pe" itemValue="#{pe}"
-                                                                itemLabel="#{procedimientoPasoExamenModel.etiqueta(pe)}"
-                                                                converter="procedimientoPasoExamenConverter" forceSelection="true"
-                                                                scrollHeight="220"
-                                                                emptyMessage="No hay exámenes que coincidan"
-                                                                placeholder="Escriba el nombre del examen o el estado..."
-                                                                rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}">
-                                                    <p:ajax event="itemSelect" listener="#{procedimientoPasoExamenModel.onItemSelect}"
-                                                            process="@this" update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-                                                </p:autoComplete>
-                                            </div>
-
-                                            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true"
-                                                             actionListener="#{procedimientoPasoExamenModel.btnNuevoHandler}"
-                                                             rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}"
-                                                             update=":Procedimiento:tabsProcedimiento:pnlPasos"/>
-
-                                            <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
-                                                         columnClasses="ui-grid-col-4,ui-grid-col-8"
-                                                         rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}">
-                                                <p:outputLabel value="Examen *" for="selExamen"/>
-                                                <p:autoComplete id="selExamen"
-                                                                value="#{procedimientoPasoExamenModel.registro.idExamen}"
-                                                                completeMethod="#{procedimientoPasoExamenModel.completarExamenesFormulario}"
-                                                                var="e" itemValue="#{e}" itemLabel="#{e.nombre}" converter="#{examenConverter}" forceSelection="true" placeholder="Buscar examen..." style="width:100%;">
-
-                                                    <p:ajax event="itemSelect" update="txtDescExamen"/>
-
-                                                </p:autoComplete>
-
-                                                <p:outputLabel value="Descripción del examen"/>
-                                                <h:outputText id="txtDescExamen" value="#{procedimientoPasoExamenModel.registro.idExamen.observaciones}"/>
-
-                                                <p:outputLabel for="chkActivoExamen" value="Activo"/>
-                                                <p:selectBooleanCheckbox id="chkActivoExamen" value="#{procedimientoPasoExamenModel.registro.activo}"/>
-
-                                                <p:outputLabel value="Fecha de creación" for="calFecha"/>
-                                                <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
-                                                              value="#{procedimientoPasoExamenModel.registro.fechaCreacion}"/>
-
-                                                <p:outputLabel value="Observaciones" for="txtObsExamen"/>
-                                                <p:inputTextarea id="txtObsExamen" rows="3" cols="50" style="width:100%; box-sizing:border-box;"
-                                                                 value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
-                                            </p:panelGrid>
-                                 
-                                            <g:botones_top modelo="#{procedimientoPasoExamenModel}"
-                                                           tabla="Procedimiento:tabsProcedimiento:pnlPasos"
-                                                           process="@form"
-                                                           rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
-                                        </p:dialog>
+                                                         update="@form"/>
                                     </h:panelGroup>
                                 </p:tab>
 
                             </p:tabView>
                         </h:panelGroup>
+
                     </p:tab>
 
                 </p:tabView>
+                <!-- Diálogos movidos fuera de pnlPasos para que no se destruyan y regeneren
+     en cada ajax update — evita que queden copias huérfanas en el <body> -->
+                <p:dialog id="dlgSecuencia" header="Secuencia del Procedimiento" widgetVar="dlgSecuencia"
+                          modal="true" width="650" style="max-width:95vw"
+                          visible="#{procedimientoPasoSecuenciaModel.mostrarDialogo}">
+
+                    <p:ajax event="close" listener="#{procedimientoPasoSecuenciaModel.btnCerrarDialogo}"
+                            update="@form" resetValues="true"/>
+
+                    <p:outputLabel value="Buscar secuencia existente" style="font-weight:bold;"
+                                   rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}"/>
+                    <div style="display:flex; gap:6px; align-items:flex-start; width:80%; box-sizing:border-box;">
+                        <p:autoComplete id="acSecuencias" style="flex:1 1 auto; width:1%; min-width:0;"
+                                        value="#{procedimientoPasoSecuenciaModel.seleccionAutocomplete}"
+                                        completeMethod="#{procedimientoPasoSecuenciaModel.completarSecuencias}"
+                                        var="sc" itemValue="#{sc}"
+                                        itemLabel="#{procedimientoPasoSecuenciaModel.etiqueta(sc)}"
+                                        converter="procedimientoPasoSecuenciaConverter" forceSelection="true"
+                                        scrollHeight="220"
+                                        emptyMessage="No hay secuencias que coincidan"
+                                        placeholder="Escriba el tipo de secuencia o el paso de referencia..."
+                                        rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}">
+                            <p:ajax event="itemSelect" listener="#{procedimientoPasoSecuenciaModel.onItemSelect}"
+                                    process="@this" update="@form"/>
+                        </p:autoComplete>
+                         <g:Botones_Acciones modelo="#{procedimientoPasoSecuenciaModel}"
+         mostrarCancelar="false" rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}" />
+                    </div>
+
+                    <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
+                                 columnClasses="ui-grid-col-4,ui-grid-col-8"
+                                 rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}">
+                        <p:outputLabel value="IDSecuencia" for="txtSecuencia"/>
+                        <p:inputText id="txtSecuencia" style="width:100%; box-sizing:border-box;"
+                                     disabled="true" value="#{procedimientoPasoSecuenciaModel.registro.idProcedimientoPasoSecuencia}"/>
+                        <p:outputLabel value="Tipo de secuencia" for="txtTipo"/>
+                        <p:inputText id="txtTipo" style="width:100%; box-sizing:border-box;" maxlength="20"
+                                     value="#{procedimientoPasoSecuenciaModel.registro.tipoSecuencia}"/>
+
+                        <p:outputLabel value="Paso de referencia" for="acReferencia"/>
+                        <p:autoComplete id="acReferencia" required="true" requiredMessage="Debe seleccionar un paso de referencia"
+                                        value="#{procedimientoPasoSecuenciaModel.pasoReferenciaSeleccionado}"
+                                        completeMethod="#{procedimientoPasoSecuenciaModel.completarPasos}"
+                                        var="pa" itemValue="#{pa}" itemLabel="#{pa.nombre}" converter="procedimientoPasoConverter" forceSelection="true" placeholder="Buscar paso..." style="width:100%;">
+                        </p:autoComplete>
+                    </p:panelGrid>
+                    <g:botones_top modelo="#{procedimientoPasoSecuenciaModel}"
+                                   tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                   process="@form"
+                                   rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}"/>
+                </p:dialog>
+
+                <p:dialog id="dlgExamen" header="Procedimiento del Examen" widgetVar="dlgExamen"
+                          modal="true" width="650" style="max-width:95vw"
+                          visible="#{procedimientoPasoExamenModel.mostrarDialogo}">
+
+                    <p:ajax event="close" listener="#{procedimientoPasoExamenModel.btnCerrarDialogo}"
+                            update="@form" resetValues="true"/>
+
+                    <p:outputLabel value="Buscar examen existente" style="font-weight:bold;"
+                                   rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}"/>
+                    <div style="display:flex; gap:2px; align-items:flex-start; width:80%; box-sizing:border-box;">
+                        <p:autoComplete id="acExamenes" style="flex:1 1 auto; width:1%; min-width:0;"
+                                        value="#{procedimientoPasoExamenModel.seleccionAutocomplete}"
+                                        completeMethod="#{procedimientoPasoExamenModel.completarExamenes}"
+                                        var="pe" itemValue="#{pe}"
+                                        itemLabel="#{procedimientoPasoExamenModel.etiqueta(pe)}"
+                                        converter="procedimientoPasoExamenConverter" forceSelection="true"
+                                        scrollHeight="220"
+                                        emptyMessage="No hay exámenes que coincidan"
+                                        placeholder="Escriba el nombre del examen o el estado..."
+                                        rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}">
+                            <p:ajax event="itemSelect" listener="#{procedimientoPasoExamenModel.onItemSelect}"
+                                    process="@this" update="@form"/>
+                        </p:autoComplete>
+                        <g:Botones_Acciones modelo="#{procedimientoPasoExamenModel}"
+                       mostrarCancelar="false" rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}" />
+                    </div>
+
+
+
+                    <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
+                                 columnClasses="ui-grid-col-4,ui-grid-col-8"
+                                 rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}">
+                        <p:outputLabel value="Examen *" for="selExamen"/>
+                        <p:autoComplete id="selExamen" required="true" requiredMessage="Debe seleccionar un Examen"
+                                        value="#{procedimientoPasoExamenModel.registro.idExamen}"
+                                        completeMethod="#{procedimientoPasoExamenModel.completarExamenesFormulario}"
+                                        var="e" itemValue="#{e}" itemLabel="#{e.nombre}" converter="#{examenConverter}" forceSelection="true" placeholder="Buscar examen..." style="width:100%;">
+                            <p:ajax event="itemSelect" update="txtDescExamen"/>
+                        </p:autoComplete>
+
+                        <p:outputLabel value="Descripción del examen"/>
+                        <h:outputText id="txtDescExamen" value="#{procedimientoPasoExamenModel.registro.idExamen.observaciones}"/>
+
+                        <p:outputLabel for="chkActivoExamen" value="Activo"/>
+                        <p:selectBooleanCheckbox id="chkActivoExamen" value="#{procedimientoPasoExamenModel.registro.activo}"/>
+
+                        <p:outputLabel value="Fecha de creación" for="calFecha"/>
+                        <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
+                                      value="#{procedimientoPasoExamenModel.registro.fechaCreacion}"/>
+
+                        <p:outputLabel value="Observaciones" for="txtObsExamen"/>
+                        <p:inputTextarea id="txtObsExamen" rows="3" cols="50" style="width:100%; box-sizing:border-box;"
+                                         value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
+                    </p:panelGrid>
+
+                    <g:botones_top modelo="#{procedimientoPasoExamenModel}"
+                                   tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                   process="@form"
+                                   rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
+                </p:dialog>
             </h:form>
         </div>
     </ui:define>
