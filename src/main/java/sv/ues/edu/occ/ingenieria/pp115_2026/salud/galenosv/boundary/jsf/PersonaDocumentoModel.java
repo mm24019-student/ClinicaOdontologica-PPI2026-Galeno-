@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -17,14 +15,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
 /**
  * Bean de detalle para la pestaña "Documentos" dentro de la pantalla de
- * Persona. A diferencia de PersonaRolDetalleModel (que necesitaba dos
- * catálogos elegidos vía autocomplete antes de poder "crear"), Documento
- * es el caso simple para el que AbstracdetallecrudModel ya está pensado:
- * un solo combo (TipoDocumento) + un par de campos propios, con el flujo
- * normal Nuevo -> llenar formulario -> Crear/Actualizar/Eliminar.
+ * Persona. A diferencia de PersonaRolDetalleModel (que necesitaba dos catálogos
+ * elegidos vía autocomplete antes de poder "crear"), Documento es el caso
+ * simple para el que AbstracdetallecrudModel ya está pensado: un solo combo
+ * (TipoDocumento) + un par de campos propios, con el flujo normal Nuevo ->
+ * llenar formulario -> Crear/Actualizar/Eliminar.
  *
- * No se llama "DocumentoModel" porque ese nombre ya lo tiene el CRUD
- * standalone de Documento (su propia pantalla en el menú).
+ * No se llama "DocumentoModel" porque ese nombre ya lo tiene el CRUD standalone
+ * de Documento (su propia pantalla en el menú).
  */
 @Named
 @ViewScoped
@@ -70,34 +68,6 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
         hijo.setIdPersona(padre);
     }
 
-    // Misma validación que ya tenía el DocumentoModel standalone (menos la
-    // de Persona, porque acá el padre ya viene fijo).
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (relacionesCompletas()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (relacionesCompletas()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean relacionesCompletas() {
-        if (registro == null) {
-            return true;
-        }
-        if (registro.getIdTipoDocumento() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un tipo de documento", "El tipo es obligatorio"));
-            return false;
-        }
-        return true;
-    }
-
     public List<TipoDocumento> getTiposDocumento() {
         if (tiposDocumento == null) {
             tiposDocumento = tipoDocumentoDAO.findRange(0, 100);
@@ -112,5 +82,11 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
         return getTiposDocumento().stream()
                 .filter(t -> t.getNombre() != null && t.getNombre().toLowerCase().contains(texto))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        // La persona no se valida: en este detalle el padre ya viene fijo.
+        return requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio");
     }
 }

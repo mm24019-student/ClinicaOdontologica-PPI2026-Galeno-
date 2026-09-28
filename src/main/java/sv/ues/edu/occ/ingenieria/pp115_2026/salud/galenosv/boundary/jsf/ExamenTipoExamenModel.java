@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -54,38 +52,6 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
     @Override
     protected UUID obtenerId(ExamenTipoExamen registro) {
         return registro.getIdExamenTipoExamen();
-    }
-
-    // Valida las dos relaciones antes de guardar
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (relacionesCompletas()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (relacionesCompletas()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean relacionesCompletas() {
-        if (registro == null) {
-            return true; // el metodo base ya avisa que el registro es nulo
-        }
-        if (registro.getIdExamen() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un examen", "El examen es obligatorio"));
-            return false;
-        }
-        if (registro.getIdTipoExamen() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un tipo de examen", "El tipo de examen es obligatorio"));
-            return false;
-        }
-        return true;
     }
 
     // Opciones de los selectores (se cargan una vez por vista)
@@ -152,4 +118,13 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
 
         return resultado;
     }
+    
+        @Override
+    protected boolean validarAntesDeGuardar() {
+        return requerir(registro.getIdExamen(), "Seleccione un examen", "El examen es obligatorio")
+                && requerir(registro.getIdTipoExamen(), "Seleccione un tipo de examen", "El tipo de examen es obligatorio");
+    }
+
+    
+
 }

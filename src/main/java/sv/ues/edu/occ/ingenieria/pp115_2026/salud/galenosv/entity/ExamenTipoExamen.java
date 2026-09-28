@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity;
 
 import jakarta.persistence.Basic;
@@ -16,6 +12,7 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
@@ -45,6 +42,7 @@ public class ExamenTipoExamen implements Serializable {
     private Date fechaCreacion;
     @Size(max = 2147483647)
     @Column(name = "observaciones")
+    @NotBlank(message = "Observaciones no puede estar vacias")
     private String observaciones;
     @JoinColumn(name = "id_examen", referencedColumnName = "id_examen")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -124,5 +122,5 @@ public class ExamenTipoExamen implements Serializable {
     public String toString() {
         return "sv.ues.edu.occ.ingenieria.pp115_2026.salud.galeanosv.entity.ExamenTipoExamen[ idExamenTipoExamen=" + idExamenTipoExamen + " ]";
     }
-    
+
 }

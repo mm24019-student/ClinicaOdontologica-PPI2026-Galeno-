@@ -1,6 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.event.ActionEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -72,25 +71,14 @@ public abstract class AbstracdetallecrudModel<T, P> extends AbstracCrudModel<T> 
     protected void configurarNuevoRegistro(T nuevoRegistro) {
         asignarPadre(nuevoRegistro, padreActual);
     }
-
-    // Los 3 handlers de AbstracCrudModel recargan SIEMPRE la lista completa
-    // (findRange(0,100)) después de guardar. Aquí la volvemos a filtrar para
-    // no perder el contexto del padre.
+    
+        // Tras crear/modificar/eliminar con éxito, AbstracCrudModel llama a este
+    // hook: aquí volvemos a filtrar por el padre en vez de traer los 100
+    // registros de todos los padres. Al ir dentro del flujo de éxito, una
+    // validación fallida ya NO reinicia el formulario ni pierde lo escrito.
     @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        super.btnCrearhandler(ae);
-        cargarDe(padreActual);
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        super.btnModificarHandler();
-        cargarDe(padreActual);
-    }
-
-    @Override
-    public void btnEliminarHandler() {
-        super.btnEliminarHandler();
+    protected void recargarLista() {
         cargarDe(padreActual);
     }
 }
+

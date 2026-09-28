@@ -110,6 +110,10 @@
                                                  cols="60"
                                                  value="#{consultaModel.registro.observaciones}"/>
                             </p:panelGrid>
+                            <h:panelGroup rendered="#{consultaModel.estado=='CREAR'}" layout="block"
+                                      style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
+                            Guarda primero los datos de la consulta para poder acceder a las demas funciones.
+                        </h:panelGroup>
                             <g:botones_top modelo="#{consultaModel}" process="@form"/>
                         </h:panelGroup>
                     </p:tab>

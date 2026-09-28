@@ -41,15 +41,14 @@
         </div>
 
         <div class="mensajes">
-            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
-                        closable="true"/>
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
 
         <div class="tarjeta-suelta">
             <h2>Mantenimiento de Examen</h2>
             <h:form id="Examen" styleClass="form-examen">
 
-                <p:tabView id="tabsExamen" rendered="#{examenModel.estado!='NINGUNO'}">
+                <p:tabView id="tabsExamen" binding="#{examenModel.tabView}" activeIndex="#{examenModel.activo}" rendered="#{examenModel.estado!='NINGUNO'}">
 
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
@@ -90,19 +89,17 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <p:commandButton value="Nuevo tipo" actionListener="#{examenTipoExamenModel.btnNuevoHandler}"
-                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"
-                                             rendered="#{examenTipoExamenModel.estado=='NINGUNO'}"/>
+                            <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarCancelar="false" rendered="#{examenTipoExamenModel.estado=='NINGUNO'}"/>
 
                             <p:panelGrid columns="2" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}">
                                 <p:outputLabel value="Tipo de examen *" for="acTipoExamen"/>
                                 <p:autoComplete id="acTipoExamen"
-                                                 value="#{examenTipoExamenModel.registro.idTipoExamen}"
-                                                 completeMethod="#{examenTipoExamenModel.completarTiposExamen}"
-                                                 converter="#{tipoExamenConverter}"
-                                                 var="t" itemLabel="#{t.nombre}" itemValue="#{t}"
-                                                 forceSelection="true" minQueryLength="0"
-                                                 placeholder="Escriba para buscar..."/>
+                                                value="#{examenTipoExamenModel.registro.idTipoExamen}"
+                                                completeMethod="#{examenTipoExamenModel.completarTiposExamen}"
+                                                converter="#{tipoExamenConverter}"
+                                                var="t" itemLabel="#{t.nombre}" itemValue="#{t}"
+                                                forceSelection="true" minQueryLength="0"
+                                                placeholder="Escriba para buscar..."/>
 
                                 <p:outputLabel value="Fecha de creación" for="calFechaTipo"/>
                                 <p:datePicker id="calFechaTipo" showTime="true" pattern="dd/MM/yyyy HH:mm"
@@ -111,21 +108,12 @@
 
                                 <p:outputLabel value="Observaciones" for="txtObsTipo"/>
                                 <p:inputTextarea id="txtObsTipo" rows="3" cols="50"
-                                                  value="#{examenTipoExamenModel.registro.observaciones}"/>
+                                                 value="#{examenTipoExamenModel.registro.observaciones}"/>
                             </p:panelGrid>
-
-                            <p:commandButton value="Guardar" actionListener="#{examenTipoExamenModel.btnCrearhandler}"
-                                             rendered="#{examenTipoExamenModel.estado=='CREAR'}"
-                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
-                            <p:commandButton value="Actualizar" actionListener="#{examenTipoExamenModel.btnModificarHandler}"
-                                             rendered="#{examenTipoExamenModel.estado=='MODIFICAR'}"
-                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
-                            <p:commandButton value="Eliminar" actionListener="#{examenTipoExamenModel.btnEliminarHandler}"
-                                             rendered="#{examenTipoExamenModel.estado=='MODIFICAR'}"
-                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
-                            <p:commandButton value="Cancelar" actionListener="#{examenTipoExamenModel.btnCancelar()}"
-                                             rendered="#{examenTipoExamenModel.estado!='NINGUNO'}"
-                                             update=":Examen:tabsExamen:pnlDetalleTipo :mensajes"/>
+                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                                <g:botones_top modelo="#{examenTipoExamenModel}"/>
+                                <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarNuevo="false" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}" />
+                            </div>
 
                         </h:panelGroup>
                     </p:tab>

@@ -91,7 +91,6 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     @Override
     public void onRowSelect(org.primefaces.event.SelectEvent<Consulta> event) {
         super.onRowSelect(event);
-        activeTabIndex = 0;
         this.personaRolSeleccionado = event.getObject().getIdPersonaRol();
         consultaProcedimientoModel.btnCancelar();
         consultaProcedimientoPasoModel.btnCancelar();

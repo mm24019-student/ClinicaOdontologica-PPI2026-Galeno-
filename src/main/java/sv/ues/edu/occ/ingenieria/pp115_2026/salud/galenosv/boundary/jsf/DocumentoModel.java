@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -45,37 +43,6 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
         return registro.getIdDocumento();
     }
 
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (relacionesCompletas()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (relacionesCompletas()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean relacionesCompletas() {
-        if (registro == null) {
-            return true;
-        }
-        if (registro.getIdPersona() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione una persona", "La persona es obligatoria"));
-            return false;
-        }
-        if (registro.getIdTipoDocumento() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un tipo de documento", "El tipo es obligatorio"));
-            return false;
-        }
-        return true;
-    }
-
     public List<Persona> getPersonas() {
         if (personas == null) {
             personas = personaDAO.findRange(0, 100);
@@ -88,5 +55,11 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
             tiposDocumento = tipoDocumentoDAO.findRange(0, 100);
         }
         return tiposDocumento;
+    }
+    
+        @Override
+    protected boolean validarAntesDeGuardar() {
+        return requerir(registro.getIdPersona(), "Seleccione una persona", "La persona es obligatoria")
+                && requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio");
     }
 }

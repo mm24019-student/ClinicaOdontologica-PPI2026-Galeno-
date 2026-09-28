@@ -66,6 +66,10 @@
                             <p:outputLabel for="txtObservaciones" value="Observaciones"/>
                             <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoModel.registro.observaciones}"/>
                         </p:panelGrid>
+                        <h:panelGroup rendered="#{procedimientoModel.estado=='CREAR'}" layout="block"
+                                      style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
+                            Guarda primero los datos del procedimiento para poder acceder a las demas funciones.
+                        </h:panelGroup>
                         <!--Botones de acción del formulario de mantenimiento -->
                         <g:botones_top modelo="#{procedimientoModel}"/>
                     </p:tab>

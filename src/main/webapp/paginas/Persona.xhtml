@@ -45,8 +45,7 @@
         </div>
 
         <div class="mensajes">
-            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
-                        closable="true"/>
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
 
         <!-- === DETALLE: 1 sola pantalla con 2 pestañas (Datos, Rol y Clinica).
@@ -55,7 +54,7 @@
              todo junto (antes era una 3ra pestaña "Asignaciones" aparte).
              Sigue deshabilitada mientras estado != MODIFICAR.
 
-             activeIndex="#{personaModel.tabActivo}" + p:ajax tabChange:
+             activeIndex= + p:ajax tabChange:
              sin esto, CUALQUIER ajax dentro del form (seleccionar fila,
              crear/actualizar rol, autocomplete, etc.) hace que el tabView
              se vuelva a renderizar en su pestaña 0 ("Datos de Persona"),
@@ -71,7 +70,7 @@
         <div class="tarjeta-suelta">
             <h:form id="Persona" styleClass="form-persona">
 
-                <p:tabView activeIndex="#{personaModel.tabActivo}" rendered="#{personaModel.estado!='NINGUNO'}">
+                <p:tabView activeIndex="#{personaModel.activo}" rendered="#{personaModel.estado!='NINGUNO'}">
                     <p:ajax event="tabChange" update="@none"/>
 
                     <!-- === Pestaña 1: Datos de Persona, sin cambios === -->
@@ -125,9 +124,7 @@
 
                             <p:outputLabel value="Rol: "/>
                             <b>#{personaRolDetalleModel.nuevoRol != null ? personaRolDetalleModel.nuevoRol.nombre : '(ninguno)'}</b>
-
                             &#160;&#160;
-
                             <p:outputLabel value="Clinica: "/>
                             <b>#{personaRolDetalleModel.nuevaClinica != null ? personaRolDetalleModel.nuevaClinica.nombre : '(ninguna)'}</b>
 
@@ -219,11 +216,11 @@
                                          value="#{personaDocumentoModel.registro.rutaFisica}"/>
                         </p:panelGrid>
 
-                        <g:botones_top modelo="#{personaDocumentoModel}" tabla="Persona:tblDocumentos"/>
-                        <p:commandButton value="#{msg['crud.boton.cancelar']}"
-                                         actionListener="#{personaDocumentoModel.btnCancelar}"
-                                         rendered="#{personaDocumentoModel.estado!='NINGUNO'}"
-                                         process="@this" update="@form"/>
+                        <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                            <g:botones_top modelo="#{personaDocumentoModel}"/>
+                            <g:Botones_Acciones modelo="#{personaDocumentoModel}"
+                                                mostrarNuevo="false" rendered="#{personaDocumentoModel.estado!='NINGUNO'}" />
+                        </div>
                     </p:tab>
 
                     <!-- === Pestaña 4: Medios de Contacto ===
@@ -265,12 +262,11 @@
                             <p:inputText id="txtValorMedioContacto" style="width:100%"
                                          value="#{personaMedioContactoModel.registro.valor}"/>
                         </p:panelGrid>
-
-                        <g:botones_top modelo="#{personaMedioContactoModel}" tabla="Persona:tblMediosContacto"/>
-                        <p:commandButton value="#{msg['crud.boton.cancelar']}"
-                                         actionListener="#{personaMedioContactoModel.btnCancelar}"
-                                         rendered="#{personaMedioContactoModel.estado!='NINGUNO'}"
-                                         process="@this" update="@form"/>
+                        <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                            <g:botones_top modelo="#{personaMedioContactoModel}"/>
+                            <g:Botones_Acciones modelo="#{personaMedioContactoModel}"
+                                                mostrarNuevo="false" rendered="#{personaMedioContactoModel.estado!='NINGUNO'}" />
+                        </div>
                     </p:tab>
 
                 </p:tabView>

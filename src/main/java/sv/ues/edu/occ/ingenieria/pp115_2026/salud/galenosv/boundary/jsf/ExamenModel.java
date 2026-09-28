@@ -11,7 +11,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 
 @Named
 @ViewScoped
-public class ExamenModel extends AbstracCrudModel<Examen> {
+public class ExamenModel extends AbstracCrudTabsModel<Examen> {
 
     @Inject
     private ExamenDAO eDAO;
@@ -24,8 +24,16 @@ public class ExamenModel extends AbstracCrudModel<Examen> {
         return eDAO;
     }
 
+     @Override
+    protected void resetearHijos() {
+        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
+        // no debe conservar el registro/estado de la orden anterior.
+        examenTipoExamenModel.cargarPorExamen(null);
+    }
+    
+    
     @Override
-    protected Examen crearRegistroNuevo() {
+    protected Examen crearRegistroNuevoBase() {
         Examen e = new Examen(UUID.randomUUID());
         e.setActivo(Boolean.TRUE);
         return e;
@@ -37,9 +45,8 @@ public class ExamenModel extends AbstracCrudModel<Examen> {
     }
 
     public void seleccionarExamen(SelectEvent<Examen> event) {
-
         Examen examenSeleccionado = event.getObject();
-
         examenTipoExamenModel.cargarPorExamen(examenSeleccionado);
     }
+
 }

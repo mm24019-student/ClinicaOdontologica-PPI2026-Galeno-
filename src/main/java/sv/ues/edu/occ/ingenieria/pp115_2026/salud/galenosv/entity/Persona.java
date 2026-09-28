@@ -49,6 +49,7 @@ public class Persona implements Serializable {
     private String apellidos;
     @Column(name = "fecha_nacimiento")
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull(message="Debe ingresar Fecha Necimiento")
     private Date fechaNacimiento;
     @Column(name = "fecha_creacion")
     @Temporal(TemporalType.TIMESTAMP)

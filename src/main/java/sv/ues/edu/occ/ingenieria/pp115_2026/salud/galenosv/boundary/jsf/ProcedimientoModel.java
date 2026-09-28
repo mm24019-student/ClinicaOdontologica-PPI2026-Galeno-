@@ -60,7 +60,6 @@ public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento>{
     @Override
     public void onRowSelect(SelectEvent<Procedimiento> event) {
         super.onRowSelect(event);
-        activeTabIndex = 0;
     }
 
 }

@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -71,34 +69,6 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
         hijo.setIdPersona(padre);
     }
 
-    // Misma validación que ya tenía el MedioContactoModel standalone (menos
-    // la de Persona, porque acá el padre ya viene fijo).
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (relacionesCompletas()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (relacionesCompletas()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean relacionesCompletas() {
-        if (registro == null) {
-            return true;
-        }
-        if (registro.getIdTipoMedioContacto() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un tipo de medio de contacto", "El tipo es obligatorio"));
-            return false;
-        }
-        return true;
-    }
-
     public List<TipoMedioContacto> getTiposMedioContacto() {
         if (tiposMedioContacto == null) {
             tiposMedioContacto = tipoMedioContactoDAO.findRange(0, 100);
@@ -113,5 +83,11 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
         return getTiposMedioContacto().stream()
                 .filter(t -> t.getNombre() != null && t.getNombre().toLowerCase().contains(texto))
                 .collect(Collectors.toList());
+    }
+    
+        @Override
+    protected boolean validarAntesDeGuardar() {
+        // La persona no se valida: en este detalle el padre ya viene fijo.
+        return requerir(registro.getIdTipoMedioContacto(), "Seleccione un tipo de medio de contacto", "El tipo es obligatorio");
     }
 }

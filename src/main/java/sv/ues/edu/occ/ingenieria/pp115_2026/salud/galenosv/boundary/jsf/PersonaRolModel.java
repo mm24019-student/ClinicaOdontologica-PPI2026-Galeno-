@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -65,45 +63,6 @@ public class PersonaRolModel extends AbstracCrudModel<PersonaRol> {
         return registro.getIdPersonaRol();
     }
 
-    // Antes de crear o modificar, valida que las 3 relaciones vengan
-    // seleccionadas (mismo patrón que relacionesCompletas() en
-    // ExamenTipoExamenModel).
-    @Override
-    public void btnCrearhandler(ActionEvent ae) {
-        if (relacionesCompletas()) {
-            super.btnCrearhandler(ae);
-        }
-    }
-
-    @Override
-    public void btnModificarHandler() {
-        if (relacionesCompletas()) {
-            super.btnModificarHandler();
-        }
-    }
-
-    private boolean relacionesCompletas() {
-        if (registro == null) {
-            return true; // el método base ya avisa que el registro es nulo
-        }
-        if (registro.getIdPersona() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione una persona", "La persona es obligatoria"));
-            return false;
-        }
-        if (registro.getIdRol() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione un rol", "El rol es obligatorio"));
-            return false;
-        }
-        if (registro.getIdClinica() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione una clínica", "La clínica es obligatoria"));
-            return false;
-        }
-        return true;
-    }
-
     // Opciones de los combos: se cargan la primera vez que la vista las pide
     // y quedan en memoria mientras dure la vista (ViewScoped).
     public List<Persona> getPersonas() {
@@ -125,5 +84,12 @@ public class PersonaRolModel extends AbstracCrudModel<PersonaRol> {
             clinicas = clinicaDAO.findRange(0, 100);
         }
         return clinicas;
+    }
+    
+        @Override
+    protected boolean validarAntesDeGuardar() {
+        return requerir(registro.getIdPersona(), "Seleccione una persona", "La persona es obligatoria")
+                && requerir(registro.getIdRol(), "Seleccione un rol", "El rol es obligatorio")
+                && requerir(registro.getIdClinica(), "Seleccione una clínica", "La clínica es obligatoria");
     }
 }

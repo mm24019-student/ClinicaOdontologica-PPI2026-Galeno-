@@ -17,7 +17,7 @@
             <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" 
                              actionListener="#{cc.attrs.modelo.btnNuevoHandler}" update="@all" 
                              rendered="#{cc.attrs.mostrarNuevo}"/>
-            <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" 
+            <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" process="@this"
                              actionListener="#{cc.attrs.modelo.btnCancelar}" update="@all" rendered="#{cc.attrs.mostrarCancelar}"/>
         </p:panelGrid>
     </cc:implementation>

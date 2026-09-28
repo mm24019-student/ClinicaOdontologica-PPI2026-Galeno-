@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.SelectableDataModel;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -24,12 +23,18 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
  * la inversa, reconstruir el objeto a partir de esa clave (getRowData) en cada
  * petición AJAX.
  *
+ * Patrón usado: Template Method. Lo común (crear, modificar, eliminar,
+ * seleccionar, diálogo, mensajes) vive aquí una sola vez; cada subclase solo
+ * implementa los métodos abstractos y, si lo necesita, los hooks.
+ *
  * @param <T> entidad que administra el bean
  * @author oscar
  */
 public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements SelectableDataModel<T>, Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private static final int MAX_REGISTROS = 100;
 
     @Inject
     protected FacesContext fc;
@@ -38,23 +43,94 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
 
     protected T registro;
 
-    // Hook: por defecto asumimos que la entidad no tiene hijos. Las subclases
-// cuya entidad SÍ puede tener registros dependientes (ej. OrdenExamen
-// tiene ExamenResultado, Procedimiento tiene ProcedimientoPaso) lo
-// sobreescriben para chequear antes de intentar borrar.
-    protected boolean tieneRegistrosDependientes(T registro) {
-        return false;
-    }
+    protected boolean mostrarDialogo = false;
 
-    // ---- Métodos que cada subclase debe implementar ----
+    // =====================================================================
+    // Métodos que cada subclase DEBE implementar
+    // =====================================================================
     protected abstract InterfaceDAO<T> getDAO();
 
     protected abstract T crearRegistroNuevo();
 
     protected abstract UUID obtenerId(T registro);
 
-    protected boolean mostrarDialogo = false;
+    // =====================================================================
+    // Hooks opcionales (las subclases los sobreescriben si los necesitan)
+    // =====================================================================
 
+    /**
+     * Por defecto asumimos que la entidad no tiene hijos. Las subclases cuya
+     * entidad SÍ puede tener registros dependientes (ej. OrdenExamen tiene
+     * ExamenResultado, Procedimiento tiene ProcedimientoPaso) lo sobreescriben
+     * para chequear antes de intentar borrar.
+     */
+    protected boolean tieneRegistrosDependientes(T registro) {
+        return false;
+    }
+
+    /**
+     * Inicializa valores por defecto en el registro recién creado. Por defecto
+     * no hace nada.
+     */
+    protected void configurarNuevoRegistro(T nuevoRegistro) {
+    }
+
+    /**
+     * Patrón "validar antes de guardar". Las subclases lo sobreescriben para
+     * validar su registro. Debe agregar por sí mismo el FacesMessage de error
+     * (ver requerir) y devolver false si algo falla. Solo se invoca con
+     * registro != null. Por defecto no valida nada.
+     */
+    protected boolean validarAntesDeGuardar() {
+        return true;
+    }
+
+    /**
+     * Cómo se refresca la lista tras crear/modificar/eliminar. Las pantallas de
+     * detalle lo sobreescriben para volver a filtrar por padre.
+     */
+    protected void recargarLista() {
+        setWrappedData(getDAO().findRange(0, MAX_REGISTROS));
+    }
+
+    // =====================================================================
+    // Helpers
+    // =====================================================================
+
+    /** Agrega un mensaje global a la vista. */
+    protected void mensaje(FacesMessage.Severity severidad, String resumen, String detalle) {
+        fc.addMessage(null, new FacesMessage(severidad, resumen, detalle));
+    }
+
+    /**
+     * Helper de validación: si el valor viene nulo agrega el mensaje de error y
+     * devuelve false. Permite encadenar con && (se detiene en el primer error).
+     */
+    protected boolean requerir(Object valor, String resumen, String detalle) {
+        if (valor == null) {
+            mensaje(FacesMessage.SEVERITY_ERROR, resumen, detalle);
+            return false;
+        }
+        return true;
+    }
+
+    /** Deja el bean sin registro seleccionado y sin estado de edición. */
+    private void limpiarSeleccion() {
+        this.registro = null;
+        this.estado = Estado_Crud.NINGUNO;
+    }
+
+    // =====================================================================
+    // Ciclo de vida
+    // =====================================================================
+    @PostConstruct
+    public void inicializar() {
+        recargarLista();
+    }
+
+    // =====================================================================
+    // Diálogo
+    // =====================================================================
     public boolean isMostrarDialogo() {
         return mostrarDialogo;
     }
@@ -67,28 +143,19 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         this.mostrarDialogo = true;
     }
 
-    // Se usa tanto desde un botón "Cerrar" como desde el evento close del
-    // propio p:dialog (ícono X), para que el estado del bean no quede
-    // desincronizado del diálogo cuando el usuario lo cierra sin guardar.
+    /**
+     * Se usa tanto desde un botón "Cerrar" como desde el evento close del
+     * propio p:dialog (ícono X), para que el estado del bean no quede
+     * desincronizado del diálogo cuando el usuario lo cierra sin guardar.
+     */
     public void btnCerrarDialogo() {
         this.mostrarDialogo = false;
-        this.estado = Estado_Crud.NINGUNO;
-        this.registro = null;
+        limpiarSeleccion();
     }
 
-    // Hook opcional: las subclases pueden sobreescribirlo para inicializar
-    // valores por defecto en el registro recién creado. Por defecto no hace nada.
-    protected void configurarNuevoRegistro(T nuevoRegistro) {
-    }
-
-    public T getRegistro() {
-        return registro;
-    }
-
-    public void setRegistro(T registro) {
-        this.registro = registro;
-    }
-
+    // =====================================================================
+    // Selección
+    // =====================================================================
     public void btnNuevoHandler(ActionEvent ae) {
         this.registro = crearRegistroNuevo();
         configurarNuevoRegistro(this.registro);
@@ -96,11 +163,12 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     }
 
     public void btnSeleccionarRegistro(UUID id) {
-        List<T> lista = getregistros();
-        if (lista != null && !lista.isEmpty() && id != null) {
-            this.registro = lista.stream()
-                    .filter(r -> obtenerId(r).equals(id))
-                    .collect(Collectors.toList()).getFirst();
+        if (id == null) {
+            return;
+        }
+        T encontrado = getRowData(id.toString());
+        if (encontrado != null) {
+            this.registro = encontrado;
             this.estado = Estado_Crud.MODIFICAR;
         }
     }
@@ -114,54 +182,77 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         this.estado = Estado_Crud.MODIFICAR;
     }
 
-    public void btnModificarHandler() {
-        FacesMessage mensaje;
-        if (this.registro != null) {
-            try {
-                getDAO().actualizar(registro);
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro actualizado con exito", "Registro guardado");
-                this.estado = Estado_Crud.NINGUNO;
-                this.registro = null;
-                setWrappedData(getDAO().findRange(0, 100));
-            } catch (Exception ex) {
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se puede actualizar el registro", ex.getMessage());
-            }
-        } else {
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Seleccione algun registro");
-        }
-        fc.addMessage(null, mensaje);
+    public void btnCancelar() {
+        limpiarSeleccion();
     }
 
-    public void btnEliminarHandler(UUID id) {
-        FacesMessage mensaje;
-        List<T> lista = getregistros();
-        if (lista != null && !lista.isEmpty() && id != null) {
+    // =====================================================================
+    // Crear / Modificar (comparten la misma lógica en guardar)
+    // =====================================================================
+    public void btnCrearhandler(ActionEvent ae) {
+        guardar(true);
+    }
 
-            if (this.registro != null && tieneRegistrosDependientes(this.registro)) {
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_WARN,
-                        "No se puede eliminar el registro",
-                        "Tiene registros relacionados que dependen de él. Elimínelos primero.");
-            } else {
-                try {
-                    getDAO().eliminar(id);
-                    mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro eliminado con exito", "Registro borrado");
-                    this.estado = Estado_Crud.NINGUNO;
-                    this.registro = null;
-                    setWrappedData(getDAO().findRange(0, 100));
-                } catch (Exception ex) {
-                    // Ya no mostramos ex.getMessage() crudo (la excepción de JPA
-                    // completa) — casi siempre es justo este mismo caso: una
-                    // restricción de llave foránea que no cubrimos en el chequeo
-                    // de arriba, o algún otro problema de base de datos.
-                    mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "No se puede eliminar el registro",
-                            "Tiene registros relacionados que dependen de él, o ocurrió un error al eliminarlo.");
-                }
-            }
-        } else {
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Seleccione algun registro");
+    public void btnModificarHandler() {
+        guardar(false);
+    }
+
+    private void guardar(boolean esNuevo) {
+        if (this.registro == null) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo",
+                    esNuevo ? "Ingrese algun registro" : "Seleccione algun registro");
+            return;
         }
-        fc.addMessage(null, mensaje);
+        // Si falla, validarAntesDeGuardar ya agregó su propio mensaje de error.
+        if (!validarAntesDeGuardar()) {
+            return;
+        }
+        try {
+            if (esNuevo) {
+                getDAO().crear(registro);
+            } else {
+                getDAO().actualizar(registro);
+            }
+            mensaje(FacesMessage.SEVERITY_INFO,
+                    esNuevo ? "Registro creado con exito" : "Registro actualizado con exito",
+                    "Registro guardado");
+            limpiarSeleccion();
+            recargarLista();
+        } catch (Exception ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR,
+                    esNuevo ? "No se puede guardar el registro" : "No se puede actualizar el registro",
+                    ex.getMessage());
+        }
+    }
+
+    // =====================================================================
+    // Eliminar
+    // =====================================================================
+    public void btnEliminarHandler(UUID id) {
+        List<T> lista = getregistros();
+        if (id == null || lista == null || lista.isEmpty()) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Seleccione algun registro");
+            return;
+        }
+
+        // Se valida sobre el registro que realmente se va a borrar (el de ese
+        // id), no sobre el que casualmente esté seleccionado en this.registro.
+        T objetivo = getRowData(id.toString());
+        if (objetivo != null && tieneRegistrosDependientes(objetivo)) {
+            mensaje(FacesMessage.SEVERITY_WARN, "No se puede eliminar el registro",
+                    "Tiene registros relacionados que dependen de él. Elimínelos primero.");
+            return;
+        }
+
+        try {
+            getDAO().eliminar(id);
+            mensaje(FacesMessage.SEVERITY_INFO, "Registro eliminado con exito", "Registro borrado");
+            limpiarSeleccion();
+            recargarLista();
+        } catch (Exception ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se puede eliminar el registro",
+                    "Tiene registros relacionados que dependen de él, o ocurrió un error al eliminarlo.");
+        }
     }
 
     public void btnEliminarHandler() {
@@ -170,41 +261,23 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         }
     }
 
+    // =====================================================================
+    // Getters / Setters
+    // =====================================================================
+    public T getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(T registro) {
+        this.registro = registro;
+    }
+
     public Estado_Crud getEstado() {
         return estado;
     }
 
     public void setEstado(Estado_Crud estado) {
         this.estado = estado;
-    }
-
-    public void btnCancelar() {
-        this.registro = null;
-        this.estado = Estado_Crud.NINGUNO;
-
-    }
-
-    public void btnCrearhandler(ActionEvent ae) {
-        FacesMessage mensaje;
-        if (this.registro != null) {
-            try {
-                getDAO().crear(registro);
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro creado con exito", "Registro guardado");
-                this.estado = Estado_Crud.NINGUNO;
-                this.registro = null;
-                setWrappedData(getDAO().findRange(0, 100));
-            } catch (Exception ex) {
-                mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "No se puede guardar el registro", ex.getMessage());
-            }
-        } else {
-            mensaje = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Ingrese algun registro");
-        }
-        fc.addMessage(null, mensaje);
-    }
-
-    @PostConstruct
-    public void inicializar() {
-        setWrappedData(getDAO().findRange(0, 100));
     }
 
     @SuppressWarnings("unchecked")
@@ -216,11 +289,13 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         setWrappedData(registros);
     }
 
-    // ---- SelectableDataModel<T>: puente objeto <-> texto para el rowSelect ----
+    // =====================================================================
+    // SelectableDataModel<T>: puente objeto <-> texto para el rowSelect
+    // =====================================================================
     @Override
     public T getRowData(String rowKey) {
         List<T> lista = getregistros();
-        if (lista == null) {
+        if (lista == null || rowKey == null) {
             return null;
         }
         return lista.stream()

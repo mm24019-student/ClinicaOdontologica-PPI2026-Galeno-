@@ -15,7 +15,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
 @Named
 @ViewScoped
-public class PersonaModel extends AbstracCrudModel<Persona> {
+public class PersonaModel extends AbstracCrudTabsModel<Persona> {
 
     @Inject
     private PersonaDAO personaDAO;
@@ -41,26 +41,24 @@ public class PersonaModel extends AbstracCrudModel<Persona> {
     // Recuerda en qué pestaña estaba el usuario para que los refrescos
     // ajax (seleccionar fila, crear/actualizar rol, etc.) no lo regresen
     // siempre a "Datos de Persona".
-    private int tabActivo = 0;
-
-    public int getTabActivo() {
-        return tabActivo;
-    }
-
-    public void setTabActivo(int tabActivo) {
-        this.tabActivo = tabActivo;
-    }
-
     @Override
     protected InterfaceDAO<Persona> getDAO() {
         return personaDAO;
     }
 
     @Override
-    protected Persona crearRegistroNuevo() {
+    protected void resetearHijos() {
+        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
+        // no debe conservar el registro/estado de la orden anterior.
+        personaRolDetalleModel.cargarDe(null);
+        personaDocumentoModel.cargarDe(null);
+        personaMedioContactoModel.cargarDe(null);
+    }
+
+    @Override
+    protected Persona crearRegistroNuevoBase() {
         Persona p = new Persona(UUID.randomUUID());
         p.setFechaCreacion(new Date());
-        tabActivo = 0;
         // Todavía no hay persona guardada: las pestañas de detalle arrancan vacías.
         personaRolDetalleModel.cargarDe(null);
         personaDocumentoModel.cargarDe(null);
@@ -80,7 +78,6 @@ public class PersonaModel extends AbstracCrudModel<Persona> {
     @Override
     public void onRowSelect(SelectEvent<Persona> event) {
         super.onRowSelect(event);
-        tabActivo = 0;
         personaRolDetalleModel.cargarDe(registro);
         personaDocumentoModel.cargarDe(registro);
         personaMedioContactoModel.cargarDe(registro);
@@ -89,4 +86,5 @@ public class PersonaModel extends AbstracCrudModel<Persona> {
     public List<Clinica> getClinicasTabla() {
         return clinicaDAO.findRange(0, 100);
     }
+
 }

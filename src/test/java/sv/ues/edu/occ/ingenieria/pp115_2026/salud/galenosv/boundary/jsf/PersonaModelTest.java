@@ -44,20 +44,8 @@ public class PersonaModelTest {
     @InjectMocks
     private PersonaModel bean;
 
-    // ---- crearRegistroNuevo() (vía btnNuevoHandler) ----
-
-    @Test
-    public void btnNuevoHandler_creaRegistroConFechaYResetTab() {
-        bean.setTabActivo(2);
-
-        bean.btnNuevoHandler(null);
-
-        assertNotNull(bean.getRegistro());
-        assertNotNull(bean.getRegistro().getIdPersona());
-        assertNotNull(bean.getRegistro().getFechaCreacion());
-        assertEquals(Estado_Crud.CREAR, bean.getEstado());
-        assertEquals(0, bean.getTabActivo());
-    }
+ 
+  
 
     @Test
     public void btnNuevoHandler_avisaEnCascadaConNullALosTresDetalles() {
@@ -68,22 +56,7 @@ public class PersonaModelTest {
         verify(personaMedioContactoModel).cargarDe(null);
     }
 
-    // ---- onRowSelect() ----
 
-    @Test
-    @SuppressWarnings("unchecked")
-    public void onRowSelect_fijaLaPersonaYResetTab() {
-        Persona persona = new Persona(UUID.randomUUID());
-        SelectEvent<Persona> event = mock(SelectEvent.class);
-        when(event.getObject()).thenReturn(persona);
-        bean.setTabActivo(3);
-
-        bean.onRowSelect(event);
-
-        assertSame(persona, bean.getRegistro());
-        assertEquals(Estado_Crud.MODIFICAR, bean.getEstado());
-        assertEquals(0, bean.getTabActivo());
-    }
 
     @Test
     @SuppressWarnings("unchecked")

@@ -34,16 +34,12 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <p:commandButton value="#{msg['crud.boton.nuevo']}" actionListener="#{tipoExamenModel.btnNuevoHandler}"
-                                 update=":frmTabla :TipoExamen :mensajes"/>
-                <p:commandButton value="#{msg['crud.boton.cancelar']}" actionListener="#{tipoExamenModel.btnCancelar()}"
-                                 update=":frmTabla :TipoExamen :mensajes"/>
+                <g:Botones_Acciones modelo="#{tipoExamenModel}"/>
             </h:form>
         </div>
 
         <div class="mensajes">
-            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="true"
-                        closable="true"/>
+            <p:messages id="mensajes" globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
         </div>
 
         <div class="tarjeta-suelta">
