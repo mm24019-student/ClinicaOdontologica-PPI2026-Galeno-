@@ -51,15 +51,8 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         }
     }
 
-    public List<Procedimiento> completarProcedimientos(String query) {
-        String texto = query == null
-                ? ""
-                : query.trim().toLowerCase();
-
-        return getProcedimientos().stream()
-                .filter(p -> p.getNombre() != null
-                && p.getNombre().toLowerCase().contains(texto))
-                .collect(java.util.stream.Collectors.toList());
+       public List<Procedimiento> completarProcedimientos(String query) {
+        return filtrar(getProcedimientos(), query, Procedimiento::getNombre);
     }
 
     @Override

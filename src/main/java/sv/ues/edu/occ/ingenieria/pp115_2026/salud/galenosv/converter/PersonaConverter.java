@@ -1,11 +1,10 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.convert.Converter;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.UUID;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
@@ -16,34 +15,18 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 // podría ser texto/primitivos, nunca un objeto Persona.
 @Named
 @ApplicationScoped
-public class PersonaConverter implements Converter<Persona> {
+public class PersonaConverter extends AbstractEntityConverter<Persona> {
 
     @Inject
-    private PersonaDAO pDAO;
+    private PersonaDAO dao;
 
     @Override
-    public Persona getAsObject(FacesContext context, UIComponent component, String value) {
-        // JSF llama esto al hacer submit: "value" es el idPersona (como texto)
-        // que quedó seleccionado en el combo. Si no seleccionaron nada, no hay
-        // nada que buscar.
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        // Buscamos entre las personas cargadas cuál tiene ese id y esa es
-        // la que se asigna de vuelta a registro.idPersona.
-        return pDAO.findRange(0, 100).stream()
-                .filter(p -> p.getIdPersona().toString().equals(value))
-                .findFirst()
-                .orElse(null);
+    protected InterfaceDAO<Persona> dao() {
+        return dao;
     }
 
     @Override
-    public String getAsString(FacesContext context, UIComponent component, Persona p) {
-        // JSF llama esto para pintar cada <f:selectItem>: convierte el objeto
-        // Persona real en el valor que va dentro del <option value="...">.
-        if (p == null || p.getIdPersona() == null) {
-            return "";
-        }
-        return p.getIdPersona().toString();
+    protected UUID id(Persona entidad) {
+        return entidad.getIdPersona();
     }
 }

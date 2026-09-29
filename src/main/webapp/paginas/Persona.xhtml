@@ -40,7 +40,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{personaModel}"/>
+                <g:Botones_Acciones modelo="#{personaModel}"  update="@form :Persona :mensajes"/>
             </h:form>
         </div>
 
@@ -71,7 +71,7 @@
             <h:form id="Persona" styleClass="form-persona">
 
                 <p:tabView activeIndex="#{personaModel.activo}" rendered="#{personaModel.estado!='NINGUNO'}">
-                    <p:ajax event="tabChange" update="@none"/>
+                        <p:ajax event="tabChange" listener="#{personaModel.onTabChange}"/>
 
                     <!-- === Pestaña 1: Datos de Persona, sin cambios === -->
                     <p:tab title="Datos de Persona">
@@ -218,7 +218,7 @@
 
                         <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                             <g:botones_top modelo="#{personaDocumentoModel}"/>
-                            <g:Botones_Acciones modelo="#{personaDocumentoModel}"
+                            <g:Botones_Acciones modelo="#{personaDocumentoModel}" update="@form"
                                                 mostrarNuevo="false" rendered="#{personaDocumentoModel.estado!='NINGUNO'}" />
                         </div>
                     </p:tab>
@@ -264,7 +264,7 @@
                         </p:panelGrid>
                         <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                             <g:botones_top modelo="#{personaMedioContactoModel}"/>
-                            <g:Botones_Acciones modelo="#{personaMedioContactoModel}"
+                            <g:Botones_Acciones modelo="#{personaMedioContactoModel}" update="@form"
                                                 mostrarNuevo="false" rendered="#{personaMedioContactoModel.estado!='NINGUNO'}" />
                         </div>
                     </p:tab>

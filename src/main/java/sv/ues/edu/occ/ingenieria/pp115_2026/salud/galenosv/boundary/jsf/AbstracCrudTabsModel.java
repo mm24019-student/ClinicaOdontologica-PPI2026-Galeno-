@@ -2,6 +2,7 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.SelectEvent;
+import org.primefaces.event.TabChangeEvent;
 
 /**
  *
@@ -50,6 +51,9 @@ public abstract class AbstracCrudTabsModel<T> extends AbstracCrudModel<T> {
             tabView.setActiveIndex(0);
         }
     }
+    
+    public void onTabChange(TabChangeEvent event) {
+}
 
     // ---- Ya no se implementa crearRegistroNuevo() directamente: cada
     // subclase implementa crearRegistroNuevoBase(), y este método hace

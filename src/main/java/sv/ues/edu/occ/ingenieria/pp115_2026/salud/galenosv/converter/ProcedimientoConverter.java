@@ -1,11 +1,9 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
 import java.util.UUID;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
@@ -14,21 +12,18 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
  * @author antonio
  */
 @FacesConverter(value = "procedimientoConverter", managed = true)
-public class ProcedimientoConverter implements Converter<Procedimiento> {
+public class ProcedimientoConverter extends AbstractEntityConverter<Procedimiento> {
 
     @Inject
     private ProcedimientoDAO dao;
 
     @Override
-    public Procedimiento getAsObject(FacesContext ctx, UIComponent c, String valor) {
-        if (valor == null || valor.isBlank()) {
-            return null;
-        }
-        return dao.buscar(UUID.fromString(valor));
+    protected InterfaceDAO<Procedimiento> dao() {
+        return dao;
     }
 
     @Override
-    public String getAsString(FacesContext ctx, UIComponent c, Procedimiento p) {
-        return (p == null || p.getIdProcedimiento() == null) ? "" : p.getIdProcedimiento().toString();
+    protected UUID id(Procedimiento entidad) {
+        return entidad.getIdProcedimiento();
     }
 }

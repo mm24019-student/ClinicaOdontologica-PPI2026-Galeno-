@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
@@ -29,16 +28,10 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
 
     //Inyectamos el DAO de Procedimiento por que necesitamos el UUId
     @Inject
-    private ProcedimientoDAO pdeDAO;
-
-    @Inject
     private RolDAO rolDAO;
-
-    private List<Procedimiento> procedimientos;
 
     private List<Rol> roles;
     
-   
 
     // Le decimos a la clase padre qué DAO debe usar para las operaciones del CRUD.
     @Override
@@ -61,33 +54,13 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     protected void asignarPadre(ProcedimientoPaso hijo, Procedimiento padre) {
         hijo.setIdProcedimiento(padre);
     }
-    
-    public List<Procedimiento> getProcedimientos() {
-        if (procedimientos == null) {
-            procedimientos = pdeDAO.findRange(0, 100);
-        }
-        return procedimientos;
-    }
 
-    public List<Rol> getRoles() {
+        public List<Rol> completarRoles(String query) {
         if (roles == null) {
             roles = rolDAO.findRange(0, 100);
         }
-        return roles;
+        return filtrar(roles, query, Rol::getNombre);
     }
-
-     public List<Rol> completarRoles(String query) {
-    if (roles == null) {
-        roles = rolDAO.findRange(0, 100);
-    }
-
-    String texto = query == null ? "" : query.trim().toLowerCase();
-
-    return roles.stream()
-            .filter(r -> r.getNombre() != null
-                    && r.getNombre().toLowerCase().contains(texto))
-            .collect(Collectors.toList());
-}
     
     // Se ejecuta al pulsar "Nuevo": crea un registro vacío con un UUID generado
     // automáticamente y con "Activo" marcado por defecto. La clase padre lo

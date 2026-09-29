@@ -46,8 +46,8 @@
                         <h:outputText value="#{consultaModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
                     </p:column>
                 </p:dataTable>
-             
-                <g:Botones_Acciones modelo="#{consultaModel}"/>
+
+                <g:Botones_Acciones modelo="#{consultaModel}" update="@form :Consulta :mensajes"/>
             </h:form>
         </div>
 
@@ -70,8 +70,7 @@
                          según el título de la pestaña a la que se entró, en vez
                          de recargar los dos hijos en cada cambio de pestaña
                          (lo que pisaba el estado del otro). -->
-                    <p:ajax event="tabChange"
-                            listener="#{consultaModel.onTabChange}"
+                    <p:ajax event="tabChange" listener="#{consultaModel.onTabChange}"
                             update=":Consulta:tabsConsulta:pnlProcedimientos :Consulta:tabsConsulta:pnlPasosConsultaProcedimiento"/>
                     <!-- PESTAÑA 1: DATOS DE LA CONSULTA -->
                     <p:tab title="Datos de la Consulta">
@@ -82,6 +81,8 @@
                                 <p:datePicker id="dtInicioConsulta"
                                               value="#{consultaModel.registro.fechaInicio}"
                                               showTime="true"
+                                              timeZone="America/El_Salvador"
+                                              disabled="true"
                                               pattern="dd/MM/yyyy HH:mm"
                                               showIcon="true"/>
                                 <p:outputLabel value="Fecha de fin"
@@ -89,7 +90,9 @@
                                 <p:datePicker id="dtFinConsulta"
                                               value="#{consultaModel.registro.fechaFin}"
                                               showTime="true"
+                                              timeZone="America/El_Salvador"
                                               pattern="dd/MM/yyyy HH:mm"
+                                              yearNavigator="true"
                                               showIcon="true"/>
                                 <p:outputLabel value="Referencia externa"
                                                for="txtReferenciaConsulta"/>
@@ -111,9 +114,9 @@
                                                  value="#{consultaModel.registro.observaciones}"/>
                             </p:panelGrid>
                             <h:panelGroup rendered="#{consultaModel.estado=='CREAR'}" layout="block"
-                                      style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
-                            Guarda primero los datos de la consulta para poder acceder a las demas funciones.
-                        </h:panelGroup>
+                                          style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
+                                Guarda primero los datos de la consulta para poder acceder a las demas funciones.
+                            </h:panelGroup>
                             <g:botones_top modelo="#{consultaModel}" process="@form"/>
                         </h:panelGroup>
                     </p:tab>
@@ -159,7 +162,7 @@
 
                             </p:dataTable>
                             <!-- NUEVO PROCEDIMIENTO -->
-                            <g:Botones_Acciones modelo="#{consultaProcedimientoModel}"
+                            <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
                                                 mostrarCancelar="false" rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}" />
 
                             <!-- FORMULARIO DEL PROCEDIMIENTO-->
@@ -184,13 +187,16 @@
                                 <p:datePicker id="dtInicioProcedimiento"
                                               value="#{consultaProcedimientoModel.registro.fechaInicio}"
                                               showTime="true"
+                                              disabled="true"
                                               pattern="dd/MM/yyyy HH:mm"
-                                              showIcon="true"/>
+                                              showIcon="true"
+                                              timeZone="America/El_Salvador"/>
                                 <p:outputLabel value="Fecha de fin"
                                                for="dtFinProcedimiento"/>
-                                <p:datePicker id="dtFinProcedimiento"
+                                <p:datePicker id="dtFinProcedimiento" timeZone="America/El_Salvador"
                                               value="#{consultaProcedimientoModel.registro.fechaFin}"
-                                              showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+                                              showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true" yearNavigator="true"
+/>
                                 <p:outputLabel value="Observaciones"
                                                for="txtObservacionesProcedimiento"/>
                                 <p:inputTextarea id="txtObservacionesProcedimiento" rows="4" cols="60"
@@ -199,11 +205,11 @@
 
                             <!-- BOTONES CRUD DEL PROCEDIMIENTO-->
                             <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-                               <g:botones_top modelo="#{consultaProcedimientoModel}" process="@form"
-                                           tabla="Consulta:tabsConsulta:pnlProcedimientos"
-                                           rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
-                               <g:Botones_Acciones modelo="#{consultaProcedimientoModel}"
-                                                   mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
+                                <g:botones_top modelo="#{consultaProcedimientoModel}" process="@form"
+                                               tabla="Consulta:tabsConsulta:pnlProcedimientos"
+                                               rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
+                                <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
+                                                    mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
                             </div>
                         </h:panelGroup>
                     </p:tab>
@@ -253,8 +259,8 @@
                             </p:dataTable>
 
                             <!-- NUEVO PASO -->
-                             <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}"
-                       mostrarCancelar="false" rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}" />
+                            <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}" update="@form"
+                                                mostrarCancelar="false" rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}" />
 
                             <!-- FORMULARIO DEL PASO -->
                             <p:panelGrid columns="2"
@@ -282,25 +288,29 @@
                                 <p:datePicker id="dtInicioPaso"
                                               value="#{consultaProcedimientoPasoModel.registro.fechaInicio}"
                                               showTime="true"
+                                              disabled="true"
                                               pattern="dd/MM/yyyy HH:mm"
+                                              timeZone="America/El_Salvador"
                                               showIcon="true"/>
 
                                 <p:outputLabel value="Fecha de fin" for="dtFinPaso"/>
                                 <p:datePicker id="dtFinPaso"
                                               value="#{consultaProcedimientoPasoModel.registro.fechaFin}"
                                               showTime="true"
+                                              timeZone="America/El_Salvador"
+                                              yearNavigator="true"
                                               pattern="dd/MM/yyyy HH:mm"
                                               showIcon="true"/>
                             </p:panelGrid>
 
                             <!-- BOTONES CRUD DEL PASO -->
-                             <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-                                
-                                 <g:botones_top modelo="#{consultaProcedimientoPasoModel}"/>
-                                    <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}"
-                                mostrarNuevo="false" rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}" />
+                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+
+                                <g:botones_top modelo="#{consultaProcedimientoPasoModel}"/>
+                                <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}" update="@form"
+                                                    mostrarNuevo="false" rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}" />
                             </div>
-                            
+
                         </h:panelGroup>
                     </p:tab>
                 </p:tabView>

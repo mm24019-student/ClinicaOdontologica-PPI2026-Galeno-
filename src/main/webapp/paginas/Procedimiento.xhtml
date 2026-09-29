@@ -35,7 +35,7 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{procedimientoModel}"/>
+                <g:Botones_Acciones modelo="#{procedimientoModel}" update="@form :Procedimiento :mensajes"/>
             </h:form>
         </div>
 
@@ -91,7 +91,7 @@
                                 <p:column headerText="Fin"><p:outputLabel value="#{ps.indicaFin ? 'SÍ' : 'NO'}"/></p:column>
                             </p:dataTable>
 
-                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" 
+                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form" 
                                                 mostrarCancelar="false" rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"/>
 
 
@@ -112,7 +112,7 @@
                                 <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
                                                rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
 
-                                 <g:Botones_Acciones modelo="#{procedimientoPasoModel}"
+                                 <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form"
                                                      mostrarNuevo="false" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}" />
                             </div>
 
@@ -128,13 +128,13 @@
                                     <h:panelGroup id="pnlSecuencias">
                                         <p:commandButton value="Gestionar Secuencia" icon="pi pi-sitemap" resetValues="true"
                                                          actionListener="#{procedimientoPasoSecuenciaModel.abrirGestionSecuencia(procedimientoPasoModel.registro)}"
-                                                         update="@form"/>
+                                                         update="dlgSecuencia"/>
                                     </h:panelGroup>
 
                                     <h:panelGroup id="pnlExamenes">
                                         <p:commandButton value="Gestionar Examen del Procedimiento" icon="pi pi-file-check" resetValues="true"
                                                          actionListener="#{procedimientoPasoExamenModel.abrirGestionExamen(procedimientoPasoModel.registro)}"
-                                                         update="@form"/>
+                                                         update="dlgExamen"/>
                                     </h:panelGroup>
                                 </p:tab>
 
@@ -169,7 +169,7 @@
                             <p:ajax event="itemSelect" listener="#{procedimientoPasoSecuenciaModel.onItemSelect}"
                                     process="@this" update="@form"/>
                         </p:autoComplete>
-                         <g:Botones_Acciones modelo="#{procedimientoPasoSecuenciaModel}"
+                         <g:Botones_Acciones modelo="#{procedimientoPasoSecuenciaModel}" update="@form"
          mostrarCancelar="false" rendered="#{procedimientoPasoSecuenciaModel.estado=='NINGUNO'}" />
                     </div>
 
@@ -219,7 +219,7 @@
                             <p:ajax event="itemSelect" listener="#{procedimientoPasoExamenModel.onItemSelect}"
                                     process="@this" update="@form"/>
                         </p:autoComplete>
-                        <g:Botones_Acciones modelo="#{procedimientoPasoExamenModel}"
+                        <g:Botones_Acciones modelo="#{procedimientoPasoExamenModel}" update="@form"
                        mostrarCancelar="false" rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}" />
                     </div>
 

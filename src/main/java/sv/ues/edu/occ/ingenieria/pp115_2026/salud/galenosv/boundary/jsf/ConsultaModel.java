@@ -1,6 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.view.ViewScoped;
+import jakarta.faces.view.ViewScoped; 
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Date;
@@ -23,7 +23,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
 
     // Inyectamos el DAO, que es quien guarda, busca y elimina
-    // registros de ProcedimientoPaso en la base de datos.
+    // registros de consulta en la base de datos.
     @Inject
     private ConsultaDAO cDAO;
 
@@ -54,8 +54,9 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
 
     @Override
     protected void resetearHijos() {
-        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
-        // no debe conservar el registro/estado de la orden anterior.
+        // Si no hay consulta seleccionada (o se va a crear una nueva), la
+    // pestaña "Procedimientos de la Consulta" no debe conservar la lista
+    // ni el registro de la consulta anterior.
         consultaProcedimientoModel.cargarDe(null);
     }
     

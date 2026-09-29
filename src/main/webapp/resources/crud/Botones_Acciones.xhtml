@@ -10,15 +10,17 @@
         <cc:attribute name="mensajes" default="mensajes" />
         <cc:attribute name="mostrarNuevo" type="java.lang.Boolean" default="true" />
         <cc:attribute name="mostrarCancelar" type="java.lang.Boolean" default="true" />
+            <cc:attribute name="update" default="@all" />
+
     </cc:interface>
 
     <cc:implementation>
         <p:panelGrid columns="2" styleClass="botones-juntos">
-            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" 
-                             actionListener="#{cc.attrs.modelo.btnNuevoHandler}" update="@all" 
+            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" update="#{cc.attrs.update}" 
+                             actionListener="#{cc.attrs.modelo.btnNuevoHandler}" 
                              rendered="#{cc.attrs.mostrarNuevo}"/>
-            <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" process="@this"
-                             actionListener="#{cc.attrs.modelo.btnCancelar}" update="@all" rendered="#{cc.attrs.mostrarCancelar}"/>
+            <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" process="@this" update="#{cc.attrs.update}" 
+                             actionListener="#{cc.attrs.modelo.btnCancelar}"  rendered="#{cc.attrs.mostrarCancelar}"/>
         </p:panelGrid>
     </cc:implementation>
 

@@ -77,12 +77,10 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
 
     // completeMethod del autocomplete "Tipo de Documento" (mismo patrón que
     // completarRoles/completarClinicas en PersonaRolDetalleModel).
-    public List<TipoDocumento> completarTiposDocumento(String query) {
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return getTiposDocumento().stream()
-                .filter(t -> t.getNombre() != null && t.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+       public List<TipoDocumento> completarTiposDocumento(String query) {
+        return filtrar(getTiposDocumento(), query, TipoDocumento::getNombre);
     }
+       
 
     @Override
     protected boolean validarAntesDeGuardar() {

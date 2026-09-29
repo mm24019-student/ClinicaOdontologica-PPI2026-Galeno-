@@ -78,13 +78,10 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
 
     // completeMethod del autocomplete "Tipo de Medio de Contacto" (mismo
     // patrón que completarRoles/completarClinicas en PersonaRolDetalleModel).
-    public List<TipoMedioContacto> completarTiposMedioContacto(String query) {
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return getTiposMedioContacto().stream()
-                .filter(t -> t.getNombre() != null && t.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        public List<TipoMedioContacto> completarTiposMedioContacto(String query) {
+        return filtrar(getTiposMedioContacto(), query, TipoMedioContacto::getNombre);
     }
-    
+        
         @Override
     protected boolean validarAntesDeGuardar() {
         // La persona no se valida: en este detalle el padre ya viene fijo.

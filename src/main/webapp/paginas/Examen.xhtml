@@ -36,7 +36,7 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{examenModel}"/>
+                <g:Botones_Acciones modelo="#{examenModel}"  update="@form :Examen :mensajes"/>
             </h:form>
         </div>
 
@@ -50,6 +50,7 @@
 
                 <p:tabView id="tabsExamen" binding="#{examenModel.tabView}" activeIndex="#{examenModel.activo}" rendered="#{examenModel.estado!='NINGUNO'}">
 
+                        <p:ajax event="tabChange" listener="#{examenModel.onTabChange}"/>
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
                             <p:outputLabel value="ID" for="txtId"/>
@@ -89,7 +90,8 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarCancelar="false" rendered="#{examenTipoExamenModel.estado=='NINGUNO'}"/>
+                            <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarCancelar="false" update="@form" 
+                                                rendered="#{examenTipoExamenModel.estado=='NINGUNO'}"/>
 
                             <p:panelGrid columns="2" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}">
                                 <p:outputLabel value="Tipo de examen *" for="acTipoExamen"/>
@@ -112,7 +114,8 @@
                             </p:panelGrid>
                             <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                                 <g:botones_top modelo="#{examenTipoExamenModel}"/>
-                                <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarNuevo="false" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}" />
+                                <g:Botones_Acciones modelo="#{examenTipoExamenModel}" mostrarNuevo="false" update="@form"
+                                                    rendered="#{examenTipoExamenModel.estado!='NINGUNO'}" />
                             </div>
 
                         </h:panelGroup>

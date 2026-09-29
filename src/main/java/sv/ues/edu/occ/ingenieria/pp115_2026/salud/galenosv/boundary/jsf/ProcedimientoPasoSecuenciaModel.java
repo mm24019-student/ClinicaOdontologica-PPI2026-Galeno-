@@ -1,6 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -38,13 +37,15 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
 
     public void setPasoReferenciaSeleccionado(ProcedimientoPaso pasoReferenciaSeleccionado) {
         this.pasoReferenciaSeleccionado = pasoReferenciaSeleccionado;
-
-        if (pasoReferenciaSeleccionado != null) {
-            registro.setIdProcedimientoPasoReferencia(
-                    pasoReferenciaSeleccionado.getIdProcedimientoPaso()
+        // JSF puede llamar a este setter cuando todavía no hay registro
+        // (por ejemplo al cerrar el diálogo), y sin este chequeo daría
+        // NullPointerException.
+        if (this.registro != null) {
+            this.registro.setIdProcedimientoPasoReferencia(
+                    pasoReferenciaSeleccionado == null
+                            ? null
+                            : pasoReferenciaSeleccionado.getIdProcedimientoPaso()
             );
-        } else {
-            registro.setIdProcedimientoPasoReferencia(null);
         }
     }
 
@@ -73,16 +74,6 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
             btnSeleccionarRegistro(seleccionAutocomplete.getIdProcedimientoPasoSecuencia());
         }
     }
-    
-     private boolean consultaSeleccionada() {
-        if (registro != null && registro.getIdProcedimientoPasoSecuencia() == null) {
-            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                    "Seleccione una consulta", "El paso de consulta es obligatorio"));
-            return false;
-        }
-        return true;
-    }
-
 
     // Respaldo manual: botón "Seleccionar" junto al autocomplete. Aquí sí se
     // puede confiar en this.seleccionAutocomplete porque el propio commandButton
@@ -97,14 +88,7 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
     // cargadas de este paso (getregistros(), no toda la tabla) por el mismo
     // texto que se le muestra al usuario (tipo + nombre del paso de referencia).
     public List<ProcedimientoPasoSecuencia> completarSecuencias(String query) {
-        List<ProcedimientoPasoSecuencia> lista = getregistros();
-        if (lista == null) {
-            return Collections.emptyList();
-        }
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return lista.stream()
-                .filter(s -> etiqueta(s).toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        return filtrar(getregistros(), query, this::etiqueta);
     }
 
     // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por él.
@@ -219,12 +203,7 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
     }
 
     public List<ProcedimientoPaso> completarPasos(String query) {
-        String texto = query == null ? "" : query.trim().toLowerCase();
-
-        return getPasos().stream()
-                .filter(p -> p.getNombre() != null
-                && p.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        return filtrar(getPasos(), query, ProcedimientoPaso::getNombre);
     }
 
     // La referencia es un UUID suelto; este método busca el nombre del paso para mostrarlo en la tabla.

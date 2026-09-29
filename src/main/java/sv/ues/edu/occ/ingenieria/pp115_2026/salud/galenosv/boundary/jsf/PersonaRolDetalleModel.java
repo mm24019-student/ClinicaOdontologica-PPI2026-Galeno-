@@ -118,24 +118,18 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
         this.nuevaClinica = nuevaClinica;
     }
 
-    public List<Rol> completarRoles(String query) {
+        public List<Rol> completarRoles(String query) {
         if (catalogoRoles == null) {
             catalogoRoles = rolDAO.findRange(0, 100);
         }
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return catalogoRoles.stream()
-                .filter(r -> r.getNombre() != null && r.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        return filtrar(catalogoRoles, query, Rol::getNombre);
     }
 
     public List<Clinica> completarClinicas(String query) {
         if (catalogoClinicas == null) {
             catalogoClinicas = clinicaDAO.findRange(0, 100);
         }
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return catalogoClinicas.stream()
-                .filter(c -> c.getNombre() != null && c.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        return filtrar(catalogoClinicas, query, Clinica::getNombre);
     }
 
     // Se dispara cuando el usuario hace clic en una sugerencia del

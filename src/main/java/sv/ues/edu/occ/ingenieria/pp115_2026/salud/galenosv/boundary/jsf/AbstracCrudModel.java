@@ -7,8 +7,12 @@ import jakarta.faces.event.ActionEvent;
 import jakarta.faces.model.ListDataModel;
 import jakarta.inject.Inject;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.SelectableDataModel;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -260,6 +264,21 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
             btnEliminarHandler(obtenerId(this.registro));
         }
     }
+    
+        // =====================================================================
+    // Filtro para los completeMethod de p:autoComplete
+    // =====================================================================
+    // Devuelve los elementos de "fuente" cuya etiqueta contiene el texto
+    // escrito (sin distinguir mayúsculas). Una etiqueta nula cuenta como "".
+    protected <E> List<E> filtrar(List<E> fuente, String query, Function<E, String> etiqueta) {
+        if (fuente == null) {
+            return Collections.emptyList();
+        }
+        String texto = query == null ? "" : query.trim().toLowerCase();
+        return fuente.stream()
+                .filter(e -> Objects.toString(etiqueta.apply(e), "").toLowerCase().contains(texto))
+                .collect(Collectors.toList());
+    }
 
     // =====================================================================
     // Getters / Setters
@@ -267,7 +286,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     public T getRegistro() {
         return registro;
     }
-
+    
     public void setRegistro(T registro) {
         this.registro = registro;
     }

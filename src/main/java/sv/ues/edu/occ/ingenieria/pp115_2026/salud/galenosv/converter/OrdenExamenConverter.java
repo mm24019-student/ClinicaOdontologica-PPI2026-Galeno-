@@ -1,37 +1,27 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.faces.component.UIComponent;
-import jakarta.faces.context.FacesContext;
-import jakarta.faces.convert.Converter;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.UUID;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
 @Named
 @ApplicationScoped
-public class OrdenExamenConverter implements Converter<OrdenExamen> {
+public class OrdenExamenConverter extends AbstractEntityConverter<OrdenExamen> {
 
     @Inject
-    private OrdenExamenDAO oeDAO;
+    private OrdenExamenDAO dao;
 
     @Override
-    public OrdenExamen getAsObject(FacesContext context, UIComponent component, String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        return oeDAO.findRange(0, 100).stream()
-                .filter(o -> o.getIdOrdenExamen().toString().equals(value))
-                .findFirst()
-                .orElse(null);
+    protected InterfaceDAO<OrdenExamen> dao() {
+        return dao;
     }
 
     @Override
-    public String getAsString(FacesContext context, UIComponent component, OrdenExamen o) {
-        if (o == null || o.getIdOrdenExamen() == null) {
-            return "";
-        }
-        return o.getIdOrdenExamen().toString();
+    protected UUID id(OrdenExamen entidad) {
+        return entidad.getIdOrdenExamen();
     }
 }

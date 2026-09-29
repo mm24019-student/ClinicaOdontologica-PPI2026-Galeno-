@@ -38,7 +38,7 @@
                         <p:outputLabel value="#{r.indicaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{ordenExamenModel}" />
+                <g:Botones_Acciones modelo="#{ordenExamenModel}" update="@form :OrdenExamen :mensajes" />
             </h:form>
         </div>
 
@@ -51,6 +51,7 @@
             <h:form id="OrdenExamen" styleClass="form-orden-examen">
 
                 <p:tabView id="tabsOrden"  binding="#{ordenExamenModel.tabView}" activeIndex="#{ordenExamenModel.activo}" rendered="#{ordenExamenModel.estado!='NINGUNO'}">
+                    <p:ajax event="tabChange" listener="#{ordenExamenModel.onTabChange}"/>
 
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
@@ -112,8 +113,9 @@
                                 </p:column>
                             </p:dataTable>
 
-                            <g:Botones_Acciones modelo="#{examenResultadoModel}" mostrarCancelar="false" rendered="#{examenResultadoModel.estado=='NINGUNO'}"/>
-                            
+                            <g:Botones_Acciones modelo="#{examenResultadoModel}" mostrarCancelar="false" update="@form" 
+                                                rendered="#{examenResultadoModel.estado=='NINGUNO'}"/>
+
                             <p:panelGrid columns="2" rendered="#{examenResultadoModel.estado!='NINGUNO'}">
                                 <p:outputLabel value="Fecha de creación" for="calFechaResultado"/>
                                 <p:datePicker id="calFechaResultado" showTime="true" pattern="dd/MM/yyyy HH:mm"
@@ -131,8 +133,8 @@
                             </p:panelGrid>
                             <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                                 <g:botones_top modelo="#{examenResultadoModel}"/>
-                                <g:Botones_Acciones modelo="#{examenResultadoModel}"
-                                mostrarNuevo="false" rendered="#{examenResultadoModel.estado!='NINGUNO'}" />
+                                <g:Botones_Acciones modelo="#{examenResultadoModel}" update="@form" 
+                                                    mostrarNuevo="false" rendered="#{examenResultadoModel.estado!='NINGUNO'}" />
                             </div>
 
                         </h:panelGroup>

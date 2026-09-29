@@ -4,7 +4,6 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
@@ -28,8 +27,9 @@ public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento>{
     
 @Override
     protected void resetearHijos() {
-        // La orden todavía no existe / ya no aplica -> el hijo (Resultados)
-        // no debe conservar el registro/estado de la orden anterior.
+         // Si no hay procedimiento seleccionado (o se va a crear uno nuevo),
+    // la pestaña de Pasos no debe conservar el paso ni el estado del
+    // procedimiento anterior.
         ProcedimientoPasoModel.cargarDe(null);
     }
 
@@ -55,11 +55,6 @@ public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento>{
     @Override
     protected UUID obtenerId(Procedimiento registro) {
         return registro.getIdProcedimiento();
-    }
-    
-    @Override
-    public void onRowSelect(SelectEvent<Procedimiento> event) {
-        super.onRowSelect(event);
     }
 
 }

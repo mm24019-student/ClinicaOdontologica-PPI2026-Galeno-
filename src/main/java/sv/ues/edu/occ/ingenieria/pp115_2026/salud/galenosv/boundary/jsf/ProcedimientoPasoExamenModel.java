@@ -63,15 +63,8 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     // completeMethod del p:autoComplete: filtra SOLO los exámenes ya cargados
     // de este paso (getregistros(), no toda la tabla) por el mismo texto que
     // se le muestra al usuario (nombre del examen + estado).
-    public List<ProcedimientoPasoExamen> completarExamenes(String query) {
-        List<ProcedimientoPasoExamen> lista = getregistros();
-        if (lista == null) {
-            return Collections.emptyList();
-        }
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return lista.stream()
-                .filter(e -> etiqueta(e).toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        public List<ProcedimientoPasoExamen> completarExamenes(String query) {
+        return filtrar(getregistros(), query, this::etiqueta);
     }
 
     // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por él.
@@ -81,8 +74,8 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         }
         String nombreExamen = (e.getIdExamen() != null && e.getIdExamen().getNombre() != null)
                 ? e.getIdExamen().getNombre() : "(sin examen)";
-        String estado = Boolean.TRUE.equals(e.getActivo()) ? "ACTIVO" : "INACTIVO";
-        return nombreExamen + " — " + estado;
+        String textoEstado = Boolean.TRUE.equals(e.getActivo()) ? "ACTIVO" : "INACTIVO";
+        return nombreExamen + " — " + textoEstado;
     }
 
     // Se llama desde el botón "Gestionar Examen del Procedimiento": recarga
@@ -143,19 +136,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         return examenes;
     }
 
-    public List<Examen> completarExamenesFormulario(String query) {
-
-        if (examenes == null) {
-            examenes = eDAO.findRange(0, 100);
-        }
-
-        String texto = query == null
-                ? ""
-                : query.trim().toLowerCase();
-
-        return examenes.stream()
-                .filter(e -> e.getNombre() != null
-                && e.getNombre().toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        public List<Examen> completarExamenesFormulario(String query) {
+        return filtrar(getExamenes(), query, Examen::getNombre);
     }
 }
