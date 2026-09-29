@@ -55,25 +55,33 @@
                     <p:inputText id="txtId" disabled="true" style="width:100%" value="#{examenTipoExamenModel.registro.idExamenTipoExamen}"/>
 
                     <p:outputLabel value="Examen *" for="selExamen"/>
-                    <p:selectOneMenu id="selExamen" value="#{examenTipoExamenModel.registro.idExamen}"
-                                     converter="#{examenConverter}">
-                        <p:ajax event="change" update="txtDescExamen"/>
-                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
-                        <f:selectItems value="#{examenTipoExamenModel.examenes}" var="e"
-                                       itemValue="#{e}" itemLabel="#{e.nombre}"/>
-                    </p:selectOneMenu>
+                    <p:autoComplete id="selExamen" value="#{examenTipoExamenModel.registro.idExamen}"
+                                    completeMethod="#{examenTipoExamenModel.completarExamenes}"
+                                    converter="#{examenConverter}"
+                                    var="e" itemLabel="#{e.nombre}" itemValue="#{e}"
+                                    forceSelection="true"  minQueryLength="0"
+                                    scrollHeight="220" size="40"
+                                    emptyMessage="No hay exámenes que coincidan"
+                                    placeholder="Escriba para buscar un examen...">
+                        <p:ajax event="itemSelect" process="@this" update="txtDescExamen"/>
+                        <p:ajax event="change" process="@this" update="txtDescExamen"/>
+                    </p:autoComplete>
 
                     <p:outputLabel value="Descripción del examen"/>
                     <h:outputText id="txtDescExamen" value="#{examenTipoExamenModel.registro.idExamen.observaciones}"/>
 
                     <p:outputLabel value="Tipo de examen *" for="selTipo"/>
-                    <p:selectOneMenu id="selTipo" value="#{examenTipoExamenModel.registro.idTipoExamen}"
-                                     converter="#{tipoExamenConverter}">
-                        <p:ajax event="change" update="txtDescTipo"/>
-                        <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
-                        <f:selectItems value="#{examenTipoExamenModel.tiposExamen}" var="t"
-                                       itemValue="#{t}" itemLabel="#{t.nombre}"/>
-                    </p:selectOneMenu>
+                    <p:autoComplete id="selTipo" value="#{examenTipoExamenModel.registro.idTipoExamen}"
+                                    completeMethod="#{examenTipoExamenModel.completarTiposExamen}"
+                                    converter="#{tipoExamenConverter}"
+                                    var="t" itemLabel="#{t.nombre}" itemValue="#{t}"
+                                    forceSelection="true" minQueryLength="0"
+                                    scrollHeight="220" size="40"
+                                    emptyMessage="No hay tipos de examen que coincidan"
+                                    placeholder="Escriba para buscar un tipo de examen...">
+                        <p:ajax event="itemSelect" process="@this" update="txtDescTipo"/>
+                        <p:ajax event="change" process="@this" update="txtDescTipo"/>
+                    </p:autoComplete>
 
                     <p:outputLabel value="Descripción del tipo"/>
                     <h:outputText id="txtDescTipo" value="#{examenTipoExamenModel.registro.idTipoExamen.observaciones}"/>

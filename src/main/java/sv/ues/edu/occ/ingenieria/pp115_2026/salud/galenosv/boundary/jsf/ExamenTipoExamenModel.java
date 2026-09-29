@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -54,6 +55,16 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         return registro.getIdExamenTipoExamen();
     }
 
+    // completeMethod del autocomplete de Examen. Usa filtrar() de
+    // AbstracCrudModel (busca por nombre sin distinguir mayúsculas),
+    // omite inactivos y limita a 20 sugerencias.
+    public List<Examen> completarExamenes(String query) {
+        return filtrar(getExamenes(), query, Examen::getNombre).stream()
+                .filter(e -> e.getActivo() == null || e.getActivo())
+                .limit(20)
+                .collect(Collectors.toList());
+    }
+
     // Opciones de los selectores (se cargan una vez por vista)
     public List<Examen> getExamenes() {
         if (examenes == null) {
@@ -61,8 +72,8 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         }
         return examenes;
     }
-
-    public List<TipoExamen> getTiposExamen() {
+    
+      public List<TipoExamen> getTiposExamen() {
         if (tiposExamen == null) {
             tiposExamen = teDAO.findRange(0, 100);
         }
@@ -88,6 +99,14 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         }
     }
 
+    // completeMethod del autocomplete de Tipo de examen (misma lógica).
+    public List<TipoExamen> completarTiposExamen(String query) {
+        return filtrar(getTiposExamen(), query, TipoExamen::getNombre).stream()
+                .filter(t -> t.getActivo() == null || t.getActivo())
+                .limit(20)
+                .collect(Collectors.toList());
+    }
+
 // Tras crear/modificar/eliminar, AbstracCrudModel llama a este hook.
 // Si hay examen padre (pestaña dentro de Examen) se filtra por ese examen;
 // si no (pantalla independiente), lista todo.
@@ -98,37 +117,6 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         } else {
             super.recargarLista();
         }
-    }
-
-    public List<TipoExamen> completarTiposExamen(String query) {
-
-        List<TipoExamen> resultado = new ArrayList<>();
-
-        String texto = query == null
-                ? ""
-                : query.trim().toLowerCase();
-
-        for (TipoExamen tipo : getTiposExamen()) {
-
-            if (tipo.getActivo() != null
-                    && !tipo.getActivo()) {
-                continue;
-            }
-
-            String nombre = tipo.getNombre() == null
-                    ? ""
-                    : tipo.getNombre().toLowerCase();
-
-            if (texto.isEmpty() || nombre.contains(texto)) {
-                resultado.add(tipo);
-            }
-
-            if (resultado.size() >= 20) {
-                break;
-            }
-        }
-
-        return resultado;
     }
 
     @Override

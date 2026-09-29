@@ -190,10 +190,16 @@
                                         var="pa" itemValue="#{pa}" itemLabel="#{pa.nombre}" converter="procedimientoPasoConverter" forceSelection="true" placeholder="Buscar paso..." style="width:100%;">
                         </p:autoComplete>
                     </p:panelGrid>
-                    <g:botones_top modelo="#{procedimientoPasoSecuenciaModel}"
+                    
+                    <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                              <g:botones_top modelo="#{procedimientoPasoSecuenciaModel}"
                                    tabla="Procedimiento:tabsProcedimiento:pnlPasos"
                                    process="@form"
                                    rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}"/>
+
+                              <g:Botones_Acciones modelo="#{procedimientoPasoSecuenciaModel}"  update="dlgSecuencia" mostrarNuevo="false"
+                                                    rendered="#{procedimientoPasoSecuenciaModel.estado!='NINGUNO'}"/>
+                            </div>
                 </p:dialog>
 
                 <p:dialog id="dlgExamen" header="Procedimiento del Examen" widgetVar="dlgExamen"
@@ -251,10 +257,15 @@
                                          value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
                     </p:panelGrid>
 
-                    <g:botones_top modelo="#{procedimientoPasoExamenModel}"
+                    <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                              <g:botones_top modelo="#{procedimientoPasoExamenModel}"
                                    tabla="Procedimiento:tabsProcedimiento:pnlPasos"
                                    process="@form"
                                    rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
+
+                              <g:Botones_Acciones modelo="#{procedimientoPasoExamenModel}" update="dlgExamen" mostrarNuevo="false"
+                                                    rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
+                            </div>
                 </p:dialog>
             </h:form>
         </div>

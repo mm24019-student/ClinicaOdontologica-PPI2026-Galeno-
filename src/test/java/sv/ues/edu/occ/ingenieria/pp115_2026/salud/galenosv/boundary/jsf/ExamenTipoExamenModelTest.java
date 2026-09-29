@@ -65,6 +65,8 @@ public class ExamenTipoExamenModelTest {
         t.setActivo(activo);
         return t;
     }
+    
+    
 
     // ---- getDAO() / obtenerId() ----
 
