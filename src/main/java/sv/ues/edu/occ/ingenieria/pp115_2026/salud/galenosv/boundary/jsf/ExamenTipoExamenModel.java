@@ -88,6 +88,18 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         }
     }
 
+// Tras crear/modificar/eliminar, AbstracCrudModel llama a este hook.
+// Si hay examen padre (pestaña dentro de Examen) se filtra por ese examen;
+// si no (pantalla independiente), lista todo.
+    @Override
+    protected void recargarLista() {
+        if (examenPadre != null) {
+            cargarPorExamen(examenPadre);
+        } else {
+            super.recargarLista();
+        }
+    }
+
     public List<TipoExamen> completarTiposExamen(String query) {
 
         List<TipoExamen> resultado = new ArrayList<>();
@@ -118,13 +130,11 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
 
         return resultado;
     }
-    
-        @Override
+
+    @Override
     protected boolean validarAntesDeGuardar() {
         return requerir(registro.getIdExamen(), "Seleccione un examen", "El examen es obligatorio")
                 && requerir(registro.getIdTipoExamen(), "Seleccione un tipo de examen", "El tipo de examen es obligatorio");
     }
-
-    
 
 }

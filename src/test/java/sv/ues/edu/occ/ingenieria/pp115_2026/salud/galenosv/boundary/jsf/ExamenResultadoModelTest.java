@@ -152,11 +152,9 @@ public class ExamenResultadoModelTest {
     @Test
     public void btnCrearhandler_exito_creaYRecargaSoloLosResultadosDeLaOrden() {
         List<ExamenResultado> delPadre = Arrays.asList(new ExamenResultado(UUID.randomUUID()));
-        List<ExamenResultado> todos = Arrays.asList(new ExamenResultado(UUID.randomUUID()), new ExamenResultado(UUID.randomUUID()));
         when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList())
                 .thenReturn(delPadre);
-        when(examenResultadoDAO.findRange(0, 100)).thenReturn(todos);
         bean.cargarDe(orden);
         ExamenResultado nuevo = new ExamenResultado(UUID.randomUUID());
         bean.setRegistro(nuevo);
@@ -192,7 +190,6 @@ public class ExamenResultadoModelTest {
         when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList())
                 .thenReturn(delPadre);
-        when(examenResultadoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
         bean.cargarDe(orden);
         ExamenResultado existente = new ExamenResultado(UUID.randomUUID());
         when(examenResultadoDAO.actualizar(existente)).thenReturn(existente);
@@ -214,7 +211,6 @@ public class ExamenResultadoModelTest {
         when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(antes)
                 .thenReturn(Collections.emptyList());
-        when(examenResultadoDAO.findRange(0, 100)).thenReturn(antes);
         bean.cargarDe(orden);
         bean.setRegistro(existente);
 

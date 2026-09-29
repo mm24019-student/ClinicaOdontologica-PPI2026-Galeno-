@@ -47,7 +47,7 @@
             <h:form id="TipoExamen" styleClass="form-tipo-examen">
                 <p:panelGrid columns="2" rendered="#{tipoExamenModel.estado!='NINGUNO'}">
                     <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{tipoExamenModel.registro.idTipoExamen}"/>
+                    <p:inputText id="txtId" disabled="true" value="#{tipoExamenModel.registro.idTipoExamen}"/>
                     <p:outputLabel value="Nombre" for="txtNombre"/>
                     <p:inputText id="txtNombre" size="70" value="#{tipoExamenModel.registro.nombre}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>

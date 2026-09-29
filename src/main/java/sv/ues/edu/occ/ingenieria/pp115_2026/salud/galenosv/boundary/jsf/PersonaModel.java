@@ -59,10 +59,8 @@ public class PersonaModel extends AbstracCrudTabsModel<Persona> {
     protected Persona crearRegistroNuevoBase() {
         Persona p = new Persona(UUID.randomUUID());
         p.setFechaCreacion(new Date());
-        // Todavía no hay persona guardada: las pestañas de detalle arrancan vacías.
-        personaRolDetalleModel.cargarDe(null);
-        personaDocumentoModel.cargarDe(null);
-        personaMedioContactoModel.cargarDe(null);
+        // Las pestañas de detalle se vacían en resetearHijos(), que
+        // AbstracCrudTabsModel.crearRegistroNuevo() invoca justo después.
         return p;
     }
 

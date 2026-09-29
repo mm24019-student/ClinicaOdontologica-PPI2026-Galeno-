@@ -52,7 +52,7 @@
             <h:form id="ExamenTipoExamen" styleClass="form-examen-tipo-examen">
                 <p:panelGrid columns="2" rendered="#{examenTipoExamenModel.estado!='NINGUNO'}">
                     <p:outputLabel value="ID" for="txtId"/>
-                    <p:inputText id="txtId" size="70" value="#{examenTipoExamenModel.registro.idExamenTipoExamen}"/>
+                    <p:inputText id="txtId" disabled="true" style="width:100%" value="#{examenTipoExamenModel.registro.idExamenTipoExamen}"/>
 
                     <p:outputLabel value="Examen *" for="selExamen"/>
                     <p:selectOneMenu id="selExamen" value="#{examenTipoExamenModel.registro.idExamen}"
@@ -83,7 +83,7 @@
                                   value="#{examenTipoExamenModel.registro.fechaCreacion}"/>
 
                     <p:outputLabel value="Observaciones" for="txtObservaciones"/>
-                    <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{examenTipoExamenModel.registro.observaciones}"/>
+                    <p:inputTextarea id="txtObservaciones" rows="3" style="width:100%"  value="#{examenTipoExamenModel.registro.observaciones}"/>
                 </p:panelGrid>
                 <g:botones_top modelo="#{examenTipoExamenModel}"/>
             </h:form>
