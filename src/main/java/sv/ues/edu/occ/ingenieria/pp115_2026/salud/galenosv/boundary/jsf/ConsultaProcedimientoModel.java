@@ -15,6 +15,16 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProced
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 /**
+ * Managed bean de la pestaña "Procedimientos de la Consulta" en Consulta.xhtml:
+ * CRUD de los ConsultaProcedimiento de UNA consulta (el padre lo entrega
+ * ConsultaModel con cargarDe).
+ *
+ * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
+ * recargar).
+ * Como la entidad guarda el procedimiento como UUID suelto, este bean mantiene
+ * el
+ * objeto procedimientoSeleccionado (ProcedimientoDAO) para el autocomplete y
+ * traduce el UUID a nombre para mostrarlo en la tabla.
  *
  * @author antonio
  */
@@ -31,14 +41,20 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     @Inject
     private ProcedimientoDAO procedimientoDAO;
 
+    // Procedimientos del catálogo ya cargados (se piden a la base una sola vez).
     private List<Procedimiento> procedimientos;
 
+    // Procedimiento elegido en el autocomplete; se guarda en registro solo como
+    // UUID.
     private Procedimiento procedimientoSeleccionado;
 
     public Procedimiento getProcedimientoSeleccionado() {
         return procedimientoSeleccionado;
     }
 
+    // Cuando se elige un procedimiento en el autocomplete, se guarda en registro
+    // solo su UUID (idProcedimiento). Si se borra el procedimiento, se guarda
+    // null.
     public void setProcedimientoSeleccionado(Procedimiento procedimientoSeleccionado) {
         this.procedimientoSeleccionado = procedimientoSeleccionado;
 
@@ -46,15 +62,17 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
             this.registro.setIdProcedimiento(
                     procedimientoSeleccionado == null
                             ? null
-                            : procedimientoSeleccionado.getIdProcedimiento()
-            );
+                            : procedimientoSeleccionado.getIdProcedimiento());
         }
     }
 
-       public List<Procedimiento> completarProcedimientos(String query) {
+    // Autocomplete de Procedimiento: filtra por nombre.
+    public List<Procedimiento> completarProcedimientos(String query) {
         return filtrar(getProcedimientos(), query, Procedimiento::getNombre);
     }
 
+    // Al seleccionar una fila, busca el Procedimiento por su UUID para que el
+    // autocomplete muestre el que ya tiene guardado ese registro.
     @Override
     public void onRowSelect(SelectEvent<ConsultaProcedimiento> event) {
         super.onRowSelect(event);
@@ -62,8 +80,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         UUID idProcedimiento = event.getObject().getIdProcedimiento();
 
         if (idProcedimiento != null) {
-            this.procedimientoSeleccionado
-                    = procedimientoDAO.buscar(idProcedimiento);
+            this.procedimientoSeleccionado = procedimientoDAO.buscar(idProcedimiento);
         } else {
             this.procedimientoSeleccionado = null;
         }
@@ -80,8 +97,6 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         return cpDAO.findByConsulta(idPadre);
     }
 
-
-
     @Override
     protected UUID obtenerIdPadre(Consulta padre) {
         return padre.getIdConsulta();
@@ -92,7 +107,6 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         hijo.setIdConsulta(padre);
     }
 
-    
     // Registro nuevo: UUID generado y fecha de inicio = ahora.
     // configurarNuevoRegistro() (heredado) ya se encarga de asignar el
     // padre (la consulta activa) automáticamente después de esto.
@@ -108,6 +122,8 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         return registro.getIdConsultaProcedimiento();
     }
 
+    // Además de asignar el padre (lo hace la clase base), limpia el procedimiento
+    // elegido para que un registro nuevo no arrastre el anterior.
     @Override
     protected void configurarNuevoRegistro(ConsultaProcedimiento nuevoRegistro) {
         super.configurarNuevoRegistro(nuevoRegistro);

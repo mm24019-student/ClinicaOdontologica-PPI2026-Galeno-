@@ -1,6 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import jakarta.faces.view.ViewScoped; 
+import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Date;
@@ -15,6 +15,17 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
+ * Managed bean de la pantalla Consulta.xhtml: CRUD de la consulta (el padre)
+ * con 3
+ * pestañas: datos de la Consulta, "Procedimientos de la Consulta"
+ * (ConsultaProcedimientoModel) y "Pasos del Procedimiento"
+ * (ConsultaProcedimientoPasoModel).
+ *
+ * Hereda de AbstracCrudTabsModel (que hereda de AbstracCrudModel): de ahí salen
+ * el
+ * CRUD, la lista y el manejo de pestañas. Aquí se agrega el autocompletado de
+ * Persona/Rol (PersonaRolDAO), el reseteo de los dos hijos y el único listener
+ * onTabChange que decide cuál hijo debe cargarse.
  *
  * @author antonio
  */
@@ -55,11 +66,11 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     @Override
     protected void resetearHijos() {
         // Si no hay consulta seleccionada (o se va a crear una nueva), la
-    // pestaña "Procedimientos de la Consulta" no debe conservar la lista
-    // ni el registro de la consulta anterior.
+        // pestaña "Procedimientos de la Consulta" no debe conservar la lista
+        // ni el registro de la consulta anterior.
         consultaProcedimientoModel.cargarDe(null);
     }
-    
+
     // Se ejecuta al pulsar "Nuevo": crea un registro vacío con un UUID generado
     @Override
     protected Consulta crearRegistroNuevoBase() {
@@ -105,6 +116,8 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         return personasRol;
     }
 
+    // Autocompletado de Persona/Rol: filtra la lista según lo que el usuario
+    // va escribiendo en el combo. Se usa en Consulta.xhtml.
     public List<PersonaRol> completarPersonasRol(String query) {
         String texto = query == null
                 ? ""
@@ -112,12 +125,12 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
 
         return getPersonasRol().stream()
                 .filter(pr -> etiquetaPersonaRol(pr)
-                .toLowerCase()
-                .contains(texto))
+                        .toLowerCase()
+                        .contains(texto))
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    // Texto que se ve en el combo y en la tabla: "Ana Pérez - Odontólogo".
+    // Texto que se ve en el combo y en la tabla: ejempl "Ana Pérez - Odontólogo".
     public String etiquetaPersonaRol(PersonaRol pr) {
         if (pr == null || pr.getIdPersona() == null) {
             return "";

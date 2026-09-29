@@ -9,6 +9,9 @@ import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 
 /**
+ * DAO de ProcedimientoPaso. Hereda el CRUD de DefaultDAO y agrega
+ * findByProcedimiento para traer solo los pasos de un procedimiento. Lo usan
+ * ProcedimientoPasoModel, ProcedimientoPasoSecuenciaModel y el converter.
  *
  * @author antonio
  */

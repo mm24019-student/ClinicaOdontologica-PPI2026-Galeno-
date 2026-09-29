@@ -28,24 +28,28 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol>{
     }
 
     // ---- Métodos "extra" para llenar y resolver los combos del formulario ----
+    // Devuelve todas las personas, no solo las asignadas a un rol.
     public List<Persona> listarPersonas() {
         TypedQuery<Persona> q = em.createNamedQuery("Persona.findAll", Persona.class);
         q.setMaxResults(100);
         return q.getResultList();
     }
 
+    // Devuelve todos los roles, no solo los asignados a una persona.
     public List<Rol> listarRoles() {
         TypedQuery<Rol> q = em.createNamedQuery("Rol.findAll", Rol.class);
         q.setMaxResults(100);
         return q.getResultList();
     }
 
+    // Devuelve todas las clinicas, no solo las asignadas a una persona.
     public List<Clinica> listarClinicas() {
         TypedQuery<Clinica> q = em.createNamedQuery("Clinica.findAll", Clinica.class);
         q.setMaxResults(100);
         return q.getResultList();
     }
 
+    // Devuelve una persona por su id, o null si no existe.
     public Persona buscarPersona(UUID id) {
         return id == null ? null : em.find(Persona.class, id);
     }

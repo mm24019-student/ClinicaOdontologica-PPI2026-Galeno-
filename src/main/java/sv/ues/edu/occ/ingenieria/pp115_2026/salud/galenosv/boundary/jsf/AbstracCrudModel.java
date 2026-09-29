@@ -40,11 +40,16 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
 
     private static final int MAX_REGISTROS = 100;
 
+    // Contexto de JSF: se usa para agregar mensajes (FacesMessage) que se ven en la
+    // pantalla.
     @Inject
     protected FacesContext fc;
 
+    // Estado actual de la pantalla (NINGUNO, CREAR o MODIFICAR).
     protected Estado_Crud estado = Estado_Crud.NINGUNO;
 
+    // Registro que se está creando o editando en el formulario (null si no hay
+    // ninguno).
     protected T registro;
 
     protected boolean mostrarDialogo = false;
@@ -193,14 +198,22 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Crear / Modificar (comparten la misma lógica en guardar)
     // =====================================================================
+
+    // Botón "Guardar" de un registro nuevo: llama a guardar(true), que hace persist
+    // en el DAO.
     public void btnCrearhandler(ActionEvent ae) {
         guardar(true);
     }
 
+    // Botón "Guardar" de un registro existente: llama a guardar(false), que hace
+    // merge en el DAO.
     public void btnModificarHandler() {
         guardar(false);
     }
 
+    // Lógica común de crear y modificar: valida, llama al DAO, muestra el mensaje
+    // de éxito o
+    // error y recarga la lista. esNuevo = true crea; false actualiza.
     private void guardar(boolean esNuevo) {
         if (this.registro == null) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo",
@@ -232,6 +245,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Eliminar
     // =====================================================================
+
+    // Elimina el registro con ese id: primero revisa si tiene dependientes y luego
+    // llama al DAO.
     public void btnEliminarHandler(UUID id) {
         List<T> lista = getregistros();
         if (id == null || lista == null || lista.isEmpty()) {
@@ -259,13 +275,14 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         }
     }
 
+    // Elimina el registro que está seleccionado en el formulario.
     public void btnEliminarHandler() {
         if (this.registro != null) {
             btnEliminarHandler(obtenerId(this.registro));
         }
     }
-    
-        // =====================================================================
+
+    // =====================================================================
     // Filtro para los completeMethod de p:autoComplete
     // =====================================================================
     // Devuelve los elementos de "fuente" cuya etiqueta contiene el texto
@@ -286,7 +303,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     public T getRegistro() {
         return registro;
     }
-    
+
     public void setRegistro(T registro) {
         this.registro = registro;
     }
@@ -311,6 +328,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // SelectableDataModel<T>: puente objeto <-> texto para el rowSelect
     // =====================================================================
+
+    // PrimeFaces manda solo el texto (rowKey) de la fila; aquí se busca el objeto
+    // real en la lista.
     @Override
     public T getRowData(String rowKey) {
         List<T> lista = getregistros();
@@ -323,6 +343,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
                 .orElse(null);
     }
 
+    // Texto que identifica la fila (su UUID) para PrimeFaces.
     @Override
     public String getRowKey(T t) {
         return obtenerId(t).toString();

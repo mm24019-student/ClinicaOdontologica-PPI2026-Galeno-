@@ -3,11 +3,9 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -16,6 +14,21 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoExamen;
 
+/**
+ * Managed bean del diálogo "Gestionar Examen del Procedimiento": CRUD de los
+ * ProcedimientoPasoExamen de UN paso (el paso se le entrega con
+ * abrirGestionExamen(paso) o con cargarDe(paso)).
+ *
+ * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
+ * recargar).
+ * Igual que ProcedimientoPasoSecuenciaModel, busca los registros ya cargados
+ * con un
+ * p:autoComplete (completarExamenes / onItemSelect) y ofrece el combo de
+ * exámenes
+ * del catálogo (ExamenDAO) para el formulario.
+ *
+ * @author antonio
+ */
 @Named
 @ViewScoped
 public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<ProcedimientoPasoExamen, ProcedimientoPaso> {
@@ -63,17 +76,19 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     // completeMethod del p:autoComplete: filtra SOLO los exámenes ya cargados
     // de este paso (getregistros(), no toda la tabla) por el mismo texto que
     // se le muestra al usuario (nombre del examen + estado).
-        public List<ProcedimientoPasoExamen> completarExamenes(String query) {
+    public List<ProcedimientoPasoExamen> completarExamenes(String query) {
         return filtrar(getregistros(), query, this::etiqueta);
     }
 
-    // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por él.
+    // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por
+    // él.
     public String etiqueta(ProcedimientoPasoExamen e) {
         if (e == null) {
             return "";
         }
         String nombreExamen = (e.getIdExamen() != null && e.getIdExamen().getNombre() != null)
-                ? e.getIdExamen().getNombre() : "(sin examen)";
+                ? e.getIdExamen().getNombre()
+                : "(sin examen)";
         String textoEstado = Boolean.TRUE.equals(e.getActivo()) ? "ACTIVO" : "INACTIVO";
         return nombreExamen + " — " + textoEstado;
     }
@@ -136,7 +151,9 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         return examenes;
     }
 
-        public List<Examen> completarExamenesFormulario(String query) {
+    // completeMethod del autoComplete del formulario: filtra el catálogo de
+    // exámenes por nombre.
+    public List<Examen> completarExamenesFormulario(String query) {
         return filtrar(getExamenes(), query, Examen::getNombre);
     }
 }

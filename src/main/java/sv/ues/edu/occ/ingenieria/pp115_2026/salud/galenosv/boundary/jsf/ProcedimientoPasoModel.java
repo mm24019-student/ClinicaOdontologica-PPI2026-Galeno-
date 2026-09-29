@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
@@ -14,6 +13,17 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
+ * Managed bean de la pestaña "Pasos" dentro de Procedimiento.xhtml: CRUD de los
+ * ProcedimientoPaso de UN procedimiento (el padre lo entrega ProcedimientoModel
+ * llamando a cargarDe).
+ *
+ * Hereda de AbstracdetallecrudModel: de ahí sale cargar solo los hijos del
+ * padre,
+ * asignar el padre a cada paso nuevo y volver a filtrar tras guardar o
+ * eliminar.
+ * Aquí se indica cómo buscar por padre (ProcedimientoPasoDAO), cómo nace un
+ * paso
+ * nuevo y se ofrece el autocompletado de Rol (RolDAO).
  *
  * @author antonio
  */
@@ -26,42 +36,43 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     @Inject
     private ProcedimientoPasoDAO pdDAO;
 
-    //Inyectamos el DAO de Procedimiento por que necesitamos el UUId
+    // Inyectamos el DAO de Procedimiento por que necesitamos el UUId
     @Inject
     private RolDAO rolDAO;
 
     private List<Rol> roles;
-    
 
     // Le decimos a la clase padre qué DAO debe usar para las operaciones del CRUD.
     @Override
     protected InterfaceDAO<ProcedimientoPaso> getDAO() {
         return pdDAO;
     }
-    
+
     // ---- Los 3 métodos que pide AbstracDetalleCrudModel ----
     @Override
     protected List<ProcedimientoPaso> buscarPorPadre(UUID idPadre) {
         return pdDAO.findByProcedimiento(idPadre);
     }
- 
+
     @Override
     protected UUID obtenerIdPadre(Procedimiento padre) {
         return padre.getIdProcedimiento();
     }
- 
+
     @Override
     protected void asignarPadre(ProcedimientoPaso hijo, Procedimiento padre) {
         hijo.setIdProcedimiento(padre);
     }
 
-        public List<Rol> completarRoles(String query) {
+    // completeMethod del p:autoComplete de Rol: carga los roles la primera vez y
+    // devuelve los que contienen el texto escrito (sin distinguir mayúsculas).
+    public List<Rol> completarRoles(String query) {
         if (roles == null) {
             roles = rolDAO.findRange(0, 100);
         }
         return filtrar(roles, query, Rol::getNombre);
     }
-    
+
     // Se ejecuta al pulsar "Nuevo": crea un registro vacío con un UUID generado
     // automáticamente y con "Activo" marcado por defecto. La clase padre lo
     // guarda en "registro" y el formulario lo muestra.

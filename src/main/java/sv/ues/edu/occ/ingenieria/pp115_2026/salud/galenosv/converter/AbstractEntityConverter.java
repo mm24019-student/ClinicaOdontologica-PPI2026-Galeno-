@@ -9,12 +9,22 @@ import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 
 /**
+ * Superclase de todos los convertidores JSF de entidades. Un combo o
+ * autocomplete
+ * solo envía texto, así que el convertidor traduce entre la entidad y su UUID:
+ * getAsString (entidad -> texto) y getAsObject (texto -> entidad, buscándola
+ * con el DAO).
+ *
+ * Patrón Template Method: aquí vive la lógica común (valor vacío, texto que no
+ * es
+ * UUID -> ConverterException); cada convertidor concreto solo implementa dao()
+ * e id()
+ * y, si quiere, mensajeValorInvalido().
  *
  * @author antonio
  */
 public abstract class AbstractEntityConverter<T> implements Converter<T> {
-    
-    
+
     // DAO con el que se busca la entidad por su id.
     protected abstract InterfaceDAO<T> dao();
 
@@ -27,6 +37,10 @@ public abstract class AbstractEntityConverter<T> implements Converter<T> {
         return "Seleccione un valor válido de la lista";
     }
 
+    // Texto del formulario -> entidad. Vacío o nulo devuelve null; si no es un UUID
+    // lanza
+    // ConverterException con mensaje de error; si lo es, la busca con
+    // dao().buscar(uuid).
     @Override
     public T getAsObject(FacesContext ctx, UIComponent c, String valor) {
         if (valor == null || valor.isBlank()) {
@@ -44,6 +58,8 @@ public abstract class AbstractEntityConverter<T> implements Converter<T> {
         return dao().buscar(uuid);
     }
 
+    // Entidad -> texto para el formulario: su UUID, o "" si la entidad o su id son
+    // nulos.
     @Override
     public String getAsString(FacesContext ctx, UIComponent c, T entidad) {
         if (entidad == null || id(entidad) == null) {

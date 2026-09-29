@@ -3,10 +3,8 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
@@ -15,20 +13,40 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
 
 /**
+ * Managed bean del diálogo "Gestionar Secuencia": CRUD de las
+ * ProcedimientoPasoSecuencia de UN paso. El paso (padre) se le entrega desde la
+ * vista con abrirGestionSecuencia(paso) o con cargarDe(paso).
+ *
+ * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
+ * recargar).
+ * Como no cabían más tablas en la pantalla, la búsqueda de una secuencia
+ * existente
+ * se hace con un p:autoComplete (completarSecuencias / onItemSelect). El paso
+ * de
+ * referencia se guarda como UUID suelto en la entidad, por eso este bean
+ * mantiene
+ * aparte el objeto pasoReferenciaSeleccionado para mostrarlo.
  *
  * @author antonio
  */
 @Named
 @ViewScoped
-public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<ProcedimientoPasoSecuencia, ProcedimientoPaso> {
+public class ProcedimientoPasoSecuenciaModel
+        extends AbstracdetallecrudModel<ProcedimientoPasoSecuencia, ProcedimientoPaso> {
 
+    // DAO de las secuencias: guarda, busca y elimina (y findByProcedimientoPaso).
     @Inject
     private ProcedimientoPasoSecuenciaDAO dao;
+
+    // DAO de los pasos: llena los combos y busca el nombre del paso de referencia.
     @Inject
     private ProcedimientoPasoDAO pasoDAO;
 
+    // Lista de pasos para los combos (se carga una sola vez, ver getPasos).
     private List<ProcedimientoPaso> pasos;
 
+    // Paso de referencia elegido en el formulario (objeto completo para el
+    // autoComplete).
     private ProcedimientoPaso pasoReferenciaSeleccionado;
 
     public ProcedimientoPaso getPasoReferenciaSeleccionado() {
@@ -44,8 +62,7 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
             this.registro.setIdProcedimientoPasoReferencia(
                     pasoReferenciaSeleccionado == null
                             ? null
-                            : pasoReferenciaSeleccionado.getIdProcedimientoPaso()
-            );
+                            : pasoReferenciaSeleccionado.getIdProcedimientoPaso());
         }
     }
 
@@ -59,6 +76,8 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         return seleccionAutocomplete;
     }
 
+    // Se usa en el XHTML para que el p:autoComplete pueda actualizarlo con
+    // el registro elegido.
     public void setSeleccionAutocomplete(ProcedimientoPasoSecuencia seleccionAutocomplete) {
         this.seleccionAutocomplete = seleccionAutocomplete;
     }
@@ -91,7 +110,8 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         return filtrar(getregistros(), query, this::etiqueta);
     }
 
-    // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por él.
+    // Mismo texto que arma el itemLabel del autocomplete, para poder filtrar por
+    // él.
     // Público porque también se usa directamente como itemLabel en el XHTML.
     // OJO: el guard de null es SOLO para s==null (el valor todavía no elegido en
     // el campo; si se dejara el "—" escrito directo en el EL, PrimeFaces lo evalúa
@@ -104,7 +124,8 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
             return "";
         }
         String tipo = (s.getTipoSecuencia() == null || s.getTipoSecuencia().isBlank())
-                ? "(sin tipo)" : s.getTipoSecuencia();
+                ? "(sin tipo)"
+                : s.getTipoSecuencia();
         String refNombre = nombrePaso(s.getIdProcedimientoPasoReferencia());
         return refNombre.isBlank() ? tipo : tipo + " — " + refNombre;
     }
@@ -151,6 +172,8 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         this.pasoReferenciaSeleccionado = null;
     }
 
+    // Al cerrar el diálogo, limpiar también lo que haya quedado escrito/elegido
+    // en el autocomplete.
     @Override
     public void btnCerrarDialogo() {
         super.btnCerrarDialogo();
@@ -158,12 +181,15 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         this.pasoReferenciaSeleccionado = null;
     }
 
+    // Al crear un registro nuevo, limpiar también lo que haya quedado
+    // escrito/elegido en el autocomplete.
     @Override
     public void btnNuevoHandler(jakarta.faces.event.ActionEvent ae) {
         super.btnNuevoHandler(ae);
         this.pasoReferenciaSeleccionado = null;
     }
 
+    // Le dice a AbstracCrudModel qué DAO usar para el CRUD.
     @Override
     protected InterfaceDAO<ProcedimientoPasoSecuencia> getDAO() {
         return dao;
@@ -171,7 +197,7 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
 
     @Override
     protected ProcedimientoPasoSecuencia crearRegistroNuevo() {
-        return new ProcedimientoPasoSecuencia(UUID.randomUUID());   // esta tabla no tiene "activo"
+        return new ProcedimientoPasoSecuencia(UUID.randomUUID());
     }
 
     @Override
@@ -179,6 +205,7 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         return registro.getIdProcedimientoPasoSecuencia();
     }
 
+    // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ProcedimientoPasoSecuencia> buscarPorPadre(UUID idPadre) {
         return dao.findByProcedimientoPaso(idPadre);
@@ -202,14 +229,20 @@ public class ProcedimientoPasoSecuenciaModel extends AbstracdetallecrudModel<Pro
         return pasos;
     }
 
+    // completeMethod del autoComplete "Paso de referencia": filtra los pasos por
+    // nombre.
     public List<ProcedimientoPaso> completarPasos(String query) {
         return filtrar(getPasos(), query, ProcedimientoPaso::getNombre);
     }
 
-    // La referencia es un UUID suelto; este método busca el nombre del paso para mostrarlo en la tabla.
-    // Primero busca en la lista cacheada (getPasos(), limitada a 100 para no golpear la BD en cada
-    // llamada); si el paso referenciado no está en ese rango (más de 100 pasos en el sistema), se hace
-    // una búsqueda puntual por id en vez de conformarse con mostrar el UUID en crudo.
+    // La referencia es un UUID suelto; este método busca el nombre del paso para
+    // mostrarlo en la tabla.
+    // Primero busca en la lista cacheada (getPasos(), limitada a 100 para no
+    // golpear la BD en cada
+    // llamada); si el paso referenciado no está en ese rango (más de 100 pasos en
+    // el sistema), se hace
+    // una búsqueda puntual por id en vez de conformarse con mostrar el UUID en
+    // crudo.
     public String nombrePaso(UUID id) {
         if (id == null) {
             return "";

@@ -9,12 +9,21 @@ import jakarta.faces.convert.Converter;
 import java.util.UUID;
 
 /**
+ * Convertidor JSF para campos de tipo UUID. Con forClass = UUID.class se aplica
+ * solo,
+ * a cualquier campo UUID de las vistas, sin declararlo en el XHTML.
+ * Traduce texto <-> UUID sin usar ningún DAO (a diferencia de
+ * AbstractEntityConverter,
+ * que busca una entidad completa).
  *
  * @author antonio
  */
 @FacesConverter(forClass = UUID.class)
 public class UUIDFacesConverter implements Converter<UUID> {
 
+    // Texto del formulario -> UUID. Vacío o nulo devuelve null; si no es un UUID
+    // lanza
+    // ConverterException con mensaje de error.
     @Override
     public UUID getAsObject(FacesContext ctx, UIComponent c, String valor) {
         if (valor == null || valor.isBlank()) {
@@ -28,6 +37,7 @@ public class UUIDFacesConverter implements Converter<UUID> {
         }
     }
 
+    // UUID -> Texto del formulario. null devuelve cadena vacía.
     @Override
     public String getAsString(FacesContext ctx, UIComponent c, UUID valor) {
         return valor == null ? "" : valor.toString();

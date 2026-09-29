@@ -16,12 +16,23 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProced
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
+ * Managed bean de la pestaña "Pasos del Procedimiento" en Consulta.xhtml: CRUD
+ * de
+ * los ConsultaProcedimientoPaso de UN ConsultaProcedimiento (el padre lo
+ * entrega
+ * ConsultaModel con cargarDe).
+ *
+ * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
+ * recargar).
+ * Aquí se agrega el combo de Estado (PENDIENTE, EN_PROCESO, COMPLETADO,
+ * CANCELADO) y el autocompletado de Persona/Rol responsable (PersonaRolDAO).
  *
  * @author antonio
  */
 @Named
 @ViewScoped
-public class ConsultaProcedimientoPasoModel extends AbstracdetallecrudModel<ConsultaProcedimientoPaso, ConsultaProcedimiento> {
+public class ConsultaProcedimientoPasoModel
+        extends AbstracdetallecrudModel<ConsultaProcedimientoPaso, ConsultaProcedimiento> {
 
     // Valores permitidos para "estado". Deben coincidir con
     // ConsultaProcedimientoPaso.ESTADOS_VALIDOS_REGEX.
@@ -85,6 +96,7 @@ public class ConsultaProcedimientoPasoModel extends AbstracdetallecrudModel<Cons
         return personasRol;
     }
 
+    // Filtra la lista de PersonaRol por el texto ingresado en el autoComplete.
     public List<PersonaRol> completarPersonasRol(String query) {
         String texto = query == null ? "" : query.trim().toLowerCase();
         return getPersonasRol().stream()
@@ -92,7 +104,7 @@ public class ConsultaProcedimientoPasoModel extends AbstracdetallecrudModel<Cons
                 .collect(Collectors.toList());
     }
 
-    // "Ana Pérez - Odontólogo"
+    // Etiqueta para mostrar en el autoComplete de Persona/Rol.
     public String etiquetaPersonaRol(PersonaRol pr) {
         if (pr == null || pr.getIdPersona() == null) {
             return "";

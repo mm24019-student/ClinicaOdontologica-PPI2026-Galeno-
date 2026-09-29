@@ -7,6 +7,10 @@ import jakarta.persistence.PersistenceContext;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 /**
+ * DAO (acceso a datos) de Procedimiento. Hereda de DefaultDAO todo el CRUD
+ * (crear, buscar, actualizar, eliminar, findRange); aquí solo se entrega el
+ * EntityManager de la unidad de persistencia "Galeno-PU". Lo usan
+ * ProcedimientoModel, ConsultaProcedimientoModel y ProcedimientoConverter.
  *
  * @author antonio
  */
