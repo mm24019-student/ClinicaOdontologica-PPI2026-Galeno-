@@ -2,11 +2,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- Página CRUD de Clinica -->
 <ui:composition template="/WEB-INF/general.xhtml"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="jakarta.faces.facelets"
-      xmlns:g="jakarta.faces.composite/crud">
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:f="jakarta.faces.core"
+                xmlns:g="jakarta.faces.composite/crud">
 
     <ui:define name="titulo_pagina">
         <h2>Clínica</h2>
@@ -32,9 +33,9 @@
                         <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
                     </p:column>
                 </p:dataTable>
-                
+
                 <g:Botones_Acciones modelo="#{clinicaModel}" update="@form :Clinica :mensajes"/>
-                
+
             </h:form>
         </div>
 
@@ -50,8 +51,18 @@
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{clinicaModel.registro.idClinica}"/>
                     <p:outputLabel value="Nombre" for="txtNombre"/>
                     <p:inputText id="txtNombre" style="width:100%" value="#{clinicaModel.registro.nombre}"/>
-                    <p:outputLabel value="Tipo" for="txtTipo"/>
-                    <p:inputText id="txtTipo" style="width:100%" value="#{clinicaModel.registro.tipo}"/>
+
+                    <p:outputLabel value="Tipo" for="tipo"/>
+
+                    <p:selectOneMenu id="tipo"
+                                     value="#{clinicaModel.registro.tipo}"
+                                     style="width:100%;">
+                        <f:selectItem itemLabel="Clínica general"  itemValue="" />
+                        <f:selectItem itemLabel="Clínica nivel 1" itemValue="GENERAL" />
+                        <f:selectItem itemLabel="Clínica nivel 2" itemValue="ODONTOLOGICA" />
+                        <f:selectItem itemLabel="Clínica nivel 3"  itemValue="ESPECIALIZADA" />
+                    </p:selectOneMenu>
+
                     <p:outputLabel for="txtComentarios" value="Comentarios"/>
                     <p:inputTextarea id="txtComentarios" rows="3" style="width:100%" value="#{clinicaModel.registro.comentarios}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>

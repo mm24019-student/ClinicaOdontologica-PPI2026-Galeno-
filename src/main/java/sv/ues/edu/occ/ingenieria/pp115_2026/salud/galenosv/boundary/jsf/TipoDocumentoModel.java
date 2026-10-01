@@ -1,5 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -43,5 +44,17 @@ public class TipoDocumentoModel extends AbstracCrudModel<TipoDocumento> {
     @Override
     protected UUID obtenerId(TipoDocumento registro) {
         return registro.getIdTipoDocumento();
+    }
+
+    // Evita datos repetidos: no se puede registrar dos veces el mismo tipo de
+    // documento (mismo nombre), ni al crear ni al modificar.
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        if (tdDAO.existeNombre(registro.getNombre(), registro.getIdTipoDocumento())) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Tipo de documento duplicado",
+                    "Ya existe un tipo de documento llamado " + registro.getNombre().trim());
+            return false;
+        }
+        return validarSintaxisRegex(registro.getExpresionRegular());
     }
 }
