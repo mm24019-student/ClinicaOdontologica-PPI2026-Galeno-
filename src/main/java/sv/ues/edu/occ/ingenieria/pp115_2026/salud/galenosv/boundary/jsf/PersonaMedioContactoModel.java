@@ -1,5 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -82,6 +83,37 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
         @Override
     protected boolean validarAntesDeGuardar() {
         // La persona no se valida: en este detalle el padre ya viene fijo.
-        return requerir(registro.getIdTipoMedioContacto(), "Seleccione un tipo de medio de contacto", "El tipo es obligatorio");
+        if (!requerir(registro.getIdTipoMedioContacto(), "Seleccione un tipo de medio de contacto", "El tipo es obligatorio")) {
+            return false;
+        }
+        return validarFormatoDelTipo() && validarSinDuplicados();
+    }
+
+    // Valida el valor contra la expresion regular del TipoMedioContacto, leida de
+    // la base de datos en este momento (no de la lista cacheada en el bean).
+    private boolean validarFormatoDelTipo() {
+        TipoMedioContacto tipo = tipoMedioContactoDAO.buscar(registro.getIdTipoMedioContacto().getIdTipoMedioContacto());
+        if (tipo == null) {
+            tipo = registro.getIdTipoMedioContacto();
+        }
+        return validarFormatoConRegex(registro.getValor(), tipo.getExpresionRegular(),
+                tipo.getNombre(), tipo.getIndicaciones());
+    }
+
+    // Evita datos repetidos: la persona no puede tener dos veces el mismo medio
+    // de contacto (mismo tipo y mismo valor).
+    private boolean validarSinDuplicados() {
+        UUID idPersona = padreActual != null ? obtenerIdPadre(padreActual) : null;
+        if (idPersona != null && medioContactoDAO.existeMedioParaPersona(
+                idPersona,
+                registro.getIdTipoMedioContacto().getIdTipoMedioContacto(),
+                registro.getValor(),
+                registro.getIdMedioContacto())) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Medio de contacto duplicado",
+                    "Esta persona ya tiene registrado " + registro.getIdTipoMedioContacto().getNombre()
+                    + " con el valor " + registro.getValor());
+            return false;
+        }
+        return true;
     }
 }

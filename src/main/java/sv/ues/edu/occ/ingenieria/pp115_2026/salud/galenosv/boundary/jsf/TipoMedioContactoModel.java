@@ -49,4 +49,11 @@ public class TipoMedioContactoModel extends AbstracCrudModel<TipoMedioContacto> 
     protected UUID obtenerId(TipoMedioContacto registro) {
         return registro.getIdTipoMedioContacto();
     }
+
+    // La expresion regular del catalogo se usa luego para validar los valores de
+    // MedioContacto; si no compila, no se deja guardar.
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        return validarSintaxisRegex(registro.getExpresionRegular());
+    }
 }

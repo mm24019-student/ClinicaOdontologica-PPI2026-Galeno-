@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.SelectableDataModel;
@@ -143,6 +145,51 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
             return false;
         }
         return true;
+    }
+
+    /**
+     * Valida un valor contra la expresión regular que el catálogo (TipoDocumento
+     * / TipoMedioContacto) guarda en la base de datos. Si la regex viene vacía no
+     * se exige formato. Se usa find() y no matches() a propósito: así el valor
+     * por defecto de la BD ('.' = cualquier carácter) deja pasar todo, y quien
+     * quiera exigir el valor completo escribe la regex con ^ y $.
+     * Agrega por sí mismo el FacesMessage de error y devuelve false si falla.
+     */
+    protected boolean validarFormatoConRegex(String valor, String regex, String nombreTipo, String indicaciones) {
+        if (regex == null || regex.isBlank()) {
+            return true;
+        }
+        try {
+            if (valor != null && Pattern.compile(regex).matcher(valor.trim()).find()) {
+                return true;
+            }
+            String ayuda = (indicaciones == null || indicaciones.isBlank()) ? "" : " " + indicaciones.trim();
+            mensaje(FacesMessage.SEVERITY_ERROR, "Formato inválido",
+                    "El valor no cumple el formato de " + nombreTipo + "." + ayuda);
+            return false;
+        } catch (PatternSyntaxException ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Expresión regular inválida",
+                    "La expresión regular configurada para " + nombreTipo + " no es válida. Corríjala en el catálogo.");
+            return false;
+        }
+    }
+
+    /**
+     * Para los catálogos: comprueba que la regex que se va a guardar compile, para
+     * que una regex mal escrita no se guarde y luego rompa los formularios.
+     */
+    protected boolean validarSintaxisRegex(String regex) {
+        if (regex == null || regex.isBlank()) {
+            return true;
+        }
+        try {
+            Pattern.compile(regex);
+            return true;
+        } catch (PatternSyntaxException ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Expresión regular inválida",
+                    "La expresión regular no es válida: " + ex.getDescription());
+            return false;
+        }
     }
 
     /**

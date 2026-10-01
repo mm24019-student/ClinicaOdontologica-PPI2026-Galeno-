@@ -57,4 +57,29 @@ public class MedioContactoDAO extends DefaultDAO<MedioContacto> {
                 "id", idPersona);
     }
 
+    // ---- Validacion de duplicados ----
+    // true si la persona YA tiene ese mismo medio de contacto (mismo tipo y mismo
+    // valor, ej. el mismo correo o el mismo telefono dos veces). Una persona SI
+    // puede tener varios medios del mismo tipo, siempre que el valor sea distinto.
+    // Compara sin distinguir mayusculas ni espacios en los extremos.
+    // idExcluir es el registro que se esta editando, para no compararlo consigo
+    // mismo al modificar.
+    public boolean existeMedioParaPersona(UUID idPersona, UUID idTipoMedioContacto, String valor, UUID idExcluir) {
+        if (valor == null || valor.isBlank()) {
+            return false;
+        }
+        Long total = em.createQuery(
+                "SELECT COUNT(m) FROM MedioContacto m "
+                + "WHERE m.idPersona.idPersona = :persona "
+                + "AND m.idTipoMedioContacto.idTipoMedioContacto = :tipo "
+                + "AND LOWER(TRIM(m.valor)) = :valor "
+                + "AND m.idMedioContacto <> :excluir", Long.class)
+                .setParameter("persona", idPersona)
+                .setParameter("tipo", idTipoMedioContacto)
+                .setParameter("valor", valor.trim().toLowerCase())
+                .setParameter("excluir", idExcluir != null ? idExcluir : new UUID(0L, 0L))
+                .getSingleResult();
+        return total > 0;
+    }
+
 }

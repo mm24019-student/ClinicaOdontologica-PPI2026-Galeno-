@@ -1,5 +1,6 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -82,6 +83,40 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
     @Override
     protected boolean validarAntesDeGuardar() {
         // La persona no se valida: en este detalle el padre ya viene fijo.
-        return requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio");
+        if (!requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio")) {
+            return false;
+        }
+        return validarFormatoDelTipo() && validarSinDuplicados();
+    }
+
+    // Valida el valor contra la expresion regular del TipoDocumento, leida de la
+    // base de datos en este momento (no de la lista cacheada en el bean).
+    private boolean validarFormatoDelTipo() {
+        TipoDocumento tipo = tipoDocumentoDAO.buscar(registro.getIdTipoDocumento().getIdTipoDocumento());
+        if (tipo == null) {
+            tipo = registro.getIdTipoDocumento();
+        }
+        return validarFormatoConRegex(registro.getValor(), tipo.getExpresionRegular(),
+                tipo.getNombre(), tipo.getIndicaciones());
+    }
+
+    // Evita datos repetidos: la persona no puede tener dos documentos del mismo
+    // tipo (ej. dos DUI), y el mismo numero de un tipo no puede estar repetido.
+    private boolean validarSinDuplicados() {
+        UUID idTipo = registro.getIdTipoDocumento().getIdTipoDocumento();
+        UUID idPersona = padreActual != null ? obtenerIdPadre(padreActual) : null;
+        if (idPersona != null
+                && documentoDAO.existeTipoParaPersona(idPersona, idTipo, registro.getIdDocumento())) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Documento duplicado",
+                    "Esta persona ya tiene registrado un documento de tipo " + registro.getIdTipoDocumento().getNombre());
+            return false;
+        }
+        if (documentoDAO.existeValorParaTipo(registro.getValor(), idTipo, registro.getIdDocumento())) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "Documento duplicado",
+                    "Ya existe un documento de tipo " + registro.getIdTipoDocumento().getNombre()
+                    + " con el número " + registro.getValor());
+            return false;
+        }
+        return true;
     }
 }
