@@ -20,11 +20,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
  * ConsultaModel con cargarDe).
  *
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
- * recargar).
- * Como la entidad guarda el procedimiento como UUID suelto, este bean mantiene
- * el
- * objeto procedimientoSeleccionado (ProcedimientoDAO) para el autocomplete y
- * traduce el UUID a nombre para mostrarlo en la tabla.
+ * recargar). Como la entidad guarda el procedimiento como UUID suelto, este
+ * bean mantiene el objeto procedimientoSeleccionado (ProcedimientoDAO) para el
+ * autocomplete y traduce el UUID a nombre para mostrarlo en la tabla.
  *
  * @author antonio
  */
@@ -40,7 +38,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     // relación @ManyToOne (a diferencia de idConsulta, que sí lo es).
     @Inject
     private ProcedimientoDAO procedimientoDAO;
-    
+
     @Inject
     private SesionBean sesionBean;
 
@@ -69,7 +67,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         }
     }
 
-   //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre Procedimientos activos y inactivos
+    //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre Procedimientos activos y inactivos
     public List<Procedimiento> completarProcedimientos(String query) {
         return filtrarActivos(getProcedimientos(), query, Procedimiento::getNombre, Procedimiento::getActivo);
     }
@@ -94,13 +92,26 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         return cpDAO;
     }
 
-     //Activamos que si ah iniciado secion se motrara el boton nuevo 
+    //Activamos que si ah iniciado secion se motrara el boton nuevo 
     @Override
     protected boolean permitirAccion() {
         return exigirSesion(sesionBean);
     }
 
-    
+    // El procedimiento se guarda como UUID suelto, así que se busca con el DAO
+    // para revisar su estado "activo" actual.
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        if (!requerir(registro.getIdProcedimiento(), "Seleccione el procedimiento",
+                "El procedimiento es obligatorio")) {
+            return false;
+        }
+        Procedimiento elegido = procedimientoDAO.buscar(registro.getIdProcedimiento());
+        return requerir(elegido, "Procedimiento no encontrado", "El procedimiento elegido ya no existe")
+                && requerirActivo(elegido.getActivo(), "Procedimiento inactivo",
+                        "No se puede asignar un procedimiento inactivo a la consulta");
+    }
+
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ConsultaProcedimiento> buscarPorPadre(UUID idPadre) {

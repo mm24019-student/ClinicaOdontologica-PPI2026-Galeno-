@@ -15,6 +15,9 @@ public class ClinicaModel extends AbstracCrudModel<Clinica> {
 
     @Inject
     private ClinicaDAO clinicaDAO;
+    
+    @Inject
+    private SesionBean sesionBean;
 
     @Override
     protected InterfaceDAO<Clinica> getDAO() {
@@ -35,5 +38,13 @@ public class ClinicaModel extends AbstracCrudModel<Clinica> {
 
     public List<Clinica> getRegistros() {
         return getregistros();
+    }
+    
+    // Al guardar o eliminar un clínica, se refresca el selector de sesión de arriba
+    // para que sus roles/clínicas activos aparezcan o desaparezcan al instante.
+    @Override
+    protected void recargarLista() {
+        super.recargarLista();
+        sesionBean.refrescar();
     }
 }

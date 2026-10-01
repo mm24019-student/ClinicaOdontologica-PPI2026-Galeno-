@@ -31,4 +31,12 @@ public class ProcedimientoPasoSecuenciaDAO extends DefaultDAO<ProcedimientoPasoS
                 "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimientoPaso = :id",
                 "id", idProcedimientoPaso);
     }
+    
+     // Devuelve las secuencias de todos los pasos de un procedimiento (una sola
+    // consulta). Se usa para armar el árbol de pasos y detectar ciclos.
+    public List<ProcedimientoPasoSecuencia> findByProcedimiento(UUID idProcedimiento) {
+        return buscarPorPadre(
+                "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimiento.idProcedimiento = :id",
+                "id", idProcedimiento);
+    }
 }

@@ -1,8 +1,10 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +22,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
  * abrirGestionExamen(paso) o con cargarDe(paso)).
  *
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
- * recargar).
- * Igual que ProcedimientoPasoSecuenciaModel, busca los registros ya cargados
- * con un
- * p:autoComplete (completarExamenes / onItemSelect) y ofrece el combo de
- * exámenes
- * del catálogo (ExamenDAO) para el formulario.
+ * recargar). Igual que ProcedimientoPasoSecuenciaModel, busca los registros ya
+ * cargados con un p:autoComplete (completarExamenes / onItemSelect) y ofrece el
+ * combo de exámenes del catálogo (ExamenDAO) para el formulario.
  *
  * @author antonio
  */
@@ -101,6 +100,58 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         btnAbrirDialogo();
     }
 
+    // ---- Panel "Gestionar Examen" (lista de exámenes del paso + botón Nuevo) ----
+    // Lista que muestra el p:dataTable del panel. Solo va a la base de datos
+    // cuando el paso es distinto del que ya estaba cargado, así el panel se
+    // llena solo al seleccionar un paso sin depender de ningún evento extra.
+    public List<ProcedimientoPasoExamen> examenesDe(ProcedimientoPaso paso) {
+        if (paso == null || paso.getIdProcedimientoPaso() == null) {
+            return Collections.emptyList();
+        }
+        boolean otroPaso = padreActual == null
+                || !paso.getIdProcedimientoPaso().equals(padreActual.getIdProcedimientoPaso());
+        if (otroPaso) {
+            cargarDe(paso);
+        }
+        return getregistros();
+    }
+
+    // Botón "Nuevo examen" del panel: carga los exámenes del paso, prepara un
+    // registro nuevo (queda en estado CREAR) y abre el diálogo ya con el
+    // formulario visible.
+    public void abrirNuevoExamen(ProcedimientoPaso paso) {
+        if (paso == null || paso.getIdProcedimientoPaso() == null) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un paso",
+                    "Guarde o seleccione un paso antes de agregarle exámenes");
+            return;
+        }
+        cargarDe(paso);
+        btnNuevoHandler(null);
+        btnAbrirDialogo();
+    }
+
+    // Click en una fila del panel: selecciona el examen (estado MODIFICAR) y
+    // abre el diálogo con el formulario cargado.
+    public void onRowSelectAbrir(SelectEvent<ProcedimientoPasoExamen> event) {
+        onRowSelect(event);
+        btnAbrirDialogo();
+    }
+
+    // AbstracdetallecrudModel llama a este hook tras crear, modificar o
+    // eliminar con éxito: se refresca la lista del panel y se cierra el diálogo.
+    @Override
+    protected void recargarLista() {
+        super.recargarLista();
+        this.mostrarDialogo = false;
+    }
+
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        return requerir(registro.getIdExamen(), "Seleccione un examen", "El examen es obligatorio")
+                && requerirActivo(registro.getIdExamen().getActivo(), "Examen inactivo",
+                        "No se puede asignar un examen inactivo a un paso");
+    }
+
     // Al cambiar de paso padre o cerrar el diálogo, limpiar lo que haya
     // quedado escrito/elegido en el autocomplete.
     @Override
@@ -151,7 +202,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         return examenes;
     }
 
-        public List<Examen> completarExamenesFormulario(String query) {
+    public List<Examen> completarExamenesFormulario(String query) {
         return filtrarActivos(getExamenes(), query, Examen::getNombre, Examen::getActivo);
     }
 }

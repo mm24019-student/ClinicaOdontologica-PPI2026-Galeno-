@@ -19,6 +19,9 @@ public class RolModel extends AbstracCrudModel<Rol> {
 
     @Inject
     private RolDAO rolDAO;
+    
+    @Inject
+    private SesionBean sesionBean;
 
     @Override
     protected InterfaceDAO<Rol> getDAO() {
@@ -37,4 +40,13 @@ public class RolModel extends AbstracCrudModel<Rol> {
     protected UUID obtenerId(Rol registro) {
         return registro.getIdRol();
     }
+    
+    // Al guardar o eliminar un rol, se refresca el selector de sesión de arriba
+    // para que sus roles/clínicas activos aparezcan o desaparezcan al instante.
+    @Override
+    protected void recargarLista() {
+        super.recargarLista();
+        sesionBean.refrescar();
+    }
+    
 }

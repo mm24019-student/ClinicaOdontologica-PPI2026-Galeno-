@@ -8,6 +8,8 @@ import jakarta.inject.Named;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
+import org.primefaces.PrimeFaces;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
@@ -24,14 +26,34 @@ public class SesionBean implements Serializable {
     private String idSeleccionado;
     private List<PersonaRol> opciones;
 
+    // Las opciones NO se guardan en el bean (que dura toda la sesion): si se
+    // guardaran, un rol o clinica que se active despues no aparecería hasta
+    // cerrar sesion. Se consultan en cada render del selector (maximo 200 filas).
     public List<PersonaRol> getOpciones() {
-        if (opciones == null) {
-            opciones = personaRolDAO.listarConDetalle().stream()
-                    .filter(pr -> pr.getIdRol() == null || !Boolean.FALSE.equals(pr.getIdRol().getActivo()))
-                    .filter(pr -> pr.getIdClinica() == null || !Boolean.FALSE.equals(pr.getIdClinica().getActivo()))
-                    .collect(java.util.stream.Collectors.toList());
+        return personaRolDAO.listarConDetalle().stream()
+                .filter(pr -> pr.getIdRol() == null || !Boolean.FALSE.equals(pr.getIdRol().getActivo()))
+                .filter(pr -> pr.getIdClinica() == null || !Boolean.FALSE.equals(pr.getIdClinica().getActivo()))
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    // Se llama cuando cambia algo que afecta al selector (activar/desactivar un
+    // rol o una clínica). Si la sesión abierta quedó con un rol/clínica que ya no
+    // está activo, la cierra; y vuelve a dibujar el selector de arriba (frmSesion)
+    // dentro de la misma petición AJAX.
+    public void refrescar() {
+        if (personaRolActual != null) {
+            UUID id = personaRolActual.getIdPersonaRol();
+            boolean sigueActivo = getOpciones().stream()
+                    .anyMatch(pr -> pr.getIdPersonaRol().equals(id));
+            if (!sigueActivo) {
+                personaRolActual = null;
+                idSeleccionado = null;
+            }
         }
-        return opciones;
+        FacesContext fc = FacesContext.getCurrentInstance();
+        if (fc != null && fc.getPartialViewContext().isAjaxRequest()) {
+            PrimeFaces.current().ajax().update("frmSesion");
+        }
     }
 
     public void cambiar() {

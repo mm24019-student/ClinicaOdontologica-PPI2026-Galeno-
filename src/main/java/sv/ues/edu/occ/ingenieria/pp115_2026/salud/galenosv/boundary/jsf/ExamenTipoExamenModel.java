@@ -112,8 +112,12 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
 
     @Override
     protected boolean validarAntesDeGuardar() {
-        return requerir(registro.getIdExamen(), "Seleccione un examen", "El examen es obligatorio")
-                && requerir(registro.getIdTipoExamen(), "Seleccione un tipo de examen", "El tipo de examen es obligatorio");
+                return requerir(registro.getIdExamen(), "Seleccione un examen", "El examen es obligatorio")
+                && requerir(registro.getIdTipoExamen(), "Seleccione un tipo de examen", "El tipo de examen es obligatorio")
+                && requerirActivo(registro.getIdExamen().getActivo(), "Examen inactivo",
+                        "No se puede asignar un examen inactivo")
+                && requerirActivo(registro.getIdTipoExamen().getActivo(), "Tipo de examen inactivo",
+                        "No se puede asignar un tipo de examen inactivo");
     }
 
 }

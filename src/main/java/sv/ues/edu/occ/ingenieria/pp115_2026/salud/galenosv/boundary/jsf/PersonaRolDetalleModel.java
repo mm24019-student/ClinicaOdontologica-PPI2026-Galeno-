@@ -166,6 +166,16 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
                     "Seleccione una clinica", "La clinica es obligatoria"));
             return;
         }
+                if (!esActivo(nuevoRol.getActivo())) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Rol inactivo", "No se puede asignar un rol inactivo"));
+            return;
+        }
+        if (!esActivo(nuevaClinica.getActivo())) {
+            fc.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Clinica inactiva", "No se puede asignar una clinica inactiva"));
+            return;
+        }
         boolean yaAsignado = getRolesDePersona().stream().anyMatch(pr
                 -> nuevoRol.getIdRol().equals(pr.getIdRol().getIdRol())
                 && nuevaClinica.getIdClinica().equals(pr.getIdClinica().getIdClinica()));

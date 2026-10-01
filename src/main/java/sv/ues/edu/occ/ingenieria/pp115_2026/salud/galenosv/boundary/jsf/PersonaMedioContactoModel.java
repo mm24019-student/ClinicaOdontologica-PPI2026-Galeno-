@@ -82,6 +82,8 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
         @Override
     protected boolean validarAntesDeGuardar() {
         // La persona no se valida: en este detalle el padre ya viene fijo.
-        return requerir(registro.getIdTipoMedioContacto(), "Seleccione un tipo de medio de contacto", "El tipo es obligatorio");
+                return requerir(registro.getIdTipoMedioContacto(), "Seleccione un tipo de medio de contacto", "El tipo es obligatorio")
+                && requerirActivo(registro.getIdTipoMedioContacto().getActivo(), "Tipo inactivo",
+                        "No se puede usar un tipo de medio de contacto inactivo");
     }
 }

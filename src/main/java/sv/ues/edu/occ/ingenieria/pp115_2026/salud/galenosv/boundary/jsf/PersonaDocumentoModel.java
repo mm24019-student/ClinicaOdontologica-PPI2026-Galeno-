@@ -82,6 +82,8 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
     @Override
     protected boolean validarAntesDeGuardar() {
         // La persona no se valida: en este detalle el padre ya viene fijo.
-        return requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio");
+                return requerir(registro.getIdTipoDocumento(), "Seleccione un tipo de documento", "El tipo es obligatorio")
+                && requerirActivo(registro.getIdTipoDocumento().getActivo(), "Tipo inactivo",
+                        "No se puede usar un tipo de documento inactivo");
     }
 }

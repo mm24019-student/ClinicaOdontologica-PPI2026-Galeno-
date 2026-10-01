@@ -144,6 +144,14 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         }
         return true;
     }
+    
+    protected boolean requerirActivo(Boolean activo, String resumen, String detalle) {
+    if (!esActivo(activo)) {
+        mensaje(FacesMessage.SEVERITY_ERROR, resumen, detalle);
+        return false;
+    }
+    return true;
+}
 
     /**
      * Deja el bean sin registro seleccionado y sin estado de edición.
