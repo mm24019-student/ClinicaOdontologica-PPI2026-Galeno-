@@ -40,6 +40,9 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     // relación @ManyToOne (a diferencia de idConsulta, que sí lo es).
     @Inject
     private ProcedimientoDAO procedimientoDAO;
+    
+    @Inject
+    private SesionBean sesionBean;
 
     // Procedimientos del catálogo ya cargados (se piden a la base una sola vez).
     private List<Procedimiento> procedimientos;
@@ -66,9 +69,9 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         }
     }
 
-    // Autocomplete de Procedimiento: filtra por nombre.
+   //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre Procedimientos activos y inactivos
     public List<Procedimiento> completarProcedimientos(String query) {
-        return filtrar(getProcedimientos(), query, Procedimiento::getNombre);
+        return filtrarActivos(getProcedimientos(), query, Procedimiento::getNombre, Procedimiento::getActivo);
     }
 
     // Al seleccionar una fila, busca el Procedimiento por su UUID para que el
@@ -91,6 +94,13 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         return cpDAO;
     }
 
+     //Activamos que si ah iniciado secion se motrara el boton nuevo 
+    @Override
+    protected boolean permitirAccion() {
+        return exigirSesion(sesionBean);
+    }
+
+    
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ConsultaProcedimiento> buscarPorPadre(UUID idPadre) {

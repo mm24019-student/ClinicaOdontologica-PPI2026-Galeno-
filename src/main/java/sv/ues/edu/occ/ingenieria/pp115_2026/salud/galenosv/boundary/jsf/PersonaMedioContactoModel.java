@@ -6,7 +6,6 @@ import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
@@ -76,10 +75,8 @@ public class PersonaMedioContactoModel extends AbstracdetallecrudModel<MedioCont
         return tiposMedioContacto;
     }
 
-    // completeMethod del autocomplete "Tipo de Medio de Contacto" (mismo
-    // patrón que completarRoles/completarClinicas en PersonaRolDetalleModel).
         public List<TipoMedioContacto> completarTiposMedioContacto(String query) {
-        return filtrar(getTiposMedioContacto(), query, TipoMedioContacto::getNombre);
+        return filtrarActivos(getTiposMedioContacto(), query, TipoMedioContacto::getNombre, TipoMedioContacto::getActivo);
     }
         
         @Override

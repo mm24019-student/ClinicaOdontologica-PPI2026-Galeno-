@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.SelectableDataModel;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
  * Superclase abstracta para los Managed Beans de CRUD, siguiendo el mismo
@@ -66,7 +67,6 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Hooks opcionales (las subclases los sobreescriben si los necesitan)
     // =====================================================================
-
     /**
      * Por defecto asumimos que la entidad no tiene hijos. Las subclases cuya
      * entidad SÍ puede tener registros dependientes (ej. OrdenExamen tiene
@@ -93,6 +93,27 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     protected boolean validarAntesDeGuardar() {
         return true;
     }
+    
+        /**
+     * Hook: permite o bloquea las acciones de escritura (Nuevo, Guardar,
+     * Actualizar y Eliminar). Si devuelve false, debe agregar su propio mensaje.
+     * Por defecto permite todo, así que las demás pantallas no cambian.
+     */
+    protected boolean permitirAccion() {
+        return true;
+    }
+
+    /**
+     * Helper para las pantallas que exigen sesión iniciada.
+     */
+    protected boolean exigirSesion(SesionBean sesion) {
+        if (sesion == null || !sesion.isAutenticado()) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Sin sesión",
+                    "Inicie sesión en el selector de la parte superior para realizar esta acción");
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Cómo se refresca la lista tras crear/modificar/eliminar. Las pantallas de
@@ -105,8 +126,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Helpers
     // =====================================================================
-
-    /** Agrega un mensaje global a la vista. */
+    /**
+     * Agrega un mensaje global a la vista.
+     */
     protected void mensaje(FacesMessage.Severity severidad, String resumen, String detalle) {
         fc.addMessage(null, new FacesMessage(severidad, resumen, detalle));
     }
@@ -123,7 +145,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         return true;
     }
 
-    /** Deja el bean sin registro seleccionado y sin estado de edición. */
+    /**
+     * Deja el bean sin registro seleccionado y sin estado de edición.
+     */
     private void limpiarSeleccion() {
         this.registro = null;
         this.estado = Estado_Crud.NINGUNO;
@@ -166,6 +190,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // Selección
     // =====================================================================
     public void btnNuevoHandler(ActionEvent ae) {
+         if (!permitirAccion()) {
+            return;
+        }
         this.registro = crearRegistroNuevo();
         configurarNuevoRegistro(this.registro);
         this.estado = Estado_Crud.CREAR;
@@ -192,13 +219,13 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     }
 
     public void btnCancelar() {
+        
         limpiarSeleccion();
     }
 
     // =====================================================================
     // Crear / Modificar (comparten la misma lógica en guardar)
     // =====================================================================
-
     // Botón "Guardar" de un registro nuevo: llama a guardar(true), que hace persist
     // en el DAO.
     public void btnCrearhandler(ActionEvent ae) {
@@ -215,6 +242,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // de éxito o
     // error y recarga la lista. esNuevo = true crea; false actualiza.
     private void guardar(boolean esNuevo) {
+         if (!permitirAccion()) {
+            return;
+        }
         if (this.registro == null) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo",
                     esNuevo ? "Ingrese algun registro" : "Seleccione algun registro");
@@ -245,10 +275,12 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Eliminar
     // =====================================================================
-
     // Elimina el registro con ese id: primero revisa si tiene dependientes y luego
     // llama al DAO.
     public void btnEliminarHandler(UUID id) {
+         if (!permitirAccion()) {
+            return;
+        }
         List<T> lista = getregistros();
         if (id == null || lista == null || lista.isEmpty()) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Registro no puede ser nulo", "Seleccione algun registro");
@@ -298,6 +330,40 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     }
 
     // =====================================================================
+    //Filtrado de ACtivos y Inactivos
+    // =====================================================================
+        // true si el valor NO es false (null cuenta como activo)
+    protected boolean esActivo(Boolean activo) {
+        return !Boolean.FALSE.equals(activo);
+    }
+
+    // Igual que filtrar(), pero omite los registros INACTIVOS.
+    // Uso: filtrarActivos(lista, query, X::getNombre, X::getActivo)
+    protected <E> List<E> filtrarActivos(List<E> fuente, String query,
+            Function<E, String> etiqueta, Function<E, Boolean> activo) {
+        return filtrar(fuente, query, etiqueta).stream()
+                .filter(e -> esActivo(activo.apply(e)))
+                .collect(Collectors.toList());
+    }
+
+    // Misma versión, pero además limita la cantidad de sugerencias.
+    // Uso: filtrarActivos(lista, query, X::getNombre, X::getActivo, 20)
+    protected <E> List<E> filtrarActivos(List<E> fuente, String query,
+            Function<E, String> etiqueta, Function<E, Boolean> activo, int limite) {
+        return filtrarActivos(fuente, query, etiqueta, activo).stream()
+                .limit(limite)
+                .collect(Collectors.toList());
+    }
+
+    // Una asignación Persona/Rol está activa si su rol y su clínica lo están
+    // (PersonaRol no tiene campo "activo" propio).
+    protected boolean personaRolActivo(PersonaRol pr) {
+        return pr != null
+                && (pr.getIdRol() == null || esActivo(pr.getIdRol().getActivo()))
+                && (pr.getIdClinica() == null || esActivo(pr.getIdClinica().getActivo()));
+    }
+    
+    // =====================================================================
     // Getters / Setters
     // =====================================================================
     public T getRegistro() {
@@ -328,7 +394,6 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // SelectableDataModel<T>: puente objeto <-> texto para el rowSelect
     // =====================================================================
-
     // PrimeFaces manda solo el texto (rowKey) de la fila; aquí se busca el objeto
     // real en la lista.
     @Override

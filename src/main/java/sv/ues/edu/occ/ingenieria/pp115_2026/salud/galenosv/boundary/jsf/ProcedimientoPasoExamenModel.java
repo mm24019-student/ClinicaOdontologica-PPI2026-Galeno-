@@ -151,9 +151,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         return examenes;
     }
 
-    // completeMethod del autoComplete del formulario: filtra el catálogo de
-    // exámenes por nombre.
-    public List<Examen> completarExamenesFormulario(String query) {
-        return filtrar(getExamenes(), query, Examen::getNombre);
+        public List<Examen> completarExamenesFormulario(String query) {
+        return filtrarActivos(getExamenes(), query, Examen::getNombre, Examen::getActivo);
     }
 }

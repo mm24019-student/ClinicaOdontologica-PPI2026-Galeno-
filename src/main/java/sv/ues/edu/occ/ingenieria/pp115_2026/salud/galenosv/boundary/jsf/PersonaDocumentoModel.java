@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
@@ -75,12 +74,10 @@ public class PersonaDocumentoModel extends AbstracdetallecrudModel<Documento, Pe
         return tiposDocumento;
     }
 
-    // completeMethod del autocomplete "Tipo de Documento" (mismo patrón que
-    // completarRoles/completarClinicas en PersonaRolDetalleModel).
-       public List<TipoDocumento> completarTiposDocumento(String query) {
-        return filtrar(getTiposDocumento(), query, TipoDocumento::getNombre);
+    //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre Procedimientos activos y inactivos
+    public List<TipoDocumento> completarTiposDocumento(String query) {
+        return filtrarActivos(getTiposDocumento(), query, TipoDocumento::getNombre, TipoDocumento::getActivo);
     }
-       
 
     @Override
     protected boolean validarAntesDeGuardar() {

@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
@@ -17,15 +16,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
  * Managed bean de la pestaña "Pasos del Procedimiento" en Consulta.xhtml: CRUD
- * de
- * los ConsultaProcedimientoPaso de UN ConsultaProcedimiento (el padre lo
- * entrega
- * ConsultaModel con cargarDe).
+ * de los ConsultaProcedimientoPaso de UN ConsultaProcedimiento (el padre lo
+ * entrega ConsultaModel con cargarDe).
  *
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
- * recargar).
- * Aquí se agrega el combo de Estado (PENDIENTE, EN_PROCESO, COMPLETADO,
- * CANCELADO) y el autocompletado de Persona/Rol responsable (PersonaRolDAO).
+ * recargar). Aquí se agrega el combo de Estado (PENDIENTE, EN_PROCESO,
+ * COMPLETADO, CANCELADO) y el autocompletado de Persona/Rol responsable
+ * (PersonaRolDAO).
  *
  * @author antonio
  */
@@ -44,11 +41,46 @@ public class ConsultaProcedimientoPasoModel
     @Inject
     private PersonaRolDAO personaRolDAO;
 
+    @Inject
+    private SesionBean sesionBean;
+
     private List<PersonaRol> personasRol;
 
     @Override
     protected InterfaceDAO<ConsultaProcedimientoPaso> getDAO() {
         return pasoDAO;
+    }
+
+     //Activamos que si ah iniciado secion se motrara el boton nuevo 
+    @Override
+    protected boolean permitirAccion() {
+        return exigirSesion(sesionBean);
+    }
+
+    
+    @Override
+    protected void configurarNuevoRegistro(ConsultaProcedimientoPaso nuevoRegistro) {
+        super.configurarNuevoRegistro(nuevoRegistro);
+        nuevoRegistro.setIdPersonaRol(sesionBean.getPersonaRolActual());
+    }
+
+    // Texto que muestra la pantalla: en CREAR, el usuario con sesión;
+    // en edición, el que quedó guardado en el paso.
+    public String getPersonaRolEtiqueta() {
+        if (estado == Estado_Crud.CREAR) {
+            PersonaRol actual = sesionBean.getPersonaRolActual();
+            return actual == null ? "Sin sesión: seleccione un usuario arriba" : etiquetaPersonaRol(actual);
+        }
+        return registro == null ? "" : etiquetaPersonaRol(registro.getIdPersonaRol());
+    }
+
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        if (estado == Estado_Crud.CREAR) {
+            registro.setIdPersonaRol(sesionBean.getPersonaRolActual());
+        }
+        return requerir(registro.getIdPersonaRol(), "Sin sesión",
+                "Seleccione un usuario en el selector de sesión para registrar el paso");
     }
 
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
@@ -96,12 +128,9 @@ public class ConsultaProcedimientoPasoModel
         return personasRol;
     }
 
-    // Filtra la lista de PersonaRol por el texto ingresado en el autoComplete.
+    //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre personalrol
     public List<PersonaRol> completarPersonasRol(String query) {
-        String texto = query == null ? "" : query.trim().toLowerCase();
-        return getPersonasRol().stream()
-                .filter(pr -> etiquetaPersonaRol(pr).toLowerCase().contains(texto))
-                .collect(Collectors.toList());
+        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol, this::personaRolActivo);
     }
 
     // Etiqueta para mostrar en el autoComplete de Persona/Rol.

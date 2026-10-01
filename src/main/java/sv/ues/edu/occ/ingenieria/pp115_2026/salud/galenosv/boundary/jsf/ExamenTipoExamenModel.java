@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -55,14 +54,9 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         return registro.getIdExamenTipoExamen();
     }
 
-    // completeMethod del autocomplete de Examen. Usa filtrar() de
-    // AbstracCrudModel (busca por nombre sin distinguir mayúsculas),
-    // omite inactivos y limita a 20 sugerencias.
+    //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre Examenes
     public List<Examen> completarExamenes(String query) {
-        return filtrar(getExamenes(), query, Examen::getNombre).stream()
-                .filter(e -> e.getActivo() == null || e.getActivo())
-                .limit(20)
-                .collect(Collectors.toList());
+        return filtrarActivos(getExamenes(), query, Examen::getNombre, Examen::getActivo, 20);
     }
 
     // Opciones de los selectores (se cargan una vez por vista)
@@ -72,8 +66,8 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         }
         return examenes;
     }
-    
-      public List<TipoExamen> getTiposExamen() {
+
+    public List<TipoExamen> getTiposExamen() {
         if (tiposExamen == null) {
             tiposExamen = teDAO.findRange(0, 100);
         }
@@ -99,12 +93,9 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         }
     }
 
-    // completeMethod del autocomplete de Tipo de examen (misma lógica).
+    //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre tipos examenes
     public List<TipoExamen> completarTiposExamen(String query) {
-        return filtrar(getTiposExamen(), query, TipoExamen::getNombre).stream()
-                .filter(t -> t.getActivo() == null || t.getActivo())
-                .limit(20)
-                .collect(Collectors.toList());
+        return filtrarActivos(getTiposExamen(), query, TipoExamen::getNombre, TipoExamen::getActivo, 20);
     }
 
 // Tras crear/modificar/eliminar, AbstracCrudModel llama a este hook.

@@ -64,13 +64,11 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         hijo.setIdProcedimiento(padre);
     }
 
-    // completeMethod del p:autoComplete de Rol: carga los roles la primera vez y
-    // devuelve los que contienen el texto escrito (sin distinguir mayúsculas).
-    public List<Rol> completarRoles(String query) {
+        public List<Rol> completarRoles(String query) {
         if (roles == null) {
             roles = rolDAO.findRange(0, 100);
         }
-        return filtrar(roles, query, Rol::getNombre);
+        return filtrarActivos(roles, query, Rol::getNombre, Rol::getActivo);
     }
 
     // Se ejecuta al pulsar "Nuevo": crea un registro vacío con un UUID generado

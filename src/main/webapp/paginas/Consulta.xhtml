@@ -18,6 +18,10 @@
     <ui:define name="contenido">
 
         <div class="tarjeta">
+            <h:panelGroup rendered="#{!sesionBean.autenticado}" layout="block"
+                          style="padding:10px; margin-bottom:10px; border-radius:4px; background:#fff3cd; color:#856404;">
+                Debe iniciar sesión (selector de la parte superior) para registrar o modificar consultas.
+            </h:panelGroup>
             <h:form id="frmTabla">
                 <p:dataTable value="#{consultaModel}"
                              var="r"
@@ -47,7 +51,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{consultaModel}" update="@form :Consulta :mensajes"/>
+                <g:Botones_Acciones modelo="#{consultaModel}"  mostrarNuevo="#{sesionBean.autenticado}" mostrarCancelar="#{sesionBean.autenticado}" update="@form :Consulta :mensajes"/>
             </h:form>
         </div>
 
@@ -99,13 +103,9 @@
                                 <p:inputText id="txtReferenciaConsulta"
                                              size="40"
                                              value="#{consultaModel.registro.referenciaExterna}"/>
-                                <p:outputLabel value="Persona / Rol" for="acPersonaRolConsulta"/>
-                                <p:autoComplete id="acPersonaRolConsulta"
-                                                value="#{consultaModel.personaRolSeleccionado}"
-                                                completeMethod="#{consultaModel.completarPersonasRol}"
-                                                var="pr"
-                                                itemValue="#{pr}" itemLabel="#{consultaModel.etiquetaPersonaRol(pr)}" converter="personaRolConverter"  forceSelection="true"  required="true"  requiredMessage="Seleccione la persona y su rol"  placeholder="Buscar persona o rol..."   style="width:100%;">
-                                </p:autoComplete>
+                                <p:outputLabel value="Persona / Rol" for="txtPersonaRolConsulta"/>
+                                <p:inputText id="txtPersonaRolConsulta" disabled="true" style="width:100%;"
+                                             value="#{consultaModel.personaRolEtiqueta}"/>
                                 <p:outputLabel value="Observaciones"
                                                for="txtObservacionesConsulta"/>
                                 <p:inputTextarea id="txtObservacionesConsulta"
@@ -196,7 +196,7 @@
                                 <p:datePicker id="dtFinProcedimiento" timeZone="America/El_Salvador"
                                               value="#{consultaProcedimientoModel.registro.fechaFin}"
                                               showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true" yearNavigator="true"
-/>
+                                              />
                                 <p:outputLabel value="Observaciones"
                                                for="txtObservacionesProcedimiento"/>
                                 <p:inputTextarea id="txtObservacionesProcedimiento" rows="4" cols="60"
@@ -271,18 +271,9 @@
                                     <f:selectItems value="#{consultaProcedimientoPasoModel.estados}"/>
                                 </p:selectOneMenu>
 
-                                <p:outputLabel value="Persona / Rol" for="acPersonaRolPaso"/>
-                                <p:autoComplete id="acPersonaRolPaso" required="true" requiredMessage="Seleccione una Persona/Rol"
-                                                value="#{consultaProcedimientoPasoModel.registro.idPersonaRol}"
-                                                completeMethod="#{consultaProcedimientoPasoModel.completarPersonasRol}"
-                                                var="pr"
-                                                itemValue="#{pr}"
-                                                itemLabel="#{consultaProcedimientoPasoModel.etiquetaPersonaRol(pr)}"
-                                                converter="personaRolConverter"
-                                                forceSelection="true"
-                                                placeholder="Buscar persona o rol..."
-                                                style="width:100%;">
-                                </p:autoComplete>
+                                <p:outputLabel value="Persona / Rol" for="txtPersonaRolPaso"/>
+                                <p:inputText id="txtPersonaRolPaso" disabled="true" style="width:100%;"
+                                             value="#{consultaProcedimientoPasoModel.personaRolEtiqueta}"/>
 
                                 <p:outputLabel value="Fecha de inicio" for="dtInicioPaso"/>
                                 <p:datePicker id="dtInicioPaso"

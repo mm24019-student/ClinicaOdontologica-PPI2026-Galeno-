@@ -16,16 +16,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
  * Managed bean de la pantalla Consulta.xhtml: CRUD de la consulta (el padre)
- * con 3
- * pestañas: datos de la Consulta, "Procedimientos de la Consulta"
+ * con 3 pestañas: datos de la Consulta, "Procedimientos de la Consulta"
  * (ConsultaProcedimientoModel) y "Pasos del Procedimiento"
  * (ConsultaProcedimientoPasoModel).
  *
  * Hereda de AbstracCrudTabsModel (que hereda de AbstracCrudModel): de ahí salen
- * el
- * CRUD, la lista y el manejo de pestañas. Aquí se agrega el autocompletado de
- * Persona/Rol (PersonaRolDAO), el reseteo de los dos hijos y el único listener
- * onTabChange que decide cuál hijo debe cargarse.
+ * el CRUD, la lista y el manejo de pestañas. Aquí se agrega el autocompletado
+ * de Persona/Rol (PersonaRolDAO), el reseteo de los dos hijos y el único
+ * listener onTabChange que decide cuál hijo debe cargarse.
  *
  * @author antonio
  */
@@ -37,6 +35,9 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     // registros de consulta en la base de datos.
     @Inject
     private ConsultaDAO cDAO;
+
+    @Inject
+    private SesionBean sesionBean;
 
     @Inject
     private PersonaRolDAO personaRolDAO;
@@ -61,6 +62,12 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     @Override
     protected InterfaceDAO<Consulta> getDAO() {
         return cDAO;
+    }
+    
+    //Activamos que si ah iniciado secion se motrara el boton nuevo 
+    @Override
+    protected boolean permitirAccion() {
+        return exigirSesion(sesionBean);
     }
 
     @Override
@@ -93,7 +100,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     // Al pulsar "Nuevo" no debe arrastrarse la selección anterior.
     @Override
     protected void configurarNuevoRegistro(Consulta nuevoRegistro) {
-        this.personaRolSeleccionado = null;
+        setPersonaRolSeleccionado(sesionBean.getPersonaRolActual());
         consultaProcedimientoModel.btnCancelar();
         consultaProcedimientoPasoModel.btnCancelar();
     }
@@ -116,18 +123,9 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         return personasRol;
     }
 
-    // Autocompletado de Persona/Rol: filtra la lista según lo que el usuario
-    // va escribiendo en el combo. Se usa en Consulta.xhtml.
+    //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre personarol activos y inactivos
     public List<PersonaRol> completarPersonasRol(String query) {
-        String texto = query == null
-                ? ""
-                : query.trim().toLowerCase();
-
-        return getPersonasRol().stream()
-                .filter(pr -> etiquetaPersonaRol(pr)
-                        .toLowerCase()
-                        .contains(texto))
-                .collect(java.util.stream.Collectors.toList());
+        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol, this::personaRolActivo);
     }
 
     // Texto que se ve en el combo y en la tabla: ejempl "Ana Pérez - Odontólogo".
@@ -164,6 +162,26 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         } else if ("Pasos del Procedimiento".equals(titulo)) {
             consultaProcedimientoPasoModel.cargarDe(consultaProcedimientoModel.getRegistro());
         }
+    }
+
+    // Texto que muestra la pantalla: en CREAR, el usuario con sesión;
+    // en edición, el que quedó guardado en la consulta.
+    public String getPersonaRolEtiqueta() {
+        if (estado == Estado_Crud.CREAR) {
+            PersonaRol actual = sesionBean.getPersonaRolActual();
+            return actual == null ? "Sin sesión: seleccione un usuario arriba" : etiquetaPersonaRol(actual);
+        }
+        return registro == null ? "" : etiquetaPersonaRol(registro.getIdPersonaRol());
+    }
+
+    @Override
+    protected boolean validarAntesDeGuardar() {
+        if (estado == Estado_Crud.CREAR) {
+            // Se toma al guardar, por si cambió la sesión después de pulsar "Nuevo"
+            setPersonaRolSeleccionado(sesionBean.getPersonaRolActual());
+        }
+        return requerir(registro.getIdPersonaRol(), "Sin sesión",
+                "Seleccione un usuario en el selector de sesión para registrar la consulta");
     }
 
 }

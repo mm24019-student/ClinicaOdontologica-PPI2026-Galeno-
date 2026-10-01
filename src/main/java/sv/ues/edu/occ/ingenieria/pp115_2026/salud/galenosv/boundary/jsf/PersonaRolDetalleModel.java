@@ -7,7 +7,6 @@ import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -19,21 +18,21 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
- * Bean de detalle para la pestaña "Rol y Clinica" / "Asignaciones" dentro de
- * la pantalla de Persona. Antes esta lógica (rolesDePersona, agregarRol,
- * eliminarRol, autocompletes, etc.) vivía completa dentro de PersonaModel,
- * que terminó haciendo demasiadas cosas (God Class / violación de
- * Responsabilidad Única).
+ * Bean de detalle para la pestaña "Rol y Clinica" / "Asignaciones" dentro de la
+ * pantalla de Persona. Antes esta lógica (rolesDePersona, agregarRol,
+ * eliminarRol, autocompletes, etc.) vivía completa dentro de PersonaModel, que
+ * terminó haciendo demasiadas cosas (God Class / violación de Responsabilidad
+ * Única).
  *
- * Se apoya en AbstracdetallecrudModel<PersonaRol, Persona> (la misma clase
- * base que usan las demás pestañas de detalle del proyecto) para el trabajo
+ * Se apoya en AbstracdetallecrudModel<PersonaRol, Persona> (la misma clase base
+ * que usan las demás pestañas de detalle del proyecto) para el trabajo
  * repetitivo de: cargar solo los PersonaRol de la persona actual, asignar la
  * persona automáticamente a cada asignación nueva, y refrescar la lista
  * filtrada después de crear/eliminar.
  *
- * Lo que NO encaja en esa clase base (elegir Rol y Clinica desde catálogos
- * vía autocomplete antes de poder "crear" el registro) se queda aquí como
- * lógica propia, igual que antes vivía en PersonaModel.
+ * Lo que NO encaja en esa clase base (elegir Rol y Clinica desde catálogos vía
+ * autocomplete antes de poder "crear" el registro) se queda aquí como lógica
+ * propia, igual que antes vivía en PersonaModel.
  */
 @Named
 @ViewScoped
@@ -118,18 +117,18 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
         this.nuevaClinica = nuevaClinica;
     }
 
-        public List<Rol> completarRoles(String query) {
+    public List<Rol> completarRoles(String query) {
         if (catalogoRoles == null) {
             catalogoRoles = rolDAO.findRange(0, 100);
         }
-        return filtrar(catalogoRoles, query, Rol::getNombre);
+        return filtrarActivos(catalogoRoles, query, Rol::getNombre, Rol::getActivo);
     }
 
     public List<Clinica> completarClinicas(String query) {
         if (catalogoClinicas == null) {
             catalogoClinicas = clinicaDAO.findRange(0, 100);
         }
-        return filtrar(catalogoClinicas, query, Clinica::getNombre);
+        return filtrarActivos(catalogoClinicas, query, Clinica::getNombre, Clinica::getActivo);
     }
 
     // Se dispara cuando el usuario hace clic en una sugerencia del

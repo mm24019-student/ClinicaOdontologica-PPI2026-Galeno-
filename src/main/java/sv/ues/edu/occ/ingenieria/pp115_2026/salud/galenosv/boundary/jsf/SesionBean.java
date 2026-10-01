@@ -26,7 +26,10 @@ public class SesionBean implements Serializable {
 
     public List<PersonaRol> getOpciones() {
         if (opciones == null) {
-            opciones = personaRolDAO.listarConDetalle();
+            opciones = personaRolDAO.listarConDetalle().stream()
+                    .filter(pr -> pr.getIdRol() == null || !Boolean.FALSE.equals(pr.getIdRol().getActivo()))
+                    .filter(pr -> pr.getIdClinica() == null || !Boolean.FALSE.equals(pr.getIdClinica().getActivo()))
+                    .collect(java.util.stream.Collectors.toList());
         }
         return opciones;
     }
@@ -71,6 +74,10 @@ public class SesionBean implements Serializable {
 
     public String getIdSeleccionado() {
         return idSeleccionado;
+    }
+
+    public PersonaRol getPersonaRolActual() {
+        return personaRolActual;
     }
 
     public void setIdSeleccionado(String idSeleccionado) {
