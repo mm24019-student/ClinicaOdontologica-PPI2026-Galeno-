@@ -22,7 +22,7 @@
                     <div class="ui-g-4" style="text-align:center;">
                         <ui:insert name="titulo_pagina">Título de la página</ui:insert>
                     </div>
-                    <div class="ui-g-4" style="text-align:right;">
+                    <div class="ui-g-4" style="text-align:right; gap:12px;">
                         <ui:insert name="idioma">
                             <h:form id="frmIdioma">
                                 <p:selectOneMenu value="#{localBean.idiomaActual}">
@@ -31,6 +31,23 @@
                                     <f:selectItem itemLabel="中文" itemValue="zh"/>
                                     <p:ajax listener="#{localBean.onIdiomaChange}" update="@all"/>
                                 </p:selectOneMenu>
+                            </h:form>
+                        </ui:insert>
+                        <ui:insert name="sesion">
+                            <h:form id="frmSesion" style="display:flex; align-items:center; gap:8px;">
+                                <p:selectOneMenu id="cmbSesion" value="#{sesionBean.idSeleccionado}"
+                                                 filter="true" filterMatchMode="contains"
+                                                 style="min-width:280px; max-width:380px;">
+                                    <f:selectItem itemLabel="Sin sesión" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{sesionBean.opciones}" var="pr"
+                                                   itemLabel="#{sesionBean.etiqueta(pr)}"
+                                                   itemValue="#{pr.idPersonaRol.toString()}"/>
+                                    <p:ajax listener="#{sesionBean.cambiar}" update="@all"/>
+                                </p:selectOneMenu>
+                                <p:commandButton icon="pi pi-sign-out" title="Cerrar sesión"
+                                                 action="#{sesionBean.cerrarSesion}"
+                                                 ajax="false" immediate="true"
+                                                 rendered="#{sesionBean.autenticado}"/>
                             </h:form>
                         </ui:insert>
                     </div>

@@ -71,4 +71,19 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol>{
                 "id", idPersona);
     }
 
+    // Devuelve todas las combinaciones persona/rol/clinica con sus relaciones
+    // ya cargadas (JOIN FETCH), porque las entidades son LAZY y el selector
+    // de sesion las lee fuera de la transaccion.
+    public List<PersonaRol> listarConDetalle() {
+        TypedQuery<PersonaRol> q = em.createQuery(
+                "SELECT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "ORDER BY p.apellidos, p.nombres, r.nombre",
+                PersonaRol.class);
+        q.setMaxResults(200);
+        return q.getResultList();
+    }
+
 }
