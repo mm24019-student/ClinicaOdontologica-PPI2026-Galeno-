@@ -54,13 +54,13 @@
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
                             <p:outputLabel value="ID" for="txtId"/>
-                            <p:inputText id="txtId" size="70" disabled="true" value="#{examenModel.registro.idExamen}"/>
+                            <p:inputText id="txtId" style="width:100%" disabled="true" value="#{examenModel.registro.idExamen}"/>
                             <p:outputLabel value="Nombre" for="txtNombre"/>
-                            <p:inputText id="txtNombre" size="70" maxlength="255" value="#{examenModel.registro.nombre}"/>
+                            <p:inputText id="txtNombre" style="width:100%" disabled="#{examenModel.estado=='MODIFICAR'}"  maxlength="255" value="#{examenModel.registro.nombre}"/>
                             <p:outputLabel for="chkActivo" value="Activo"/>
                             <p:selectBooleanCheckbox id="chkActivo" value="#{examenModel.registro.activo}"/>
                             <p:outputLabel for="txtObservaciones" value="Observaciones"/>
-                            <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{examenModel.registro.observaciones}"/>
+                            <p:inputTextarea id="txtObservaciones" rows="3" style="width:100%" value="#{examenModel.registro.observaciones}"/>
                         </p:panelGrid>
                         <g:botones_top modelo="#{examenModel}"/>
                     </p:tab>

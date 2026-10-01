@@ -25,8 +25,9 @@ public class LocalBean implements Serializable {
         this.idiomaActual = idiomaActual;
     }
 
-    public void onIdiomaChange(AjaxBehaviorEvent event) {
-        Locale locale = switch (idiomaActual) {
+    // Locale correspondiente al idioma elegido; lo usa <f:view> en general.xhtml
+    public Locale getLocale() {
+        return switch (idiomaActual) {
             case "en" ->
                 Locale.of("en", "US");
             case "zh" ->
@@ -34,6 +35,9 @@ public class LocalBean implements Serializable {
             default ->
                 Locale.of("es");
         };
-        FacesContext.getCurrentInstance().getViewRoot().setLocale(locale);
+    }
+
+    public void onIdiomaChange(AjaxBehaviorEvent event) {
+        FacesContext.getCurrentInstance().getViewRoot().setLocale(getLocale());
     }
 }

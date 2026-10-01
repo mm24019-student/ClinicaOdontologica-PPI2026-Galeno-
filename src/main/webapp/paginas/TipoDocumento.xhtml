@@ -67,9 +67,9 @@
                     <p:outputLabel value="ID" for="txtId"/>
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{tipoDocumentoModel.registro.idTipoDocumento}"/>
                     <p:outputLabel value="Nombre" for="txtNombre"/>
-                    <p:inputText id="txtNombre" style="width:100%" value="#{tipoDocumentoModel.registro.nombre}"/>
+                    <p:inputText id="txtNombre" style="width:100%" disabled="#{tipoDocumentoModel.estado=='MODIFICAR'}" value="#{tipoDocumentoModel.registro.nombre}"/>
                     <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
-                    <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" value="#{tipoDocumentoModel.registro.indicaciones}"/>
+                    <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" disabled="#{tipoDocumentoModel.estado=='MODIFICAR'}" value="#{tipoDocumentoModel.registro.indicaciones}"/>
                     <p:outputLabel for="txtExpresionRegular" value="Expresión Regular"/>
                     <p:inputText id="txtExpresionRegular" style="width:100%" value="#{tipoDocumentoModel.registro.expresionRegular}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>

@@ -49,9 +49,9 @@
                     <p:outputLabel value="ID" for="txtId"/>
                     <p:inputText id="txtId" style="width:100%" disabled="true" value="#{tipoMedioContactoModel.registro.idTipoMedioContacto}"/>
                     <p:outputLabel value="Nombre" for="txtNombre"/>
-                    <p:inputText id="txtNombre" style="width:100%" value="#{tipoMedioContactoModel.registro.nombre}"/>
+                    <p:inputText id="txtNombre" style="width:100%" disabled="#{tipoMedioContactoModel.estado=='MODIFICAR'}" value="#{tipoMedioContactoModel.registro.nombre}"/>
                     <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
-                    <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" value="#{tipoMedioContactoModel.registro.indicaciones}"/>
+                    <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" disabled="#{tipoMedioContactoModel.estado=='MODIFICAR'}" value="#{tipoMedioContactoModel.registro.indicaciones}"/>
                     <p:outputLabel for="txtExpresionRegular" value="Expresión Regular"/>
                     <p:inputText id="txtExpresionRegular" style="width:100%" value="#{tipoMedioContactoModel.registro.expresionRegular}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>

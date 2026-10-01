@@ -71,7 +71,7 @@
             <h:form id="Persona" styleClass="form-persona">
 
                 <p:tabView activeIndex="#{personaModel.activo}" rendered="#{personaModel.estado!='NINGUNO'}">
-                        <p:ajax event="tabChange" listener="#{personaModel.onTabChange}"/>
+                    <p:ajax event="tabChange" listener="#{personaModel.onTabChange}"/>
 
                     <!-- === Pestaña 1: Datos de Persona, sin cambios === -->
                     <p:tab title="Datos de Persona">
@@ -79,11 +79,16 @@
                             <p:outputLabel value="ID" for="txtId"/>
                             <p:inputText id="txtId" style="width:100%" disabled="true" value="#{personaModel.registro.idPersona}"/>
                             <p:outputLabel value="Nombres" for="txtNombres"/>
-                            <p:inputText id="txtNombres" style="width:100%" value="#{personaModel.registro.nombres}"/>
+                            <p:inputText id="txtNombres" style="width:100%"
+                                         disabled="#{personaModel.estado=='MODIFICAR'}"
+                                         value="#{personaModel.registro.nombres}"/>
                             <p:outputLabel value="Apellidos" for="txtApellidos"/>
-                            <p:inputText id="txtApellidos" style="width:100%" value="#{personaModel.registro.apellidos}"/>
+                            <p:inputText id="txtApellidos" style="width:100%"
+                                         disabled="#{personaModel.estado=='MODIFICAR'}"
+                                         value="#{personaModel.registro.apellidos}"/>
                             <p:outputLabel for="calFechaNacimiento" value="Fecha de Nacimiento"/>
                             <p:datePicker id="calFechaNacimiento" style="width:100%" pattern="dd/MM/yyyy"
+                                          disabled="#{personaModel.estado=='MODIFICAR'}"
                                           value="#{personaModel.registro.fechaNacimiento}" showIcon="true"
                                           monthNavigator="true" yearNavigator="true" yearRange="1900:2026"/>
                         </p:panelGrid>

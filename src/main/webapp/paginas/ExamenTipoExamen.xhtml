@@ -55,7 +55,7 @@
                     <p:inputText id="txtId" disabled="true" style="width:100%" value="#{examenTipoExamenModel.registro.idExamenTipoExamen}"/>
 
                     <p:outputLabel value="Examen *" for="selExamen"/>
-                    <p:autoComplete id="selExamen" value="#{examenTipoExamenModel.registro.idExamen}"
+                    <p:autoComplete id="selExamen" disabled="#{examenTipoExamenModel.estado=='MODIFICAR'}" value="#{examenTipoExamenModel.registro.idExamen}"
                                     completeMethod="#{examenTipoExamenModel.completarExamenes}"
                                     converter="#{examenConverter}"
                                     var="e" itemLabel="#{e.nombre}" itemValue="#{e}"
@@ -71,7 +71,7 @@
                     <h:outputText id="txtDescExamen" value="#{examenTipoExamenModel.registro.idExamen.observaciones}"/>
 
                     <p:outputLabel value="Tipo de examen *" for="selTipo"/>
-                    <p:autoComplete id="selTipo" value="#{examenTipoExamenModel.registro.idTipoExamen}"
+                    <p:autoComplete id="selTipo" disabled="#{examenTipoExamenModel.estado=='MODIFICAR'}" value="#{examenTipoExamenModel.registro.idTipoExamen}"
                                     completeMethod="#{examenTipoExamenModel.completarTiposExamen}"
                                     converter="#{tipoExamenConverter}"
                                     var="t" itemLabel="#{t.nombre}" itemValue="#{t}"

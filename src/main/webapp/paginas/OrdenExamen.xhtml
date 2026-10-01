@@ -56,10 +56,10 @@
                     <p:tab title="Datos generales">
                         <p:panelGrid columns="2">
                             <p:outputLabel value="ID" for="txtId"/>
-                            <p:inputText id="txtId" size="70" disabled="true" value="#{ordenExamenModel.registro.idOrdenExamen}"/>
+                            <p:inputText id="txtId" disabled="true" style="width:100%" value="#{ordenExamenModel.registro.idOrdenExamen}"/>
 
                             <p:outputLabel value="Consulta (paso) *" for="acConsulta"/>
-                            <p:autoComplete id="acConsulta"
+                            <p:autoComplete id="acConsulta" disabled="#{ordenExamenModel.estado=='MODIFICAR'}"
                                             value="#{ordenExamenModel.registro.idConsultaProcedimientoPaso}"
                                             completeMethod="#{ordenExamenModel.completarPasosConsulta}"
                                             converter="#{consultaProcedimientoPasoConverter}"
@@ -83,7 +83,7 @@
                                           value="#{ordenExamenModel.registro.fechaCreacion}"/>
 
                             <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
-                            <p:inputTextarea id="txtIndicaciones" rows="3" cols="70" value="#{ordenExamenModel.registro.indicaciones}"/>
+                            <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" value="#{ordenExamenModel.registro.indicaciones}"/>
                         </p:panelGrid>
                         <g:botones_top modelo="#{ordenExamenModel}"/>
                     </p:tab>
