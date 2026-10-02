@@ -10,9 +10,11 @@ import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 
 /**
  * Managed bean de la pestaña "Pasos del Procedimiento" en Consulta.xhtml: CRUD
@@ -42,7 +44,12 @@ public class ConsultaProcedimientoPasoModel
     private PersonaRolDAO personaRolDAO;
 
     @Inject
+    private ProcedimientoPasoDAO procedimientoPasoDAO;
+
+    @Inject
     private SesionBean sesionBean;
+
+    private List<ProcedimientoPaso> pasosDisponibles;
 
     private List<PersonaRol> personasRol;
 
@@ -51,13 +58,12 @@ public class ConsultaProcedimientoPasoModel
         return pasoDAO;
     }
 
-     //Activamos que si ah iniciado secion se motrara el boton nuevo 
+    //Activamos que si ah iniciado secion se motrara el boton nuevo 
     @Override
     protected boolean permitirAccion() {
         return exigirSesion(sesionBean);
     }
 
-    
     @Override
     protected void configurarNuevoRegistro(ConsultaProcedimientoPaso nuevoRegistro) {
         super.configurarNuevoRegistro(nuevoRegistro);
@@ -80,7 +86,49 @@ public class ConsultaProcedimientoPasoModel
             registro.setIdPersonaRol(sesionBean.getPersonaRolActual());
         }
         return requerir(registro.getIdPersonaRol(), "Sin sesión",
-                "Seleccione un usuario en el selector de sesión para registrar el paso");
+                "Seleccione un usuario en el selector de sesión para registrar el paso")
+                && requerir(registro.getIdProcedimientoPaso(), "Paso requerido",
+                        "Seleccione el paso del procedimiento que se realiza")
+                && pasoPerteneceAlProcedimiento(registro.getIdProcedimientoPaso());
+    }
+
+    // El paso elegido debe ser de ESTE procedimiento.
+    private boolean pasoPerteneceAlProcedimiento(ProcedimientoPaso paso) {
+        UUID idProc = idProcedimientoDelPadre();
+        if (idProc == null || paso.getIdProcedimiento() == null
+                || idProc.equals(paso.getIdProcedimiento().getIdProcedimiento())) {
+            return true;
+        }
+        mensaje(jakarta.faces.application.FacesMessage.SEVERITY_ERROR, "Paso inválido",
+                "El paso seleccionado no pertenece al procedimiento de esta consulta");
+        return false;
+    }
+
+    private UUID idProcedimientoDelPadre() {
+        return padreActual == null ? null : padreActual.getIdProcedimiento();
+    }
+
+    // Cada vez que cambia el padre, se vuelve a calcular la lista de pasos.
+    @Override
+    public void cargarDe(ConsultaProcedimiento padre) {
+        pasosDisponibles = null;
+        super.cargarDe(padre);
+    }
+
+    // Lista para el combo "Paso".
+    public List<ProcedimientoPaso> getPasosDisponibles() {
+        if (pasosDisponibles == null) {
+            UUID idProc = idProcedimientoDelPadre();
+            pasosDisponibles = idProc == null
+                    ? java.util.Collections.emptyList()
+                    : procedimientoPasoDAO.findByProcedimiento(idProc);
+        }
+        return pasosDisponibles;
+    }
+
+    // Texto que se muestra del paso (en tabla y combo).
+    public String etiquetaPaso(ProcedimientoPaso paso) {
+        return paso == null ? "" : Objects.toString(paso.getNombre(), "");
     }
 
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
@@ -128,7 +176,7 @@ public class ConsultaProcedimientoPasoModel
         return personasRol;
     }
 
-   //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre personalrol
+    //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre personalrol
     public List<PersonaRol> completarPersonasRol(String query) {
         return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol,
                 pr -> personaRolActivo(pr) && personaRolDeLaClinicaActual(pr, sesionBean));

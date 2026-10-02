@@ -48,6 +48,8 @@ public class ProcedimientoPaso implements Serializable {
     private List<ProcedimientoPasoSecuencia> procedimientoPasoSecuenciaList;
     @OneToMany(mappedBy = "idProcedimientoPaso", fetch = FetchType.LAZY)
     private List<ProcedimientoPasoExamen> procedimientoPasoExamenList;
+    @OneToMany(mappedBy = "idProcedimientoPaso", fetch = FetchType.LAZY)
+    private List<ConsultaProcedimientoPaso> consultaProcedimientoPasoList;
     @JoinColumn(name = "id_procedimiento", referencedColumnName = "id_procedimiento")
     @ManyToOne(fetch = FetchType.LAZY)
     private Procedimiento idProcedimiento;
@@ -57,6 +59,14 @@ public class ProcedimientoPaso implements Serializable {
     private Rol idRol;
 
     public ProcedimientoPaso() {
+    }
+
+    public List<ConsultaProcedimientoPaso> getConsultaProcedimientoPasoList() {
+        return consultaProcedimientoPasoList;
+    }
+
+    public void setConsultaProcedimientoPasoList(List<ConsultaProcedimientoPaso> consultaProcedimientoPasoList) {
+        this.consultaProcedimientoPasoList = consultaProcedimientoPasoList;
     }
 
     public ProcedimientoPaso(UUID idProcedimientoPaso) {

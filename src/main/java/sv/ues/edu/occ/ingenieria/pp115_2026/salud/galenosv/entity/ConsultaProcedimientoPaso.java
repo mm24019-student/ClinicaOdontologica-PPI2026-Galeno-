@@ -52,9 +52,15 @@ public class ConsultaProcedimientoPaso implements Serializable {
     @Size(max = 20)
     @Column(name = "estado")
     private String estado;
+    @Size(max = 2147483647)
+    @Column(name = "valor")
+    private String valor;
     @JoinColumn(name = "id_consulta_procedimiento", referencedColumnName = "id_consulta_procedimiento")
     @ManyToOne(fetch = FetchType.LAZY)
     private ConsultaProcedimiento idConsultaProcedimiento;
+     @JoinColumn(name = "id_procedimiento_paso", referencedColumnName = "id_procedimiento_paso")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ProcedimientoPaso idProcedimientoPaso;
     @JoinColumn(name = "id_persona_rol", referencedColumnName = "id_persona_rol")
     @ManyToOne(fetch = FetchType.LAZY)
     private PersonaRol idPersonaRol;
@@ -64,6 +70,23 @@ public class ConsultaProcedimientoPaso implements Serializable {
     public ConsultaProcedimientoPaso() {
     }
 
+    public String getValor() {
+        return valor;
+    }
+
+    public void setValor(String valor) {
+        this.valor = valor;
+    }
+
+    public ProcedimientoPaso getIdProcedimientoPaso() {
+        return idProcedimientoPaso;
+    }
+
+    public void setIdProcedimientoPaso(ProcedimientoPaso idProcedimientoPaso) {
+        this.idProcedimientoPaso = idProcedimientoPaso;
+    }
+
+    
     public ConsultaProcedimientoPaso(UUID idConsultaProcedimientoPaso) {
         this.idConsultaProcedimientoPaso = idConsultaProcedimientoPaso;
     }

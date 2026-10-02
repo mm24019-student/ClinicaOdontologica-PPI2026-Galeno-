@@ -103,7 +103,6 @@
                                               value="#{consultaModel.registro.fechaInicio}"
                                               showTime="true"
                                               timeZone="America/El_Salvador"
-                                              disabled="true"
                                               pattern="dd/MM/yyyy HH:mm"
                                               showIcon="true"/>
                                 <p:outputLabel value="Fecha de fin"
@@ -118,7 +117,7 @@
                                 <p:outputLabel value="Referencia externa"
                                                for="txtReferenciaConsulta"/>
                                 <p:inputText id="txtReferenciaConsulta"
-                                             size="40"
+                                             size="40" disabled="#{consultaModel.estado=='MODIFICAR'}"
                                              value="#{consultaModel.registro.referenciaExterna}"/>
                                 <p:outputLabel value="Persona / Rol" for="txtPersonaRolConsulta"/>
                                 <p:inputText id="txtPersonaRolConsulta" disabled="true" style="width:100%;"
@@ -253,7 +252,12 @@
                                 <p:ajax event="rowSelect"
                                         listener="#{consultaProcedimientoPasoModel.onRowSelect}"
                                         update=":Consulta:tabsConsulta:pnlPasosConsultaProcedimiento :mensajes" resetValues="true"/>
-
+                                <p:column headerText="Paso">
+                                    <h:outputText value="#{consultaProcedimientoPasoModel.etiquetaPaso(cpp.idProcedimientoPaso)}"/>
+                                </p:column>
+                                <p:column headerText="Valor">
+                                    <h:outputText value="#{cpp.valor}"/>
+                                </p:column>
                                 <p:column headerText="Estado">
                                     <h:outputText value="#{cpp.estado}"/>
                                 </p:column>
@@ -282,6 +286,20 @@
                             <!-- FORMULARIO DEL PASO -->
                             <p:panelGrid columns="2"
                                          rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}">
+                                <p:outputLabel value="Paso" for="selPasoProcedimiento"/>
+                                <p:selectOneMenu id="selPasoProcedimiento"
+                                                 value="#{consultaProcedimientoPasoModel.registro.idProcedimientoPaso}"
+                                                 converter="procedimientoPasoConverter"
+                                                 style="width:100%;">
+                                    <f:selectItem itemLabel="Seleccione un paso" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{consultaProcedimientoPasoModel.pasosDisponibles}"
+                                                   var="pp" itemValue="#{pp}"
+                                                   itemLabel="#{consultaProcedimientoPasoModel.etiquetaPaso(pp)}"/>
+                                </p:selectOneMenu>
+
+                                <p:outputLabel value="Valor" for="txtValorPaso"/>
+                                <p:inputTextarea id="txtValorPaso" rows="3" style="width:100%;"
+                                                 value="#{consultaProcedimientoPasoModel.registro.valor}"/>
                                 <p:outputLabel value="Estado" for="selEstadoPaso"/>
                                 <p:selectOneMenu id="selEstadoPaso"
                                                  value="#{consultaProcedimientoPasoModel.registro.estado}">
