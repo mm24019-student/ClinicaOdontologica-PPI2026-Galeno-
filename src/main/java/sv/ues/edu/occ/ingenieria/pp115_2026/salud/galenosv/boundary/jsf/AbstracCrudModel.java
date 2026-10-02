@@ -418,6 +418,13 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
                 && (pr.getIdClinica() == null || esActivo(pr.getIdClinica().getActivo()));
     }
     
+    // Restringe un PersonaRol a la clínica de la sesión abierta (ver
+    // SesionBean.perteneceAClinicaActual). Si el bean no tiene SesionBean
+    // (otras pantallas, pruebas unitarias) no restringe nada.
+    protected boolean personaRolDeLaClinicaActual(PersonaRol pr, SesionBean sesion) {
+        return sesion == null || sesion.perteneceAClinicaActual(pr);
+    }
+
     // =====================================================================
     // Getters / Setters
     // =====================================================================

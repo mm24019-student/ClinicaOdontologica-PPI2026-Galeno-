@@ -1,8 +1,10 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
+import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +55,17 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     private List<PersonaRol> personasRol;
 
     private PersonaRol personaRolSeleccionado;
+
+    // ---- Filtro de la tabla (fechas y clínica de la sesión) ----
+    private static final int MAX_FILTRO = 100;
+
+    // Rango de fecha de inicio que escribe el usuario (null = sin límite).
+    private Date fechaDesde;
+    private Date fechaHasta;
+
+    // Clínica con la que se cargó la lista por última vez. Sirve para saber si
+    // la sesión cambió de clínica y hay que volver a cargar (ver sincronizarClinica).
+    private UUID clinicaCargada;
 
     public PersonaRol getPersonaRolSeleccionado() {
         return personaRolSeleccionado;
@@ -125,7 +138,8 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
 
     //Llamado a la funcion filtrarActivos de AbstarcCrudModel para que filtre personarol activos y inactivos
     public List<PersonaRol> completarPersonasRol(String query) {
-        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol, this::personaRolActivo);
+        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol,
+                pr -> personaRolActivo(pr) && personaRolDeLaClinicaActual(pr, sesionBean));
     }
 
     // Texto que se ve en el combo y en la tabla: ejempl "Ana Pérez - Odontólogo".
@@ -137,6 +151,108 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         String apellidos = Objects.toString(pr.getIdPersona().getApellidos(), "");
         String rol = pr.getIdRol() == null ? "" : Objects.toString(pr.getIdRol().getNombre(), "");
         return (nombres + " " + apellidos).trim() + (rol.isEmpty() ? "" : " - " + rol);
+    }
+
+    // =====================================================================
+    // Filtro por fechas y por clínica
+    // =====================================================================
+    // Clínica de la sesión abierta (null si no hay sesión o su rol no tiene clínica).
+    private UUID idClinicaActual() {
+        if (sesionBean == null || sesionBean.getClinicaActual() == null) {
+            return null;
+        }
+        return sesionBean.getClinicaActual().getIdClinica();
+    }
+
+    // Texto que se muestra arriba de la tabla.
+    public String getNombreClinicaFiltro() {
+        if (sesionBean == null || !sesionBean.isAutenticado()) {
+            return "Todas las clínicas (sin sesión)";
+        }
+        return sesionBean.getClinicaActual() == null
+                ? "Sin clínica asignada"
+                : sesionBean.getClinicaActual().getNombre();
+    }
+
+    // Botón "Buscar".
+    public void buscar() {
+        if (fechaDesde != null && fechaHasta != null && fechaDesde.after(fechaHasta)) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Rango de fechas inválido",
+                    "La fecha \"Desde\" no puede ser posterior a \"Hasta\"");
+            return;
+        }
+        recargarLista();
+    }
+
+    // Botón "Limpiar".
+    public void limpiarFiltro() {
+        fechaDesde = null;
+        fechaHasta = null;
+        recargarLista();
+    }
+
+    // Se llama en cada render de la página (f:event preRenderView): si el
+    // usuario cambió de sesión y por tanto de clínica, la tabla se vuelve a
+    // cargar para mostrar solo las consultas de la clínica nueva.
+    public void sincronizarClinica() {
+        if (!Objects.equals(idClinicaActual(), clinicaCargada)) {
+            recargarLista();
+        }
+    }
+
+    // Sin filtros activos se comporta como siempre (findRange). Con fechas o
+    // con clínica de sesión usa la consulta filtrada del DAO.
+    @Override
+    protected void recargarLista() {
+        UUID idClinica = idClinicaActual();
+        clinicaCargada = idClinica;
+        if (fechaDesde == null && fechaHasta == null && idClinica == null) {
+            super.recargarLista();
+            return;
+        }
+        setWrappedData(cDAO.buscarConFiltro(inicioDelDia(fechaDesde),
+                inicioDelDiaSiguiente(fechaHasta), idClinica, MAX_FILTRO));
+    }
+
+    private Date inicioDelDia(Date d) {
+        if (d == null) {
+            return null;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
+
+    // Para que "Hasta" incluya el día completo.
+    private Date inicioDelDiaSiguiente(Date d) {
+        Date inicio = inicioDelDia(d);
+        if (inicio == null) {
+            return null;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(inicio);
+        c.add(Calendar.DAY_OF_MONTH, 1);
+        return c.getTime();
+    }
+
+    public Date getFechaDesde() {
+        return fechaDesde;
+    }
+
+    public void setFechaDesde(Date fechaDesde) {
+        this.fechaDesde = fechaDesde;
+    }
+
+    public Date getFechaHasta() {
+        return fechaHasta;
+    }
+
+    public void setFechaHasta(Date fechaHasta) {
+        this.fechaHasta = fechaHasta;
     }
 
     // Devuelve el UUID (llave primaria) del registro. La clase padre lo usa para

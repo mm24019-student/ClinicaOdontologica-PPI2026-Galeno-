@@ -128,9 +128,10 @@ public class ConsultaProcedimientoPasoModel
         return personasRol;
     }
 
-    //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre personalrol
+   //Llamamos a la funcion de abtracCrudModel filtrarActivos para que filtre personalrol
     public List<PersonaRol> completarPersonasRol(String query) {
-        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol, this::personaRolActivo);
+        return filtrarActivos(getPersonasRol(), query, this::etiquetaPersonaRol,
+                pr -> personaRolActivo(pr) && personaRolDeLaClinicaActual(pr, sesionBean));
     }
 
     // Etiqueta para mostrar en el autoComplete de Persona/Rol.

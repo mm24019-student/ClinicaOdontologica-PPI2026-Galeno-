@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import org.primefaces.PrimeFaces;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 @Named
@@ -26,14 +27,37 @@ public class SesionBean implements Serializable {
     private String idSeleccionado;
     private List<PersonaRol> opciones;
 
-    // Las opciones NO se guardan en el bean (que dura toda la sesion): si se
+     // Las opciones NO se guardan en el bean (que dura toda la sesion): si se
     // guardaran, un rol o clinica que se active despues no aparecería hasta
     // cerrar sesion. Se consultan en cada render del selector (maximo 200 filas).
+    //
+    // Sin sesión: se ven todos los usuarios activos de todas las clínicas.
+    // Con sesión: el rol elegido ya trae su clínica, así que solo se ven los
+    // usuarios de ESA clínica. Para cambiar de clínica hay que elegir primero
+    // "Sin sesión" (o cerrar sesión).
     public List<PersonaRol> getOpciones() {
         return personaRolDAO.listarConDetalle().stream()
                 .filter(pr -> pr.getIdRol() == null || !Boolean.FALSE.equals(pr.getIdRol().getActivo()))
                 .filter(pr -> pr.getIdClinica() == null || !Boolean.FALSE.equals(pr.getIdClinica().getActivo()))
+                .filter(this::perteneceAClinicaActual)
                 .collect(java.util.stream.Collectors.toList());
+    }
+    
+    // Clínica del usuario con sesión (null si no hay sesión o si su rol no
+    // está ligado a una clínica).
+    public Clinica getClinicaActual() {
+        return personaRolActual == null ? null : personaRolActual.getIdClinica();
+    }
+ 
+    // true si el PersonaRol puede usarse en la sesión actual: siempre que no
+    // haya clínica fijada (sin sesión), y si la hay, solo los de esa clínica.
+    // Lo usan el selector de arriba y los autocompletes de Persona/Rol.
+    public boolean perteneceAClinicaActual(PersonaRol pr) {
+        Clinica actual = getClinicaActual();
+        if (actual == null) {
+            return true;
+        }
+        return pr != null && actual.equals(pr.getIdClinica());
     }
     
     // Se llama cuando cambia algo que afecta al selector (activar/desactivar un

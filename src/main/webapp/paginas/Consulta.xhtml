@@ -23,6 +23,23 @@
                 Debe iniciar sesión (selector de la parte superior) para registrar o modificar consultas.
             </h:panelGroup>
             <h:form id="frmTabla">
+                <f:event type="preRenderView" listener="#{consultaModel.sincronizarClinica}"/>
+
+                <!-- FILTRO: clínica de la sesión + rango de fechas de inicio -->
+                <h:panelGroup layout="block" rendered="#{consultaModel.estado=='NINGUNO'}"
+                              style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-bottom:12px;">
+                    <h:outputText value="Clínica:" style="font-weight:bold;"/>
+                    <h:outputText id="txtClinicaFiltro" value="#{consultaModel.nombreClinicaFiltro}"/>
+                    <p:outputLabel for="dpDesde" value="Desde"/>
+                    <p:datePicker id="dpDesde" value="#{consultaModel.fechaDesde}" pattern="dd/MM/yyyy" showButtonBar="true"/>
+                    <p:outputLabel for="dpHasta" value="Hasta"/>
+                    <p:datePicker id="dpHasta" value="#{consultaModel.fechaHasta}" pattern="dd/MM/yyyy" showButtonBar="true"/>
+                    <p:commandButton value="Buscar" icon="pi pi-search" action="#{consultaModel.buscar}"
+                                     process="@this dpDesde dpHasta" update="@form :mensajes"/>
+                    <p:commandButton value="Limpiar" icon="pi pi-times" action="#{consultaModel.limpiarFiltro}"
+                                     process="@this" resetValues="true" update="@form :mensajes"/>
+                </h:panelGroup>
+
                 <p:dataTable value="#{consultaModel}"
                              var="r"
                              id="tblConsulta"

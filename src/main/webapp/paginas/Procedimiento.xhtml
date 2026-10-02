@@ -58,13 +58,13 @@
                     <p:tab title="Datos del procedimiento">
                         <p:panelGrid columns="2">
                             <p:outputLabel value="IDProcedimiento" for="txtIdProcedimiento"/>
-                            <p:inputText id="txtIdProcedimiento" disabled="true" size="70" value="#{procedimientoModel.registro.idProcedimiento}"/>
+                            <p:inputText id="txtIdProcedimiento" disabled="true" style="width:100%" value="#{procedimientoModel.registro.idProcedimiento}"/>
                             <p:outputLabel value="Nombre" for="txtNombre"/>
-                            <p:inputText id="txtNombre" size="70" disabled="#{procedimientoModel.estado=='MODIFICAR'}" value="#{procedimientoModel.registro.nombre}"/>
+                            <p:inputText id="txtNombre" style="width:100%" disabled="#{procedimientoModel.estado=='MODIFICAR'}" value="#{procedimientoModel.registro.nombre}"/>
                             <p:outputLabel for="chkActivo" value="Activo"/>
-                            <p:selectBooleanCheckbox id="chkActivo" value="#{procedimientoModel.registro.activo}"/>
+                            <p:selectBooleanCheckbox id="chkActivo" style="width:100%" value="#{procedimientoModel.registro.activo}"/>
                             <p:outputLabel for="txtObservaciones" value="Observaciones"/>
-                            <p:inputTextarea id="txtObservaciones" rows="3" cols="70" value="#{procedimientoModel.registro.observaciones}"/>
+                            <p:inputTextarea id="txtObservaciones" rows="3" style="width:100%" value="#{procedimientoModel.registro.observaciones}"/>
                         </p:panelGrid>
                         <h:panelGroup rendered="#{procedimientoModel.estado=='CREAR'}" layout="block"
                                       style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
@@ -105,15 +105,15 @@
                                         <p:outputLabel value="IDPaso" for="txtIdPaso"/>
                                         <p:inputText id="txtIdPaso" style="width:100%" disabled="true" value="#{procedimientoPasoModel.registro.idProcedimientoPaso}"/>
                                         <p:outputLabel value="Nombre" for="txtNombrePaso"/>
-                                        <p:inputText id="txtNombrePaso" size="50" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.nombre}"/>
+                                        <p:inputText id="txtNombrePaso" style="width:100%" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.nombre}"/>
                                         <p:outputLabel value="Rol" for="acRol"/>
                                         <p:autoComplete id="acRol" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.idRol}" completeMethod="#{procedimientoPasoModel.completarRoles}"
                                                         var="ro" itemValue="#{ro}" itemLabel="#{ro.nombre}" converter="rolConverter" forceSelection="true" placeholder="Buscar rol..." style="width:100%;">
                                         </p:autoComplete>
                                         <p:outputLabel value="Depende de" for="txtDepende"/>
-                                        <p:inputText id="txtDepende" size="50" disabled="true" value="#{procedimientoPasoModel.textoDependeDe}"/>
+                                        <p:inputText id="txtDepende" style="width:100%" disabled="true" value="#{procedimientoPasoModel.textoDependeDe}"/>
                                         <p:outputLabel value="Indica fin" for="chkFin"/>
-                                        <p:selectBooleanCheckbox id="chkFin" value="#{procedimientoPasoModel.registro.indicaFin}"/>
+                                        <p:selectBooleanCheckbox id="chkFin" style="width:100%" value="#{procedimientoPasoModel.registro.indicaFin}"/>
                                     </p:panelGrid>
                                 </div>
 
@@ -176,28 +176,6 @@
 
                     <p:ajax event="close" listener="#{procedimientoPasoExamenModel.btnCerrarDialogo}"
                             update="@form" resetValues="true"/>
-
-                    <p:outputLabel value="Buscar examen existente" style="font-weight:bold;"
-                                   rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}"/>
-                    <div style="display:flex; gap:2px; align-items:flex-start; width:80%; box-sizing:border-box;">
-                        <p:autoComplete id="acExamenes" style="flex:1 1 auto; width:1%; min-width:0;"
-                                        value="#{procedimientoPasoExamenModel.seleccionAutocomplete}"
-                                        completeMethod="#{procedimientoPasoExamenModel.completarExamenes}"
-                                        var="pe" itemValue="#{pe}"
-                                        itemLabel="#{procedimientoPasoExamenModel.etiqueta(pe)}"
-                                        converter="procedimientoPasoExamenConverter" forceSelection="true"
-                                        scrollHeight="220"
-                                        emptyMessage="No hay exámenes que coincidan"
-                                        placeholder="Escriba el nombre del examen o el estado..."
-                                        rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}">
-                            <p:ajax event="itemSelect" listener="#{procedimientoPasoExamenModel.onItemSelect}"
-                                    process="@this" update="@form"/>
-                        </p:autoComplete>
-                        <g:Botones_Acciones modelo="#{procedimientoPasoExamenModel}" update="@form"
-                                            mostrarCancelar="false" rendered="#{procedimientoPasoExamenModel.estado=='NINGUNO'}" />
-                    </div>
-
-
 
                     <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
                                  columnClasses="ui-grid-col-4,ui-grid-col-8"

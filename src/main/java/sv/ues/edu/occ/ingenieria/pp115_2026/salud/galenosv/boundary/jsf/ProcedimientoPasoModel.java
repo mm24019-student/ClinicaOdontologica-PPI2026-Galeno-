@@ -114,7 +114,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     @Override
     protected ProcedimientoPaso crearRegistroNuevo() {
         ProcedimientoPaso p = new ProcedimientoPaso(UUID.randomUUID());
-        p.setIndicaFin(Boolean.TRUE);
+        p.setIndicaFin(Boolean.FALSE);
         return p;
     }
 
