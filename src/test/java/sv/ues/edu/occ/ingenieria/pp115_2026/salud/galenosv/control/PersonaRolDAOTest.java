@@ -3,6 +3,7 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -20,15 +21,21 @@ import static org.mockito.Mockito.*;
 
 /**
  * Prueba de PersonaRolDAO. crear/eliminar/actualizar/buscar/findRange ya
- * quedan cubiertos por DefaultDAOTest (heredados sin cambios); aquí solo se
- * prueba lo propio de esta clase: findByPersona (usa buscarPorPadre con el
- * JPQL de PersonaRol), y los helpers de combo listarPersonas/listarRoles/
- * listarClinicas/buscarPersona/buscarRol/buscarClinica.
+ * quedan cubiertos por DefaultDAOTest; aquí findByPersona, los helpers de
+ * combo listarPersonas/listarRoles/listarClinicas/buscarPersona/buscarRol/
+ * buscarClinica y listarConDetalle (JOIN FETCH para el selector de sesión).
  *
  * @author oscar
  */
 @ExtendWith(MockitoExtension.class)
 public class PersonaRolDAOTest {
+
+    private static final String JPQL_CON_DETALLE
+            = "SELECT pr FROM PersonaRol pr "
+            + "JOIN FETCH pr.idPersona p "
+            + "JOIN FETCH pr.idRol r "
+            + "LEFT JOIN FETCH pr.idClinica c "
+            + "ORDER BY p.apellidos, p.nombres, r.nombre";
 
     @Mock
     private EntityManager em;
@@ -66,6 +73,30 @@ public class PersonaRolDAOTest {
         assertEquals(esperado, resultado);
         verify(em).createQuery(jpqlEsperado, PersonaRol.class);
         verify(queryPersonaRol).setParameter("id", idPersona);
+    }
+
+    // ---- listarConDetalle() ----
+
+    @Test
+    public void listarConDetalle_armaQueryConJoinFetchLimitaA200YDevuelveResultados() {
+        List<PersonaRol> esperado = Arrays.asList(
+                new PersonaRol(UUID.randomUUID()), new PersonaRol(UUID.randomUUID()));
+        when(em.createQuery(JPQL_CON_DETALLE, PersonaRol.class)).thenReturn(queryPersonaRol);
+        when(queryPersonaRol.getResultList()).thenReturn(esperado);
+
+        List<PersonaRol> resultado = dao.listarConDetalle();
+
+        assertEquals(esperado, resultado);
+        verify(em).createQuery(JPQL_CON_DETALLE, PersonaRol.class);
+        verify(queryPersonaRol).setMaxResults(200);
+    }
+
+    @Test
+    public void listarConDetalle_sinRegistros_devuelveListaVacia() {
+        when(em.createQuery(JPQL_CON_DETALLE, PersonaRol.class)).thenReturn(queryPersonaRol);
+        when(queryPersonaRol.getResultList()).thenReturn(Collections.emptyList());
+
+        assertTrue(dao.listarConDetalle().isEmpty());
     }
 
     // ---- buscarPersona() ----

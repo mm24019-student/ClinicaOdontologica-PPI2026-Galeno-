@@ -24,10 +24,10 @@ import static org.mockito.Mockito.*;
 /**
  * Prueba de RolModel, usado como implementación concreta representativa de
  * AbstracCrudModel: RolModel (como ClinicaModel, TipoDocumentoModel y
- * TipoMedioContactoModel) no agrega lógica propia más allá de conectar el
- * DAO, así que probar el flujo estándar (Nuevo -> Crear/Modificar/Eliminar,
- * selección de fila, getRowData/getRowKey) aquí cubre indirectamente a esas
- * 4 clases también.
+ * TipoMedioContactoModel) no agrega lógica propia más allá de conectar el DAO,
+ * así que probar el flujo estándar (Nuevo -> Crear/Modificar/Eliminar,
+ * selección de fila, getRowData/getRowKey) aquí cubre indirectamente a esas 4
+ * clases también.
  *
  * @author oscar
  */
@@ -36,6 +36,10 @@ public class RolModelTest {
 
     @Mock
     private RolDAO rolDAO;
+
+    @Mock
+    private SesionBean sesionBean;
+
     @Mock
     private FacesContext fc;
 
@@ -43,7 +47,6 @@ public class RolModelTest {
     private RolModel bean;
 
     // ---- btnNuevoHandler() / crearRegistroNuevo() ----
-
     @Test
     public void btnNuevoHandler_creaRegistroActivoConEstadoCrear() {
         bean.btnNuevoHandler(mock(ActionEvent.class));
@@ -55,7 +58,6 @@ public class RolModelTest {
     }
 
     // ---- btnCrearhandler() ----
-
     @Test
     public void btnCrearhandler_registroNulo_agregaMensajeDeErrorYNoCrea() {
         bean.btnCrearhandler(mock(ActionEvent.class));
@@ -98,7 +100,6 @@ public class RolModelTest {
     }
 
     // ---- btnModificarHandler() ----
-
     @Test
     public void btnModificarHandler_registroNulo_agregaMensajeDeErrorYNoActualiza() {
         bean.btnModificarHandler();
@@ -142,7 +143,6 @@ public class RolModelTest {
     }
 
     // ---- btnEliminarHandler(UUID) ----
-
     @Test
     public void btnEliminarHandlerConId_listaVacia_agregaMensajeDeErrorYNoElimina() {
         bean.btnEliminarHandler(UUID.randomUUID());
@@ -193,7 +193,6 @@ public class RolModelTest {
     }
 
     // ---- btnEliminarHandler() sin argumentos ----
-
     @Test
     public void btnEliminarHandlerSinArgumentos_registroNulo_noHaceNada() {
         bean.btnEliminarHandler();
@@ -216,7 +215,6 @@ public class RolModelTest {
     }
 
     // ---- btnCancelar() ----
-
     @Test
     public void btnCancelar_limpiaRegistroYEstado() {
         bean.setRegistro(new Rol(UUID.randomUUID()));
@@ -229,7 +227,6 @@ public class RolModelTest {
     }
 
     // ---- onRowSelect() ----
-
     @Test
     @SuppressWarnings("unchecked")
     public void onRowSelect_fijaElRegistroYEstadoModificar() {
@@ -244,7 +241,6 @@ public class RolModelTest {
     }
 
     // ---- btnSeleccionarRegistro(UUID) ----
-
     @Test
     public void btnSeleccionarRegistro_idExistente_fijaElRegistroYEstadoModificar() {
         UUID id = UUID.randomUUID();
@@ -266,7 +262,6 @@ public class RolModelTest {
     }
 
     // ---- inicializar() ----
-
     @Test
     public void inicializar_cargaLosPrimeros100Registros() {
         List<Rol> esperado = Arrays.asList(new Rol(UUID.randomUUID()));
@@ -278,7 +273,6 @@ public class RolModelTest {
     }
 
     // ---- getRowData() / getRowKey() ----
-
     @Test
     public void getRowKey_devuelveElIdComoTexto() {
         Rol rol = new Rol(UUID.randomUUID());

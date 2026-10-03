@@ -15,19 +15,32 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * Prueba de DocumentoDAO. crear/eliminar/actualizar/buscar/findRange ya
- * quedan cubiertos por DefaultDAOTest (heredados sin cambios); aquí solo se
- * prueba lo propio de esta clase: findByPersona (usa buscarPorPadre con el
- * JPQL de Documento), y los helpers de combo listarPersonas/
- * listarTiposDocumento/buscarPersona/buscarTipoDocumento.
+ * quedan cubiertos por DefaultDAOTest; aquí findByPersona, los helpers de
+ * combo y las validaciones de duplicados existeTipoParaPersona /
+ * existeValorParaTipo.
  *
  * @author oscar
  */
 @ExtendWith(MockitoExtension.class)
 public class DocumentoDAOTest {
+
+    private static final String JPQL_TIPO_PARA_PERSONA
+            = "SELECT COUNT(d) FROM Documento d "
+            + "WHERE d.idPersona.idPersona = :persona "
+            + "AND d.idTipoDocumento.idTipoDocumento = :tipo "
+            + "AND d.idDocumento <> :excluir";
+
+    private static final String JPQL_VALOR_PARA_TIPO
+            = "SELECT COUNT(d) FROM Documento d "
+            + "WHERE LOWER(TRIM(d.valor)) = :valor "
+            + "AND d.idTipoDocumento.idTipoDocumento = :tipo "
+            + "AND d.idDocumento <> :excluir";
 
     @Mock
     private EntityManager em;
@@ -41,8 +54,17 @@ public class DocumentoDAOTest {
     @Mock
     private TypedQuery<TipoDocumento> queryTipoDocumento;
 
+    @Mock
+    private TypedQuery<Long> queryConteo;
+
     @InjectMocks
     private DocumentoDAO dao;
+
+    private void conteo(String jpql, Long total) {
+        when(em.createQuery(jpql, Long.class)).thenReturn(queryConteo);
+        when(queryConteo.setParameter(anyString(), any())).thenReturn(queryConteo);
+        when(queryConteo.getSingleResult()).thenReturn(total);
+    }
 
     // ---- findByPersona() ----
 
@@ -68,9 +90,7 @@ public class DocumentoDAOTest {
 
     @Test
     public void buscarPersona_idNulo_devuelveNullSinConsultar() {
-        Persona resultado = dao.buscarPersona(null);
-
-        assertNull(resultado);
+        assertNull(dao.buscarPersona(null));
         verifyNoInteractions(em);
     }
 
@@ -80,18 +100,14 @@ public class DocumentoDAOTest {
         Persona persona = new Persona(id);
         when(em.find(Persona.class, id)).thenReturn(persona);
 
-        Persona resultado = dao.buscarPersona(id);
-
-        assertSame(persona, resultado);
+        assertSame(persona, dao.buscarPersona(id));
     }
 
     // ---- buscarTipoDocumento() ----
 
     @Test
     public void buscarTipoDocumento_idNulo_devuelveNullSinConsultar() {
-        TipoDocumento resultado = dao.buscarTipoDocumento(null);
-
-        assertNull(resultado);
+        assertNull(dao.buscarTipoDocumento(null));
         verifyNoInteractions(em);
     }
 
@@ -101,9 +117,7 @@ public class DocumentoDAOTest {
         TipoDocumento tipo = new TipoDocumento(id);
         when(em.find(TipoDocumento.class, id)).thenReturn(tipo);
 
-        TipoDocumento resultado = dao.buscarTipoDocumento(id);
-
-        assertSame(tipo, resultado);
+        assertSame(tipo, dao.buscarTipoDocumento(id));
     }
 
     // ---- listarPersonas() ----
@@ -115,9 +129,7 @@ public class DocumentoDAOTest {
         when(queryPersona.setMaxResults(100)).thenReturn(queryPersona);
         when(queryPersona.getResultList()).thenReturn(esperado);
 
-        List<Persona> resultado = dao.listarPersonas();
-
-        assertEquals(esperado, resultado);
+        assertEquals(esperado, dao.listarPersonas());
         verify(queryPersona).setMaxResults(100);
     }
 
@@ -130,9 +142,96 @@ public class DocumentoDAOTest {
         when(queryTipoDocumento.setMaxResults(100)).thenReturn(queryTipoDocumento);
         when(queryTipoDocumento.getResultList()).thenReturn(esperado);
 
-        List<TipoDocumento> resultado = dao.listarTiposDocumento();
-
-        assertEquals(esperado, resultado);
+        assertEquals(esperado, dao.listarTiposDocumento());
         verify(queryTipoDocumento).setMaxResults(100);
+    }
+
+    // ---- existeTipoParaPersona() ----
+
+    @Test
+    public void existeTipoParaPersona_hayCoincidencias_devuelveTrue() {
+        conteo(JPQL_TIPO_PARA_PERSONA, 1L);
+
+        assertTrue(dao.existeTipoParaPersona(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeTipoParaPersona_sinCoincidencias_devuelveFalse() {
+        conteo(JPQL_TIPO_PARA_PERSONA, 0L);
+
+        assertFalse(dao.existeTipoParaPersona(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeTipoParaPersona_enviaPersonaTipoYIdAExcluir() {
+        UUID persona = UUID.randomUUID();
+        UUID tipo = UUID.randomUUID();
+        UUID excluir = UUID.randomUUID();
+        conteo(JPQL_TIPO_PARA_PERSONA, 0L);
+
+        dao.existeTipoParaPersona(persona, tipo, excluir);
+
+        verify(queryConteo).setParameter("persona", persona);
+        verify(queryConteo).setParameter("tipo", tipo);
+        verify(queryConteo).setParameter("excluir", excluir);
+    }
+
+    @Test
+    public void existeTipoParaPersona_idExcluirNulo_usaUuidCero() {
+        conteo(JPQL_TIPO_PARA_PERSONA, 0L);
+
+        dao.existeTipoParaPersona(UUID.randomUUID(), UUID.randomUUID(), null);
+
+        verify(queryConteo).setParameter("excluir", new UUID(0L, 0L));
+    }
+
+    // ---- existeValorParaTipo() ----
+
+    @Test
+    public void existeValorParaTipo_valorNulo_devuelveFalseSinConsultar() {
+        assertFalse(dao.existeValorParaTipo(null, UUID.randomUUID(), null));
+        verifyNoInteractions(em);
+    }
+
+    @Test
+    public void existeValorParaTipo_valorEnBlanco_devuelveFalseSinConsultar() {
+        assertFalse(dao.existeValorParaTipo("  ", UUID.randomUUID(), null));
+        verifyNoInteractions(em);
+    }
+
+    @Test
+    public void existeValorParaTipo_hayCoincidencias_devuelveTrue() {
+        conteo(JPQL_VALOR_PARA_TIPO, 2L);
+
+        assertTrue(dao.existeValorParaTipo("01234567-8", UUID.randomUUID(), UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeValorParaTipo_sinCoincidencias_devuelveFalse() {
+        conteo(JPQL_VALOR_PARA_TIPO, 0L);
+
+        assertFalse(dao.existeValorParaTipo("01234567-8", UUID.randomUUID(), UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeValorParaTipo_normalizaElValorYEnviaTipoEIdAExcluir() {
+        UUID tipo = UUID.randomUUID();
+        UUID excluir = UUID.randomUUID();
+        conteo(JPQL_VALOR_PARA_TIPO, 0L);
+
+        dao.existeValorParaTipo("  AbC-123  ", tipo, excluir);
+
+        verify(queryConteo).setParameter("valor", "abc-123");
+        verify(queryConteo).setParameter("tipo", tipo);
+        verify(queryConteo).setParameter("excluir", excluir);
+    }
+
+    @Test
+    public void existeValorParaTipo_idExcluirNulo_usaUuidCero() {
+        conteo(JPQL_VALOR_PARA_TIPO, 0L);
+
+        dao.existeValorParaTipo("abc", UUID.randomUUID(), null);
+
+        verify(queryConteo).setParameter("excluir", new UUID(0L, 0L));
     }
 }

@@ -15,19 +15,26 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
  * Prueba de MedioContactoDAO. crear/eliminar/actualizar/buscar/findRange ya
- * quedan cubiertos por DefaultDAOTest (heredados sin cambios); aquí solo se
- * prueba lo propio de esta clase: findByPersona (usa buscarPorPadre con el
- * JPQL de MedioContacto), y los helpers de combo listarPersonas/
- * listarTiposMedioContacto/buscarPersona/buscarTipoMedioContacto.
+ * quedan cubiertos por DefaultDAOTest; aquí findByPersona, los helpers de
+ * combo y la validación de duplicados existeMedioParaPersona.
  *
  * @author oscar
  */
 @ExtendWith(MockitoExtension.class)
 public class MedioContactoDAOTest {
+
+    private static final String JPQL_EXISTE_MEDIO
+            = "SELECT COUNT(m) FROM MedioContacto m "
+            + "WHERE m.idPersona.idPersona = :persona "
+            + "AND m.idTipoMedioContacto.idTipoMedioContacto = :tipo "
+            + "AND LOWER(TRIM(m.valor)) = :valor "
+            + "AND m.idMedioContacto <> :excluir";
 
     @Mock
     private EntityManager em;
@@ -41,8 +48,17 @@ public class MedioContactoDAOTest {
     @Mock
     private TypedQuery<TipoMedioContacto> queryTipoMedioContacto;
 
+    @Mock
+    private TypedQuery<Long> queryConteo;
+
     @InjectMocks
     private MedioContactoDAO dao;
+
+    private void conteo(Long total) {
+        when(em.createQuery(JPQL_EXISTE_MEDIO, Long.class)).thenReturn(queryConteo);
+        when(queryConteo.setParameter(anyString(), any())).thenReturn(queryConteo);
+        when(queryConteo.getSingleResult()).thenReturn(total);
+    }
 
     // ---- findByPersona() ----
 
@@ -68,9 +84,7 @@ public class MedioContactoDAOTest {
 
     @Test
     public void buscarPersona_idNulo_devuelveNullSinConsultar() {
-        Persona resultado = dao.buscarPersona(null);
-
-        assertNull(resultado);
+        assertNull(dao.buscarPersona(null));
         verifyNoInteractions(em);
     }
 
@@ -80,18 +94,14 @@ public class MedioContactoDAOTest {
         Persona persona = new Persona(id);
         when(em.find(Persona.class, id)).thenReturn(persona);
 
-        Persona resultado = dao.buscarPersona(id);
-
-        assertSame(persona, resultado);
+        assertSame(persona, dao.buscarPersona(id));
     }
 
     // ---- buscarTipoMedioContacto() ----
 
     @Test
     public void buscarTipoMedioContacto_idNulo_devuelveNullSinConsultar() {
-        TipoMedioContacto resultado = dao.buscarTipoMedioContacto(null);
-
-        assertNull(resultado);
+        assertNull(dao.buscarTipoMedioContacto(null));
         verifyNoInteractions(em);
     }
 
@@ -101,9 +111,7 @@ public class MedioContactoDAOTest {
         TipoMedioContacto tipo = new TipoMedioContacto(id);
         when(em.find(TipoMedioContacto.class, id)).thenReturn(tipo);
 
-        TipoMedioContacto resultado = dao.buscarTipoMedioContacto(id);
-
-        assertSame(tipo, resultado);
+        assertSame(tipo, dao.buscarTipoMedioContacto(id));
     }
 
     // ---- listarPersonas() ----
@@ -115,9 +123,7 @@ public class MedioContactoDAOTest {
         when(queryPersona.setMaxResults(100)).thenReturn(queryPersona);
         when(queryPersona.getResultList()).thenReturn(esperado);
 
-        List<Persona> resultado = dao.listarPersonas();
-
-        assertEquals(esperado, resultado);
+        assertEquals(esperado, dao.listarPersonas());
         verify(queryPersona).setMaxResults(100);
     }
 
@@ -130,9 +136,61 @@ public class MedioContactoDAOTest {
         when(queryTipoMedioContacto.setMaxResults(100)).thenReturn(queryTipoMedioContacto);
         when(queryTipoMedioContacto.getResultList()).thenReturn(esperado);
 
-        List<TipoMedioContacto> resultado = dao.listarTiposMedioContacto();
-
-        assertEquals(esperado, resultado);
+        assertEquals(esperado, dao.listarTiposMedioContacto());
         verify(queryTipoMedioContacto).setMaxResults(100);
+    }
+
+    // ---- existeMedioParaPersona() ----
+
+    @Test
+    public void existeMedioParaPersona_valorNulo_devuelveFalseSinConsultar() {
+        assertFalse(dao.existeMedioParaPersona(UUID.randomUUID(), UUID.randomUUID(), null, null));
+        verifyNoInteractions(em);
+    }
+
+    @Test
+    public void existeMedioParaPersona_valorEnBlanco_devuelveFalseSinConsultar() {
+        assertFalse(dao.existeMedioParaPersona(UUID.randomUUID(), UUID.randomUUID(), "   ", null));
+        verifyNoInteractions(em);
+    }
+
+    @Test
+    public void existeMedioParaPersona_hayCoincidencias_devuelveTrue() {
+        conteo(1L);
+
+        assertTrue(dao.existeMedioParaPersona(
+                UUID.randomUUID(), UUID.randomUUID(), "a@b.com", UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeMedioParaPersona_sinCoincidencias_devuelveFalse() {
+        conteo(0L);
+
+        assertFalse(dao.existeMedioParaPersona(
+                UUID.randomUUID(), UUID.randomUUID(), "a@b.com", UUID.randomUUID()));
+    }
+
+    @Test
+    public void existeMedioParaPersona_normalizaElValorYEnviaTodosLosParametros() {
+        UUID persona = UUID.randomUUID();
+        UUID tipo = UUID.randomUUID();
+        UUID excluir = UUID.randomUUID();
+        conteo(0L);
+
+        dao.existeMedioParaPersona(persona, tipo, "  Correo@Mail.COM  ", excluir);
+
+        verify(queryConteo).setParameter("persona", persona);
+        verify(queryConteo).setParameter("tipo", tipo);
+        verify(queryConteo).setParameter("valor", "correo@mail.com");
+        verify(queryConteo).setParameter("excluir", excluir);
+    }
+
+    @Test
+    public void existeMedioParaPersona_idExcluirNulo_usaUuidCero() {
+        conteo(0L);
+
+        dao.existeMedioParaPersona(UUID.randomUUID(), UUID.randomUUID(), "x", null);
+
+        verify(queryConteo).setParameter("excluir", new UUID(0L, 0L));
     }
 }
