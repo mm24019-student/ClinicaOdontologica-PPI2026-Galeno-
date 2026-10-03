@@ -47,7 +47,6 @@ public class ConsultaProcedimiento implements Serializable {
     private Date fechaInicio;
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull(message="Debe ingresar fecha fin")
     private Date fechaFin;
     @Size(max = 2147483647)
     @Column(name = "observaciones")

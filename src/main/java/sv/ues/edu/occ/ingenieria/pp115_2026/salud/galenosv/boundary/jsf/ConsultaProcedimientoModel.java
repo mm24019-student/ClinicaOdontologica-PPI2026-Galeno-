@@ -5,13 +5,16 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 /**
@@ -33,6 +36,9 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     @Inject
     private ConsultaProcedimientoDAO cpDAO;
 
+    @Inject
+    private ConsultaProcedimientoPasoDAO pasoDAO;
+
     // Solo hace falta el DAO de Procedimiento: sigue siendo un combo normal
     // porque idProcedimiento en la entidad es un UUID suelto, no una
     // relación @ManyToOne (a diferencia de idConsulta, que sí lo es).
@@ -51,6 +57,34 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
 
     public Procedimiento getProcedimientoSeleccionado() {
         return procedimientoSeleccionado;
+    }
+
+    // Texto de la columna "Paso inicial" de la tabla: solo el primer paso del
+    // procedimiento (el que se crea automaticamente), con el formato
+    //   Recepción [CREADO] - Milena Mayorga (Atención al cliente)
+    public String pasosTexto(ConsultaProcedimiento cp) {
+        if (cp == null || cp.getIdConsultaProcedimiento() == null) {
+            return "";
+        }
+        return pasoDAO.findByConsultaProcedimiento(cp.getIdConsultaProcedimiento())
+                .stream()
+                .findFirst()
+                .map(this::lineaPaso)
+                .orElse("");
+    }
+
+    private String lineaPaso(ConsultaProcedimientoPaso p) {
+        String nombre = p.getIdProcedimientoPaso() == null
+                ? "" : Objects.toString(p.getIdProcedimientoPaso().getNombre(), "");
+        String linea = nombre + " [CREADO]";
+        if (p.getIdPersonaRol() != null && p.getIdPersonaRol().getIdPersona() != null) {
+            String persona = (Objects.toString(p.getIdPersonaRol().getIdPersona().getNombres(), "") + " "
+                    + Objects.toString(p.getIdPersonaRol().getIdPersona().getApellidos(), "")).trim();
+            String rol = p.getIdPersonaRol().getIdRol() == null
+                    ? "" : Objects.toString(p.getIdPersonaRol().getIdRol().getNombre(), "");
+            linea += " - " + persona + (rol.isEmpty() ? "" : " (" + rol + ")");
+        }
+        return linea;
     }
 
     // Cuando se elige un procedimiento en el autocomplete, se guarda en registro

@@ -46,7 +46,6 @@ public class Consulta implements Serializable {
     private Date fechaInicio;
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull(message="Debe ingresar fecha fin")
     private Date fechaFin;
     @NotBlank(message = "La referencia externa debe empezar con letra o número y solo puede llevar letras, números, punto, guion,ejem RF-02912")
     @Size(max = 2147483647)

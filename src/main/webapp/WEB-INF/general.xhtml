@@ -6,7 +6,7 @@
       xmlns:p="http://primefaces.org/ui">
     <f:view locale="#{localBean.locale}">
     <h:head>
-        <title><ui:insert name="titulo"><h:outputText value="Sistema"/></ui:insert></title>
+        <title><ui:insert name="titulo"><h:outputText value="GalenoSV"/></ui:insert></title>
         <h:outputStylesheet library="css" name="estilos.css" />
     </h:head>
     <h:body>
@@ -36,6 +36,14 @@
                         </ui:insert>
                         <ui:insert name="sesion">
                             <h:form id="frmSesion" style="display:flex; align-items:center; gap:8px;">
+                                <p:selectOneMenu id="cmbClinicaTrabajo" value="#{sesionBean.idClinicaSeleccionada}"
+                                                 style="min-width:200px; max-width:260px;">
+                                    <f:selectItem itemLabel="#{msg['sesion.sinClinica']}" itemValue="" noSelectionOption="true"/>
+                                    <f:selectItems value="#{sesionBean.clinicasTrabajo}" var="cl"
+                                                   itemLabel="#{cl.nombre}"
+                                                   itemValue="#{cl.idClinica.toString()}"/>
+                                    <p:ajax listener="#{sesionBean.cambiarClinica}" update="@all"/>
+                                </p:selectOneMenu>
                                 <p:selectOneMenu id="cmbSesion" value="#{sesionBean.idSeleccionado}"
                                                  filter="true" filterMatchMode="contains"
                                                  style="min-width:280px; max-width:380px;">

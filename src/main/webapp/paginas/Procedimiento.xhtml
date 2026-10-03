@@ -25,6 +25,9 @@
                              rendered="#{procedimientoModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{procedimientoModel.onRowSelect}"
                             update=":frmTabla :Procedimiento :mensajes"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idProcedimiento}" />
+                    </p:column>
                     <p:column headerText="Nombre">
                         <p:outputLabel value="#{r.nombre}"/>
                     </p:column>
@@ -87,128 +90,103 @@
                                 <p:ajax event="select" listener="#{procedimientoPasoModel.onNodeSelect}"
                                         update="@form" resetValues="true"/>
                                 <p:column headerText="Nombre"><p:outputLabel value="#{ps.nombre}"/></p:column>
-                                <p:column headerText="Rol"><p:outputLabel value="#{ps.idRol.nombre}"/></p:column>
+                                <p:column headerText="ID"><p:outputLabel value="#{ps.idProcedimientoPaso}"/></p:column>
+                                <p:column headerText="A cargo de"><p:outputLabel value="#{ps.idRol.nombre}"/></p:column>
                                 <p:column headerText="Depende de"><p:outputLabel value="#{procedimientoPasoModel.textoDependeDe(ps)}"/></p:column>
                                 <p:column headerText="Fin"><p:outputLabel value="#{ps.indicaFin ? 'SÍ' : 'NO'}"/></p:column>
                             </p:treeTable>
 
-                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form" 
-                                                mostrarCancelar="false" rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"/>
+                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form :mensajes"
+                                                etiquetaNuevo="#{procedimientoPasoModel.hayPasos ? msg['crud.boton.nuevoPasoDependiente'] : msg['crud.boton.nuevoPaso']}"
+                                                mostrarCancelar="false"
+                                                rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"/>
+                        
 
+                        <h:panelGroup layout="block" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"
+                                      style="display:flex; gap:30px; align-items:flex-start; margin-bottom:20px;">
 
-                            <h:panelGroup layout="block" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"
-                                          style="display:flex; gap:30px; align-items:flex-start; margin-bottom:20px;">
-
-                                <!-- 7 partes: formulario del paso -->
-                                <div style="flex:7; min-width:0; overflow:hidden;">
-                                    <p:panelGrid columns="2" layout="grid" columnClasses="ui-g-5,ui-g-7" style="width:100%; border:none;">
-                                        <p:outputLabel value="IDPaso" for="txtIdPaso"/>
-                                        <p:inputText id="txtIdPaso" style="width:100%" disabled="true" value="#{procedimientoPasoModel.registro.idProcedimientoPaso}"/>
-                                        <p:outputLabel value="Nombre" for="txtNombrePaso"/>
-                                        <p:inputText id="txtNombrePaso" style="width:100%" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.nombre}"/>
-                                        <p:outputLabel value="Rol" for="acRol"/>
-                                        <p:autoComplete id="acRol" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.idRol}" completeMethod="#{procedimientoPasoModel.completarRoles}"
-                                                        var="ro" itemValue="#{ro}" itemLabel="#{ro.nombre}" converter="rolConverter" forceSelection="true" placeholder="Buscar rol..." style="width:100%;">
-                                        </p:autoComplete>
-                                        <p:outputLabel value="Depende de" for="txtDepende"/>
-                                        <p:inputText id="txtDepende" style="width:100%" disabled="true" value="#{procedimientoPasoModel.textoDependeDe}"/>
-                                        <p:outputLabel value="Indica fin" for="chkFin"/>
-                                        <p:selectBooleanCheckbox id="chkFin" style="width:100%" value="#{procedimientoPasoModel.registro.indicaFin}"/>
-                                    </p:panelGrid>
-                                </div>
-
-                                <!-- 3 partes: espacio libre para lo nuevo -->
-                                <div style="flex:3; min-width:0; padding-top:8px;">
-                                    <p:panel header="Gestionar Examen">
-                                        <div style="display:flex; gap:10px; align-items:flex-start;">
-
-                                            <!-- Izquierda: PANEL con los exámenes ya creados para este paso.
-                                                 examenesDe(paso) los carga solo al seleccionar el paso. -->
-                                            <h:panelGroup id="pnlExamenes" layout="block" style="flex:1; min-width:0;">
-                                                <p:dataTable value="#{procedimientoPasoExamenModel.examenesDe(procedimientoPasoModel.registro)}"
-                                                             var="pe" id="tblExamenesPaso"
-                                                             paginator="true" rows="5" style="width:100%"
-                                                             selectionMode="single" rowKey="#{pe.idProcedimientoPasoExamen}"
-                                                             emptyMessage="Este paso aún no tiene exámenes">
-                                                    <p:ajax event="rowSelect" listener="#{procedimientoPasoExamenModel.onRowSelectAbrir}"
-                                                            update="@form"/>
-                                                    <p:column headerText="Examen">
-                                                        <p:outputLabel value="#{pe.idExamen.nombre}"/>
-                                                    </p:column>
-                                                    <p:column headerText="Estado">
-                                                        <p:outputLabel value="#{pe.activo ? 'ACTIVO' : 'INACTIVO'}"/>
-                                                    </p:column>
-                                                </p:dataTable>
-                                            </h:panelGroup>
-
-                                            <!-- Derecha: BOTÓN que abre el diálogo con el formulario de
-                                                 ProcedimientoPasoExamen. Solo se habilita con el paso ya
-                                                 guardado (estado MODIFICAR). -->
-                                            <p:commandButton id="btnNuevoExamen" icon="pi pi-plus" title="Nuevo examen"
-                                                             process="@this" resetValues="true"
-                                                             disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
-                                                             actionListener="#{procedimientoPasoExamenModel.abrirNuevoExamen(procedimientoPasoModel.registro)}"
-                                                             update="@form :mensajes"/>
-                                        </div>
-                                    </p:panel>
-                                </div>
-
-                            </h:panelGroup>
-                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-                                <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
-                                               rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
-
-                                <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form"
-                                                    mostrarNuevo="false" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}" />
+                            <!-- 7 partes: formulario del paso -->
+                            <div style="flex:7; min-width:0; overflow:hidden;">
+                                <p:panelGrid columns="2" layout="grid" columnClasses="ui-g-5,ui-g-7" style="width:100%; border:none;">
+                                    <p:outputLabel value="ID" for="txtIdPaso"/>
+                                    <p:inputText id="txtIdPaso" style="width:100%" disabled="true" value="#{procedimientoPasoModel.registro.idProcedimientoPaso}"/>
+                                    <p:outputLabel value="Nombre" for="txtNombrePaso"/>
+                                    <p:inputText id="txtNombrePaso" style="width:100%" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.nombre}"/>
+                                    <p:outputLabel value="A cargo de" for="acRol"/>
+                                    <p:autoComplete id="acRol" disabled="#{procedimientoPasoModel.estado=='MODIFICAR'}" value="#{procedimientoPasoModel.registro.idRol}" completeMethod="#{procedimientoPasoModel.completarRoles}"
+                                                    var="ro" itemValue="#{ro}" itemLabel="#{ro.nombre}" converter="rolConverter" forceSelection="true" placeholder="Buscar rol..." style="width:100%;">
+                                    </p:autoComplete>
+                                    <p:outputLabel value="Depende de" for="txtDepende"/>
+                                    <p:inputText id="txtDepende" style="width:100%" disabled="true" value="#{procedimientoPasoModel.textoDependeDe}"/>
+                                    <p:outputLabel value="Indica fin" for="chkFin"/>
+                                    <p:selectBooleanCheckbox id="chkFin" style="width:100%" value="#{procedimientoPasoModel.registro.indicaFin}"/>
+                                </p:panelGrid>
                             </div>
+
+                            <!-- 3 partes: espacio libre para lo nuevo -->
+                            <!-- 3 partes: Gestionar Examen -->
+                            <div style="flex:3; min-width:0; padding-top:8px;">
+                                <p:panel header="Gestionar Examen">
+                                    <h:panelGroup id="pnlExamenes" layout="block">
+
+                                        <div style="display:flex; gap:10px; align-items:flex-start; margin-top:10px;">
+                                            <p:selectOneListbox id="lstExamenes" style="flex:1; min-width:0; height:130px;"
+                                                                value="#{procedimientoPasoExamenModel.idSeleccionado}">
+                                                <f:selectItems value="#{procedimientoPasoExamenModel.examenesDe(procedimientoPasoModel.registro)}"
+                                                               var="pe" itemValue="#{pe.idProcedimientoPasoExamen.toString()}"
+                                                               itemLabel="#{procedimientoPasoExamenModel.etiquetaLista(pe)}"/>
+                                            </p:selectOneListbox>
+
+                                            <div style="display:flex; flex-direction:column; gap:8px;">
+                                                <p:commandButton value="Agregar Examen" process="@this"
+                                                                 disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
+                                                                 actionListener="#{procedimientoPasoExamenModel.prepararAgregar}"
+                                                                 update="pnlDialogoExamen"
+                                                                 oncomplete="PF('dlgAgregarExamen').show()"/>
+                                                <p:commandButton value="Eliminar Seleccionado" process="lstExamenes @this"
+                                                                 disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
+                                                                 actionListener="#{procedimientoPasoExamenModel.eliminarSeleccionado(procedimientoPasoModel.registro)}"
+                                                                 update="pnlExamenes :mensajes"/>
+                                            </div>
+                                        </div>
+                                    </h:panelGroup>
+                                </p:panel>
+                            </div>
+
+                        </h:panelGroup>
+                        <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                            <g:botones_top modelo="#{procedimientoPasoModel}" tabla="Procedimiento:tabsProcedimiento:pnlPasos"
+                                           rendered="#{procedimientoPasoModel.estado!='NINGUNO'}"/>
+
+                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form"
+                                                mostrarNuevo="false" rendered="#{procedimientoPasoModel.estado!='NINGUNO'}" />
+                        </div>
                         </h:panelGroup>
 
                     </p:tab>
 
                 </p:tabView>
-                <!-- Diálogos movidos fuera de pnlPasos para que no se destruyan y regeneren
-     en cada ajax update — evita que queden copias huérfanas en el <body> -->
 
-
-                <p:dialog id="dlgExamen" header="Procedimiento del Examen" widgetVar="dlgExamen"
-                          modal="true" width="650" style="max-width:95vw"
-                          visible="#{procedimientoPasoExamenModel.mostrarDialogo}">
-
-                    <p:ajax event="close" listener="#{procedimientoPasoExamenModel.btnCerrarDialogo}"
-                            update="@form" resetValues="true"/>
-
-                    <p:panelGrid columns="2" style="width:100%; table-layout:fixed;"
-                                 columnClasses="ui-grid-col-4,ui-grid-col-8"
-                                 rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}">
-                        <p:outputLabel value="Examen *" for="selExamen"/>
-                        <p:autoComplete id="selExamen" required="true" requiredMessage="Debe seleccionar un Examen"
-                                        value="#{procedimientoPasoExamenModel.registro.idExamen}"
-                                        completeMethod="#{procedimientoPasoExamenModel.completarExamenesFormulario}"
-                                        var="e" itemValue="#{e}" disabled="#{procedimientoPasoExamenModel.estado=='MODIFICAR'}" itemLabel="#{e.nombre}" converter="#{examenConverter}" forceSelection="true" placeholder="Buscar examen..." style="width:100%;">
-                            <p:ajax event="itemSelect" update="txtDescExamen"/>
-                        </p:autoComplete>
-
-                        <p:outputLabel value="Descripción del examen"/>
-                        <h:outputText id="txtDescExamen" value="#{procedimientoPasoExamenModel.registro.idExamen.observaciones}"/>
-
-                        <p:outputLabel for="chkActivoExamen" value="Activo"/>
-                        <p:selectBooleanCheckbox id="chkActivoExamen" value="#{procedimientoPasoExamenModel.registro.activo}"/>
-
-                        <p:outputLabel value="Fecha de creación" for="calFecha"/>
-                        <p:datePicker id="calFecha" showTime="true" pattern="dd/MM/yyyy HH:mm"
-                                      value="#{procedimientoPasoExamenModel.registro.fechaCreacion}"/>
-
-                        <p:outputLabel value="Observaciones" for="txtObsExamen"/>
-                        <p:inputTextarea id="txtObsExamen" disabled="#{procedimientoPasoExamenModel.estado=='MODIFICAR'}" rows="3" cols="50" style="width:100%; box-sizing:border-box;"
-                                         value="#{procedimientoPasoExamenModel.registro.observaciones}"/>
-                    </p:panelGrid>
-
-                    <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-                        <g:botones_top modelo="#{procedimientoPasoExamenModel}"
-                                       tabla="Procedimiento:tabsProcedimiento:pnlPasos"
-                                       process="@form"
-                                       rendered="#{procedimientoPasoExamenModel.estado!='NINGUNO'}"/>
-                    </div>
+                <!-- DIÁLOGO: AGREGAR EXAMEN AL PASO (examen + observaciones) -->
+                <p:dialog id="dlgAgregarExamen" widgetVar="dlgAgregarExamen" header="Agregar Examen"
+                          modal="true" width="520" resizable="false" style="max-width:95vw">
+                    <h:panelGroup id="pnlDialogoExamen" layout="block">
+                        <p:messages id="msgDialogoExamen" globalOnly="false" showDetail="true" showSummary="false" closable="true"/>
+                        <p:panelGrid columns="2" style="border:none; width:100%;">
+                            <p:outputLabel for="acExamen" value="Examen"/>
+                            <p:autoComplete id="acExamen" value="#{procedimientoPasoExamenModel.examenPorAgregar}"
+                                            completeMethod="#{procedimientoPasoExamenModel.completarExamenesFormulario}"
+                                            var="e" itemValue="#{e}" itemLabel="#{e.nombre}"
+                                            converter="#{examenConverter}" forceSelection="true"
+                                            placeholder="Buscar examen..." style="width:100%;"/>
+                            <p:outputLabel for="txtObsExamen" value="Observaciones"/>
+                            <p:inputTextarea id="txtObsExamen" rows="3" style="width:100%;"
+                                             value="#{procedimientoPasoExamenModel.observacionesPorAgregar}"/>
+                        </p:panelGrid>
+                        <p:commandButton value="Seleccionar" process="@this acExamen txtObsExamen"
+                                         actionListener="#{procedimientoPasoExamenModel.agregarExamen(procedimientoPasoModel.registro)}"
+                                         update="pnlDialogoExamen :Procedimiento:tabsProcedimiento:pnlExamenes :mensajes"/>
+                    </h:panelGroup>
                 </p:dialog>
             </h:form>
         </div>

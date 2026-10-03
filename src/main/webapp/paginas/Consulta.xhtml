@@ -31,44 +31,34 @@
                     <h:outputText value="Clínica:" style="font-weight:bold;"/>
                     <h:outputText id="txtClinicaFiltro" value="#{consultaModel.nombreClinicaFiltro}"/>
                     <p:outputLabel for="dpDesde" value="Desde"/>
-                    <p:datePicker id="dpDesde" value="#{consultaModel.fechaDesde}" pattern="dd/MM/yyyy" showButtonBar="true"/>
+                    <p:datePicker id="dpDesde" value="#{consultaModel.fechaDesde}"
+                                  timeZone="America/El_Salvador" pattern="dd/MM/yyyy" showButtonBar="true" showIcon="true"/>
                     <p:outputLabel for="dpHasta" value="Hasta"/>
-                    <p:datePicker id="dpHasta" value="#{consultaModel.fechaHasta}" pattern="dd/MM/yyyy" showButtonBar="true"/>
+                    <p:datePicker id="dpHasta" value="#{consultaModel.fechaHasta}"
+                                  timeZone="America/El_Salvador" pattern="dd/MM/yyyy" showButtonBar="true" showIcon="true"/>
                     <p:commandButton value="Buscar" icon="pi pi-search" action="#{consultaModel.buscar}"
                                      process="@this dpDesde dpHasta" update="@form :mensajes"/>
-                    <p:commandButton value="Limpiar" icon="pi pi-times" action="#{consultaModel.limpiarFiltro}"
-                                     process="@this" resetValues="true" update="@form :mensajes"/>
                 </h:panelGroup>
 
-                <p:dataTable value="#{consultaModel}"
-                             var="r"
-                             id="tblConsulta"
-                             paginator="true"
-                             rows="10"  style="width:100%"   selectionMode="single"  rowKey="#{r.idConsulta}" rendered="#{consultaModel.estado=='NINGUNO'}">
-
-                    <p:ajax event="rowSelect"
-                            listener="#{consultaModel.onRowSelect}"
-                            update=":frmTabla :Consulta :mensajes"/>
-
-                    <p:column headerText="Inicio">
-                        <h:outputText value="#{r.fechaInicio}">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                        </h:outputText>
+                <p:dataTable value="#{consultaModel}" var="r" id="tblConsulta" paginator="true" rows="10"
+                             style="width:100%" selectionMode="single" rowKey="#{r.idConsulta}"
+                             emptyMessage="No se encontraron registros."
+                             rendered="#{consultaModel.estado=='NINGUNO'}">
+                    <p:ajax event="rowSelect" listener="#{consultaModel.onRowSelect}" update=":frmTabla :Consulta :mensajes"/>
+                    <p:column headerText="ID"><h:outputText value="#{r.idConsulta}"/></p:column>
+                    <p:column headerText="Paciente"><h:outputText value="#{consultaModel.etiquetaPaciente(r.idPersonaRol)}"/></p:column>
+                    <p:column headerText="Información"><h:outputText value="#{consultaModel.documentosDe(r.idPersonaRol)}"/></p:column>
+                    <p:column headerText="Fecha de Consulta">
+                        <h:outputText value="#{r.fechaInicio}"><f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/></h:outputText>
                     </p:column>
-                    <p:column headerText="Fin">
-                        <h:outputText value="#{r.fechaFin}">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                        </h:outputText>
+                    <p:column headerText="Fecha de Alta">
+                        <h:outputText value="#{r.fechaFin}"><f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/></h:outputText>
                     </p:column>
-                    <p:column headerText="Referencia externa">
-                        <h:outputText value="#{r.referenciaExterna}"/>
-                    </p:column>
-                    <p:column headerText="Persona / Rol">
-                        <h:outputText value="#{consultaModel.etiquetaPersonaRol(r.idPersonaRol)}"/>
-                    </p:column>
+                    <p:column headerText="Referencia Externa"><h:outputText value="#{r.referenciaExterna}"/></p:column>
+                    <p:column headerText="Observaciones"><h:outputText value="#{r.observaciones}"/></p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{consultaModel}"  mostrarNuevo="#{sesionBean.autenticado}" mostrarCancelar="#{sesionBean.autenticado}" update="@form :Consulta :mensajes"/>
+                <g:Botones_Acciones modelo="#{consultaModel}"  mostrarNuevo="#{sesionBean.autenticado}" mostrarCancelar="#{consultaModel.estado!='NINGUNO'}" update="@form :Consulta :mensajes"/>
             </h:form>
         </div>
 
@@ -87,259 +77,225 @@
                            widgetVar="tabsConsulta" activeIndex="#{consultaModel.activo}"
                            rendered="#{consultaModel.estado!='NINGUNO'}">
 
-                    <!-- Un solo listener para las 3 pestañas: decide qué recargar
-                         según el título de la pestaña a la que se entró, en vez
-                         de recargar los dos hijos en cada cambio de pestaña
-                         (lo que pisaba el estado del otro). -->
+                    <!-- Un solo listener para las 2 pestañas: al entrar a "Pasos del
+                         Procedimiento" recarga los procedimientos de la consulta. -->
                     <p:ajax event="tabChange" listener="#{consultaModel.onTabChange}"
-                            update=":Consulta:tabsConsulta:pnlProcedimientos :Consulta:tabsConsulta:pnlPasosConsultaProcedimiento"/>
+                            update=":Consulta:tabsConsulta:pnlProcedimientoPasos"/>
                     <!-- PESTAÑA 1: DATOS DE LA CONSULTA -->
                     <p:tab title="Datos de la Consulta">
                         <h:panelGroup id="pnlDatosConsulta">
-                            <p:panelGrid columns="2">
-                                <p:outputLabel value="Fecha de inicio"
-                                               for="dtInicioConsulta"/>
-                                <p:datePicker id="dtInicioConsulta"
-                                              value="#{consultaModel.registro.fechaInicio}"
-                                              showTime="true"
-                                              timeZone="America/El_Salvador"
-                                              pattern="dd/MM/yyyy HH:mm"
-                                              showIcon="true"/>
-                                <p:outputLabel value="Fecha de fin"
-                                               for="dtFinConsulta"/>
-                                <p:datePicker id="dtFinConsulta"
-                                              value="#{consultaModel.registro.fechaFin}"
-                                              showTime="true"
-                                              timeZone="America/El_Salvador"
-                                              pattern="dd/MM/yyyy HH:mm"
-                                              yearNavigator="true"
-                                              showIcon="true"/>
-                                <p:outputLabel value="Referencia externa"
-                                               for="txtReferenciaConsulta"/>
-                                <p:inputText id="txtReferenciaConsulta"
-                                             size="40" disabled="#{consultaModel.estado=='MODIFICAR'}"
-                                             value="#{consultaModel.registro.referenciaExterna}"/>
-                                <p:outputLabel value="Persona / Rol" for="txtPersonaRolConsulta"/>
-                                <p:inputText id="txtPersonaRolConsulta" disabled="true" style="width:100%;"
-                                             value="#{consultaModel.personaRolEtiqueta}"/>
-                                <p:outputLabel value="Observaciones"
-                                               for="txtObservacionesConsulta"/>
-                                <p:inputTextarea id="txtObservacionesConsulta"
-                                                 rows="4"
-                                                 cols="60"
+                            <p:panelGrid columns="2" style="border:none;">
+                                <p:outputLabel value="ID" for="txtIdConsulta"/>
+                                <p:inputText id="txtIdConsulta" disabled="true" style="width:100%" value="#{consultaModel.registro.idConsulta}"/>
+
+                                <p:outputLabel value="Paciente" for="txtPaciente"/>
+                                <h:panelGroup layout="block" style="display:flex; gap:10px; align-items:center;">
+                                    <p:inputText id="txtPaciente" disabled="true" style="flex:1;" value="#{consultaModel.nombrePaciente}"/>
+                                    <p:panel header="Buscar paciente">
+                                        <div style="display:flex; flex-direction:column; gap:8px;">
+                                            <p:commandButton value="Por Nombre" process="@this" update=":mensajes"
+                                                             disabled="#{!consultaModel.puedeBuscarPaciente}"
+                                                             title="Solo puede si hay una clinica seleccionada y si esta creando una consulta"
+                                                             actionListener="#{consultaModel.abrirBuscarPaciente}"/>
+                                            <p:commandButton value="Por Documento" process="@this" update=":mensajes"
+                                                             disabled="#{!consultaModel.puedeBuscarPaciente}"
+                                                             title="Solo puede si hay una clinica seleccionada y si esta creando una consulta"
+                                                             actionListener="#{consultaModel.abrirBuscarPacientePorDocumento}"/>
+                                        </div>
+                                    </p:panel>
+                                </h:panelGroup>
+
+                                <p:outputLabel value="Fecha Consulta:" for="dtInicioConsulta"/>
+                                <p:datePicker id="dtInicioConsulta" value="#{consultaModel.registro.fechaInicio}" showTime="true"
+                                              timeZone="America/El_Salvador" pattern="dd/MM/yyyy HH:mm" showIcon="true"/>
+
+                                <p:outputLabel value="Fecha de Alta:" for="dtFinConsulta"/>
+                                <p:datePicker id="dtFinConsulta" value="#{consultaModel.registro.fechaFin}" showTime="true"
+                                              timeZone="America/El_Salvador" pattern="dd/MM/yyyy HH:mm" yearNavigator="true" showIcon="true"/>
+
+                                <p:outputLabel value="Referencia Externa" for="txtReferenciaConsulta"/>
+                                <p:inputTextarea id="txtReferenciaConsulta" rows="3" style="width:100%"
+                                                 disabled="#{consultaModel.estado=='MODIFICAR'}"
+                                                 value="#{consultaModel.registro.referenciaExterna}"/>
+
+                                <p:outputLabel value="Indicaciones" for="txtObservacionesConsulta"/>
+                                <p:inputTextarea id="txtObservacionesConsulta" rows="3" style="width:100%"
                                                  value="#{consultaModel.registro.observaciones}"/>
                             </p:panelGrid>
                             <h:panelGroup rendered="#{consultaModel.estado=='CREAR'}" layout="block"
                                           style="padding:10px; margin-top:10px; border-radius:4px; background:#e7f3fe; color:#1a5fa4;">
                                 Guarda primero los datos de la consulta para poder acceder a las demas funciones.
                             </h:panelGroup>
+
                             <g:botones_top modelo="#{consultaModel}" process="@form"/>
+
                         </h:panelGroup>
                     </p:tab>
-                    <!-- PESTAÑA 2: PROCEDIMIENTOS DE LA CONSULTA -->
-                    <p:tab title="Procedimientos de la Consulta" 
-                           disabled="#{consultaModel.estado!='MODIFICAR'}" >
-                        <h:panelGroup id="pnlProcedimientos"  >
-                            <!-- TABLA DE PROCEDIMIENTOS-->
-                            <p:dataTable value="#{consultaProcedimientoModel}"
-                                         var="ps"
-                                         id="tblConsultaProcedimientos"
-                                         paginator="true"
-                                         rows="10"
-                                         style="width:100%"
-                                         selectionMode="single"
-                                         rowKey="#{ps.idConsultaProcedimiento}"
-                                         rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}">
 
-                                <p:ajax event="rowSelect"
-                                        listener="#{consultaProcedimientoModel.onRowSelect}"
-                                        update=":Consulta:tabsConsulta :mensajes" resetValues="true"/>
+                    <!-- PESTAÑA 2: PROCEDIMIENTOS Y SUS PASOS -->
+                    <!-- Primero se elige/crea el procedimiento de la consulta y, una vez
+                         guardado y seleccionado (MODIFICAR), debajo aparecen sus pasos.
+                         Todo vive dentro de un panel siempre renderizado
+                         (pnlProcedimientoPasos) para poder actualizarlo por ajax. -->
+                    <p:tab title="Procedimientos"
+                           disabled="#{consultaModel.estado!='MODIFICAR'}">
+                        <h:panelGroup id="pnlProcedimientoPasos" layout="block">
 
-                                <p:column headerText="Procedimiento">
-                                    <h:outputText
-                                        value="#{consultaProcedimientoModel.nombreProcedimiento(ps.idProcedimiento)}"/>
-                                </p:column>
+                            <!-- ===== SECCIÓN A: PROCEDIMIENTOS DE LA CONSULTA ===== -->
+                            <h:panelGroup id="pnlProcedimientos">
+                                <!-- TABLA DE PROCEDIMIENTOS-->
+                                <p:dataTable value="#{consultaProcedimientoModel}"
+                                             var="ps"
+                                             id="tblConsultaProcedimientos"
+                                             paginator="true"
+                                             rows="10"
+                                             style="width:100%"
+                                             selectionMode="single"
+                                             rowKey="#{ps.idConsultaProcedimiento}"
+                                             rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}">
 
-                                <p:column headerText="Inicio">
-                                    <h:outputText value="#{ps.fechaInicio}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </p:column>
+                                    <!-- Al elegir un procedimiento se cargan también sus pasos (abajo) -->
+                                    <p:ajax event="rowSelect"
+                                            listener="#{consultaModel.onProcedimientoRowSelect}"
+                                            update=":Consulta:tabsConsulta:pnlProcedimientoPasos :mensajes" resetValues="true"/>
 
-                                <p:column headerText="Fin">
-                                    <h:outputText value="#{ps.fechaFin}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </p:column>
+                                    <p:column headerText="ID" style="width:12%; word-break:break-all; font-size:0.8em;">
+                                        <h:outputText value="#{ps.idConsultaProcedimiento}"/>
+                                    </p:column>
 
-                                <p:column headerText="Observaciones">
-                                    <h:outputText value="#{ps.observaciones}"/>
-                                </p:column>
+                                    <p:column headerText="Tipo">
+                                        <h:outputText
+                                            value="#{consultaProcedimientoModel.nombreProcedimiento(ps.idProcedimiento)}"/>
+                                    </p:column>
 
-                            </p:dataTable>
-                            <!-- NUEVO PROCEDIMIENTO -->
-                            <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
-                                                mostrarCancelar="false" rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}" />
+                                    <p:column headerText="Fecha Inicio">
+                                        <h:outputText value="#{ps.fechaInicio}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                                        </h:outputText>
+                                    </p:column>
 
-                            <!-- FORMULARIO DEL PROCEDIMIENTO-->
-                            <p:panelGrid columns="2" 
-                                         rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}">
-                                <p:outputLabel value="Procedimiento" for="acProcedimientoConsulta"/>
+                                    <p:column headerText="Fecha Finalización">
+                                        <h:outputText value="#{ps.fechaFin}">
+                                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/El_Salvador"/>
+                                        </h:outputText>
+                                    </p:column>
 
-                                <p:autoComplete id="acProcedimientoConsulta"
-                                                value="#{consultaProcedimientoModel.procedimientoSeleccionado}"
-                                                completeMethod="#{consultaProcedimientoModel.completarProcedimientos}"
-                                                var="pr"
-                                                itemValue="#{pr}"
-                                                itemLabel="#{pr.nombre}"
-                                                converter="procedimientoConverter" forceSelection="true"
-                                                required="true"
-                                                requiredMessage="Seleccione el procedimiento"
-                                                placeholder="Buscar procedimiento..."
-                                                style="width:100%;">
-                                </p:autoComplete>
-                                <p:outputLabel value="Fecha de inicio"
-                                               for="dtInicioProcedimiento"/>
-                                <p:datePicker id="dtInicioProcedimiento"
-                                              value="#{consultaProcedimientoModel.registro.fechaInicio}"
-                                              showTime="true"
-                                              disabled="true"
-                                              pattern="dd/MM/yyyy HH:mm"
-                                              showIcon="true"
-                                              timeZone="America/El_Salvador"/>
-                                <p:outputLabel value="Fecha de fin"
-                                               for="dtFinProcedimiento"/>
-                                <p:datePicker id="dtFinProcedimiento" timeZone="America/El_Salvador"
-                                              value="#{consultaProcedimientoModel.registro.fechaFin}"
-                                              showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true" yearNavigator="true"
-                                              />
-                                <p:outputLabel value="Observaciones"
-                                               for="txtObservacionesProcedimiento"/>
-                                <p:inputTextarea id="txtObservacionesProcedimiento" rows="4" cols="60"
-                                                 value="#{consultaProcedimientoModel.registro.observaciones}"/>
-                            </p:panelGrid>
+                                    <p:column headerText="Observaciones">
+                                        <h:outputText value="#{ps.observaciones}"/>
+                                    </p:column>
 
-                            <!-- BOTONES CRUD DEL PROCEDIMIENTO-->
-                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-                                <g:botones_top modelo="#{consultaProcedimientoModel}" process="@form"
-                                               tabla="Consulta:tabsConsulta:pnlProcedimientos"
-                                               rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
+                                    <p:column headerText="Paso inicial">
+                                        <h:outputText value="#{consultaProcedimientoModel.pasosTexto(ps)}"
+                                                      style="white-space:pre-line;"/>
+                                    </p:column>
+
+                                </p:dataTable>
+
+                                <!-- NUEVO PROCEDIMIENTO -->
                                 <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
-                                                    mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
-                            </div>
-                        </h:panelGroup>
-                    </p:tab>
+                                                    mostrarCancelar="false" rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}" />
 
-                    <!-- PESTAÑA 3: PASOS DEL PROCEDIMIENTO SELECCIONADO EN LA PESTAÑA 2 -->
-                    <!-- Solo tiene sentido una vez que hay un ConsultaProcedimiento
-                         seleccionado/guardado (MODIFICAR en la pestaña 2), porque
-                         un paso necesita un ConsultaProcedimiento ya existente. -->
-                    <p:tab title="Pasos del Procedimiento" 
-                           disabled="#{consultaProcedimientoModel.estado!='MODIFICAR'}">
+                                <!-- FORMULARIO DEL PROCEDIMIENTO-->
+                                <p:panelGrid columns="2"
+                                             rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}">
+                                     <p:outputLabel value="ID" for="txtIdConsultaProcedimiento"/>
+                                <p:inputText id="txtIdConsultaProcedimiento" disabled="true" style="width:100%" value="#{consultaProcedimientoModel.registro.idConsultaProcedimiento}"/>
 
-                        <h:panelGroup id="pnlPasosConsultaProcedimiento" > 
-                            <!-- TABLA DE PASOS -->
-                            <p:dataTable value="#{consultaProcedimientoPasoModel}"
-                                         var="cpp"
-                                         id="tblPasosConsultaProcedimiento"
-                                         paginator="true"
-                                         rows="10"
-                                         style="width:100%"
-                                         selectionMode="single"
-                                         rowKey="#{cpp.idConsultaProcedimientoPaso}"
-                                         rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}">
+                                    <p:outputLabel value="Tipo" for="acProcedimientoConsulta"/>
+                                    <p:autoComplete id="acProcedimientoConsulta"
+                                                    value="#{consultaProcedimientoModel.procedimientoSeleccionado}"
+                                                    completeMethod="#{consultaProcedimientoModel.completarProcedimientos}"
+                                                    var="pr"
+                                                    itemValue="#{pr}"
+                                                    itemLabel="#{pr.nombre}"
+                                                    disabled="#{consultaProcedimientoModel.estado=='MODIFICAR'}"
+                                                    converter="procedimientoConverter" forceSelection="true"
+                                                    required="true"
+                                                    requiredMessage="Seleccione el tipo de procedimiento"
+                                                    placeholder="Seleccione el tipo..."
+                                                    style="width:100%;">
+                                    </p:autoComplete>
+                                    <p:outputLabel value="Fecha de inicio"
+                                                   for="dtInicioProcedimiento"/>
+                                    <p:datePicker id="dtInicioProcedimiento"
+                                                  value="#{consultaProcedimientoModel.registro.fechaInicio}"
+                                                  showTime="true"
+                                                  disabled="true"
+                                                  pattern="dd/MM/yyyy HH:mm"
+                                                  showIcon="true"
+                                                  timeZone="America/El_Salvador"/>
+                                    <p:outputLabel value="Fecha de finalizacion"
+                                                   for="dtFinProcedimiento"/>
+                                    <p:datePicker id="dtFinProcedimiento" timeZone="America/El_Salvador"
+                                                  value="#{consultaProcedimientoModel.registro.fechaFin}"
+                                                  showTime="true" pattern="dd/MM/yyyy HH:mm" showIcon="true" yearNavigator="true"
+                                                  />
+                                    <p:outputLabel value="Observaciones"
+                                                   for="txtObservacionesProcedimiento"/>
+                                    <p:inputTextarea id="txtObservacionesProcedimiento" rows="4" cols="60"
+                                                     value="#{consultaProcedimientoModel.registro.observaciones}"/>
+                                </p:panelGrid>
 
-                                <p:ajax event="rowSelect"
-                                        listener="#{consultaProcedimientoPasoModel.onRowSelect}"
-                                        update=":Consulta:tabsConsulta:pnlPasosConsultaProcedimiento :mensajes" resetValues="true"/>
-                                <p:column headerText="Paso">
-                                    <h:outputText value="#{consultaProcedimientoPasoModel.etiquetaPaso(cpp.idProcedimientoPaso)}"/>
-                                </p:column>
-                                <p:column headerText="Valor">
-                                    <h:outputText value="#{cpp.valor}"/>
-                                </p:column>
-                                <p:column headerText="Estado">
-                                    <h:outputText value="#{cpp.estado}"/>
-                                </p:column>
-
-                                <p:column headerText="Persona / Rol">
-                                    <h:outputText value="#{consultaProcedimientoPasoModel.etiquetaPersonaRol(cpp.idPersonaRol)}"/>
-                                </p:column>
-
-                                <p:column headerText="Inicio">
-                                    <h:outputText value="#{cpp.fechaInicio}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </p:column>
-
-                                <p:column headerText="Fin">
-                                    <h:outputText value="#{cpp.fechaFin}">
-                                        <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
-                                    </h:outputText>
-                                </p:column>
-                            </p:dataTable>
-
-                            <!-- NUEVO PASO -->
-                            <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}" update="@form"
-                                                mostrarCancelar="false" rendered="#{consultaProcedimientoPasoModel.estado=='NINGUNO'}" />
-
-                            <!-- FORMULARIO DEL PASO -->
-                            <p:panelGrid columns="2"
-                                         rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}">
-                                <p:outputLabel value="Paso" for="selPasoProcedimiento"/>
-                                <p:selectOneMenu id="selPasoProcedimiento"
-                                                 value="#{consultaProcedimientoPasoModel.registro.idProcedimientoPaso}"
-                                                 converter="procedimientoPasoConverter"
-                                                 style="width:100%;">
-                                    <f:selectItem itemLabel="Seleccione un paso" itemValue="#{null}" noSelectionOption="true"/>
-                                    <f:selectItems value="#{consultaProcedimientoPasoModel.pasosDisponibles}"
-                                                   var="pp" itemValue="#{pp}"
-                                                   itemLabel="#{consultaProcedimientoPasoModel.etiquetaPaso(pp)}"/>
-                                </p:selectOneMenu>
-
-                                <p:outputLabel value="Valor" for="txtValorPaso"/>
-                                <p:inputTextarea id="txtValorPaso" rows="3" style="width:100%;"
-                                                 value="#{consultaProcedimientoPasoModel.registro.valor}"/>
-                                <p:outputLabel value="Estado" for="selEstadoPaso"/>
-                                <p:selectOneMenu id="selEstadoPaso"
-                                                 value="#{consultaProcedimientoPasoModel.registro.estado}">
-                                    <f:selectItems value="#{consultaProcedimientoPasoModel.estados}"/>
-                                </p:selectOneMenu>
-
-                                <p:outputLabel value="Persona / Rol" for="txtPersonaRolPaso"/>
-                                <p:inputText id="txtPersonaRolPaso" disabled="true" style="width:100%;"
-                                             value="#{consultaProcedimientoPasoModel.personaRolEtiqueta}"/>
-
-                                <p:outputLabel value="Fecha de inicio" for="dtInicioPaso"/>
-                                <p:datePicker id="dtInicioPaso"
-                                              value="#{consultaProcedimientoPasoModel.registro.fechaInicio}"
-                                              showTime="true"
-                                              disabled="true"
-                                              pattern="dd/MM/yyyy HH:mm"
-                                              timeZone="America/El_Salvador"
-                                              showIcon="true"/>
-
-                                <p:outputLabel value="Fecha de fin" for="dtFinPaso"/>
-                                <p:datePicker id="dtFinPaso"
-                                              value="#{consultaProcedimientoPasoModel.registro.fechaFin}"
-                                              showTime="true"
-                                              timeZone="America/El_Salvador"
-                                              yearNavigator="true"
-                                              pattern="dd/MM/yyyy HH:mm"
-                                              showIcon="true"/>
-                            </p:panelGrid>
-
-                            <!-- BOTONES CRUD DEL PASO -->
-                            <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
-
-                                <g:botones_top modelo="#{consultaProcedimientoPasoModel}"/>
-                                <g:Botones_Acciones modelo="#{consultaProcedimientoPasoModel}" update="@form"
-                                                    mostrarNuevo="false" rendered="#{consultaProcedimientoPasoModel.estado!='NINGUNO'}" />
-                            </div>
+                                <!-- BOTONES CRUD DEL PROCEDIMIENTO-->
+                                <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
+                                    <g:botones_top modelo="#{consultaProcedimientoModel}"
+                                                   process=":Consulta:tabsConsulta:pnlProcedimientos"
+                                                   tabla="Consulta:tabsConsulta:pnlProcedimientoPasos"
+                                                   rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
+                                    <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
+                                                        mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
+                                </div>
+                            </h:panelGroup>
 
                         </h:panelGroup>
                     </p:tab>
                 </p:tabView>
+
+                <!-- DIÁLOGO: BUSCAR PACIENTE POR NOMBRE.
+                     Al elegir una fila del autocomplete se selecciona el paciente,
+                     se cierra el diálogo y se refresca el formulario (sin botón). -->
+                <p:dialog id="dlgPaciente" widgetVar="dlgPaciente" header="Buscar paciente"
+                          modal="true" width="720" resizable="false" style="max-width:95vw">
+                    <h:panelGroup id="pnlBuscarPaciente" layout="block">
+                        <p:panelGrid columns="2" style="border:none; width:100%;">
+                            <p:outputLabel for="acPaciente" value="Nombre o apellido"/>
+                            <p:autoComplete id="acPaciente" value="#{consultaModel.pacienteEncontrado}"
+                                            completeMethod="#{consultaModel.completarPacientes}"
+                                            var="pa" itemValue="#{pa}" itemLabel="#{consultaModel.etiquetaPaciente(pa)}"
+                                            converter="personaRolConverter" forceSelection="true"
+                                            minQueryLength="1" queryDelay="300" scrollHeight="250" style="width:100%;">
+                                <p:ajax event="itemSelect" listener="#{consultaModel.seleccionarPaciente}"
+                                        update=":Consulta :mensajes"/>
+                                <p:column headerText="Persona"><h:outputText value="#{consultaModel.etiquetaPaciente(pa)}"/></p:column>
+                                <p:column headerText="Fecha de nacimiento">
+                                    <h:outputText value="#{pa.idPersona.fechaNacimiento}"><f:convertDateTime pattern="dd/MM/yyyy"/></h:outputText>
+                                </p:column>
+                                <p:column headerText="Documentos"><h:outputText value="#{consultaModel.documentosDe(pa)}"/></p:column>
+                            </p:autoComplete>
+                        </p:panelGrid>
+                    </h:panelGroup>
+                </p:dialog>
+                <p:dialog id="dlgPacienteDoc" widgetVar="dlgPacienteDoc" header="Buscar paciente por documento"
+                          modal="true" width="720" resizable="false" style="max-width:95vw">
+                    <h:panelGroup id="pnlBuscarPacienteDoc" layout="block">
+                        <p:panelGrid columns="2" style="border:none; width:100%;">
+                            <p:outputLabel for="acPacienteDoc" value="Documento"/>
+                            <p:autoComplete id="acPacienteDoc" value="#{consultaModel.pacienteEncontrado}"
+                                            completeMethod="#{consultaModel.completarPacientesPorDocumento}"
+                                            var="pa" itemValue="#{pa}" itemLabel="#{consultaModel.etiquetaPaciente(pa)}"
+                                            converter="personaRolConverter" forceSelection="true"
+                                            minQueryLength="1" queryDelay="300" scrollHeight="250" style="width:100%;">
+                                <p:ajax event="itemSelect" listener="#{consultaModel.seleccionarPaciente}"
+                                        update=":Consulta :mensajes"/>
+                                <p:column headerText="Persona"><h:outputText value="#{consultaModel.etiquetaPaciente(pa)}"/></p:column>
+                                <p:column headerText="Fecha de nacimiento">
+                                    <h:outputText value="#{pa.idPersona.fechaNacimiento}"><f:convertDateTime pattern="dd/MM/yyyy"/></h:outputText>
+                                </p:column>
+                                <p:column headerText="Documentos"><h:outputText value="#{consultaModel.documentosDe(pa)}"/></p:column>
+                            </p:autoComplete>
+                        </p:panelGrid>
+                    </h:panelGroup>
+                </p:dialog>
             </h:form>
         </div>
     </ui:define>

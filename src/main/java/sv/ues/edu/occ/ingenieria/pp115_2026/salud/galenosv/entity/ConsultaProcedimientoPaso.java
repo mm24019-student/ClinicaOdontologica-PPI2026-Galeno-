@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
 import java.io.Serializable;
@@ -45,7 +44,6 @@ public class ConsultaProcedimientoPaso implements Serializable {
     private Date fechaInicio;
     @Column(name = "fecha_fin")
     @Temporal(TemporalType.TIMESTAMP)
-    @NotNull(message="Debe ingresar fecha fin")
     private Date fechaFin;
     @Pattern(regexp = ESTADOS_VALIDOS_REGEX,
         message = "El estado debe ser PENDIENTE, EN_PROCESO, COMPLETADO o CANCELADO")

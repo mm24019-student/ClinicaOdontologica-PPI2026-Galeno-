@@ -17,9 +17,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
  */
 @Stateless //
 @LocalBean //
-public class ConsultaDAO extends DefaultDAO<Consulta>{
-    
-      // Inyectamos el EntityManager, que es la conexión con la base de datos.
+public class ConsultaDAO extends DefaultDAO<Consulta> {
+
+    // Inyectamos el EntityManager, que es la conexión con la base de datos.
     @PersistenceContext(unitName = "Galeno-PU")
     private EntityManager em;
 
@@ -29,8 +29,8 @@ public class ConsultaDAO extends DefaultDAO<Consulta>{
 
         return em;
     }
-    
-     // Busca consultas por rango de fecha de inicio y/o por clínica. Cualquier
+
+    // Busca consultas por rango de fecha de inicio y/o por clínica. Cualquier
     // parámetro en null simplemente no filtra.
     //  - desde:          incluye consultas con fechaInicio >= desde
     //  - hastaExclusivo: incluye consultas con fechaInicio <  hastaExclusivo
@@ -50,16 +50,18 @@ public class ConsultaDAO extends DefaultDAO<Consulta>{
         if (idClinica != null) {
             condiciones.add("pr.idClinica.idClinica = :idClinica");
         }
-        StringBuilder jpql = new StringBuilder("SELECT c FROM Consulta c "
+        StringBuilder jpql = new StringBuilder("SELECT DISTINCT c FROM Consulta c "
                 + "LEFT JOIN FETCH c.idPersonaRol pr "
-                + "LEFT JOIN FETCH pr.idPersona "
+                + "LEFT JOIN FETCH pr.idPersona p "
+                + "LEFT JOIN FETCH p.documentoList d "
+                + "LEFT JOIN FETCH d.idTipoDocumento "
                 + "LEFT JOIN FETCH pr.idRol "
                 + "LEFT JOIN FETCH pr.idClinica ");
         if (!condiciones.isEmpty()) {
             jpql.append("WHERE ").append(String.join(" AND ", condiciones)).append(' ');
         }
         jpql.append("ORDER BY c.fechaInicio DESC");
- 
+
         TypedQuery<Consulta> q = em.createQuery(jpql.toString(), Consulta.class);
         if (desde != null) {
             q.setParameter("desde", desde);

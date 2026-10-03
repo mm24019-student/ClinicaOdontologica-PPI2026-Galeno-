@@ -17,7 +17,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  */
 @Stateless
 @LocalBean
-public class PersonaRolDAO extends DefaultDAO<PersonaRol>{
+public class PersonaRolDAO extends DefaultDAO<PersonaRol> {
 
     @PersistenceContext(unitName = "Galeno-PU")
     EntityManager em;
@@ -47,6 +47,65 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol>{
         TypedQuery<Clinica> q = em.createNamedQuery("Clinica.findAll", Clinica.class);
         q.setMaxResults(100);
         return q.getResultList();
+    }
+
+    // Pacientes activos de la clínica cuyo nombre o apellido contiene el texto.
+    public List<PersonaRol> buscarPacientes(String texto, UUID idClinica, int max) {
+        return consultarPacientes(
+                "LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE :t", texto, idClinica, max);
+    }
+
+// Pacientes activos de la clínica que tienen un documento cuyo valor contiene el texto.
+    public List<PersonaRol> buscarPacientesPorDocumento(String texto, UUID idClinica, int max) {
+        return consultarPacientes(
+                "EXISTS (SELECT d2 FROM Documento d2 WHERE d2.idPersona = p AND LOWER(d2.valor) LIKE :t)",
+                texto, idClinica, max);
+    }
+
+    private List<PersonaRol> consultarPacientes(String condicionTexto, String texto, UUID idClinica, int max) {
+        String t = "%" + (texto == null ? "" : texto.trim().toLowerCase()) + "%";
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "LEFT JOIN FETCH p.documentoList d "
+                + "LEFT JOIN FETCH d.idTipoDocumento "
+                + "WHERE LOWER(r.nombre) = 'paciente' "
+                + "AND (r.activo IS NULL OR r.activo = true) "
+                + "AND " + condicionTexto + " ");
+        if (idClinica != null) {
+            jpql.append("AND c.idClinica = :idClinica ");
+        }
+        jpql.append("ORDER BY p.apellidos, p.nombres");
+        TypedQuery<PersonaRol> q = em.createQuery(jpql.toString(), PersonaRol.class);
+        q.setParameter("t", t);
+        if (idClinica != null) {
+            q.setParameter("idClinica", idClinica);
+        }
+        return q.getResultList().stream().limit(max).collect(java.util.stream.Collectors.toList());
+    }
+
+    // Primera persona activa con ese rol en la clínica indicada (null si no hay).
+    public PersonaRol buscarPorRolYClinica(UUID idRol, UUID idClinica) {
+        StringBuilder jpql = new StringBuilder(
+                "SELECT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "WHERE r.idRol = :idRol AND (r.activo IS NULL OR r.activo = true) ");
+        if (idClinica != null) {
+            jpql.append("AND c.idClinica = :idClinica ");
+        }
+        jpql.append("ORDER BY pr.fechaCreacion");
+        TypedQuery<PersonaRol> q = em.createQuery(jpql.toString(), PersonaRol.class);
+        q.setParameter("idRol", idRol);
+        if (idClinica != null) {
+            q.setParameter("idClinica", idClinica);
+        }
+        q.setMaxResults(1);
+        List<PersonaRol> r = q.getResultList();
+        return r.isEmpty() ? null : r.get(0);
     }
 
     // Devuelve una persona por su id, o null si no existe.

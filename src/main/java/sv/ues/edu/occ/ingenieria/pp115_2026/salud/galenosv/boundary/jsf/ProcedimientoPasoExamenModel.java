@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -39,6 +40,15 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     private ExamenDAO eDAO;
 
     private List<Examen> examenes;
+
+    // Texto que se pone cuando el usuario no escribe observaciones (la entidad
+    // exige que no queden en blanco).
+    private static final String OBSERVACION_POR_DEFECTO = "Examen asignado al paso";
+
+    private Examen examenPorAgregar;
+    // Observaciones escritas en el diálogo "Agregar Examen"
+    private String observacionesPorAgregar;
+    private String idSeleccionado;
 
     // Igual que en ProcedimientoPasoSecuenciaModel: el p:autoComplete reemplaza
     // a la tabla siempre visible (límite de 3 tablas por pantalla). Guarda el
@@ -90,6 +100,107 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
                 : "(sin examen)";
         String textoEstado = Boolean.TRUE.equals(e.getActivo()) ? "ACTIVO" : "INACTIVO";
         return nombreExamen + " — " + textoEstado;
+    }
+
+    public Examen getExamenPorAgregar() {
+        return examenPorAgregar;
+    }
+
+    public void setExamenPorAgregar(Examen e) {
+        this.examenPorAgregar = e;
+    }
+
+    public String getObservacionesPorAgregar() {
+        return observacionesPorAgregar;
+    }
+
+    public void setObservacionesPorAgregar(String observacionesPorAgregar) {
+        this.observacionesPorAgregar = observacionesPorAgregar;
+    }
+
+    // Botón "Agregar Examen" del panel: deja el diálogo vacío antes de abrirlo.
+    public void prepararAgregar() {
+        this.examenPorAgregar = null;
+        this.observacionesPorAgregar = null;
+    }
+
+    // Texto de cada fila de la lista del panel: nombre del examen y, si el
+    // usuario escribió una observación propia, se muestra a continuación.
+    public String etiquetaLista(ProcedimientoPasoExamen pe) {
+        if (pe == null || pe.getIdExamen() == null) {
+            return "";
+        }
+        String obs = pe.getObservaciones();
+        if (obs == null || obs.isBlank() || OBSERVACION_POR_DEFECTO.equals(obs)) {
+            return pe.getIdExamen().getNombre();
+        }
+        return pe.getIdExamen().getNombre() + " — " + obs;
+    }
+
+    public String getIdSeleccionado() {
+        return idSeleccionado;
+    }
+
+    public void setIdSeleccionado(String id) {
+        this.idSeleccionado = id;
+    }
+
+// Botón "Seleccionar" del diálogo "Agregar Examen"
+    public void agregarExamen(ProcedimientoPaso paso) {
+        if (paso == null || paso.getIdProcedimientoPaso() == null) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un paso",
+                    "Guarde o seleccione un paso antes de agregarle exámenes");
+            return;
+        }
+        if (!permitirAccion()
+                || !requerir(examenPorAgregar, "Seleccione un examen", "El examen es obligatorio")
+                || !requerirActivo(examenPorAgregar.getActivo(), "Examen inactivo",
+                        "No se puede asignar un examen inactivo a un paso")) {
+            return;
+        }
+        cargarDe(paso);
+        boolean repetido = getregistros().stream().anyMatch(pe -> pe.getIdExamen() != null
+                && pe.getIdExamen().getIdExamen().equals(examenPorAgregar.getIdExamen()));
+        if (repetido) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Examen repetido", "Ese examen ya está en este paso");
+            return;
+        }
+        ProcedimientoPasoExamen nuevo = crearRegistroNuevo();
+        asignarPadre(nuevo, paso);
+        nuevo.setIdExamen(examenPorAgregar);
+        // La entidad tiene @NotBlank en observaciones: si no escribió nada, texto por defecto
+        nuevo.setObservaciones(observacionesPorAgregar == null || observacionesPorAgregar.isBlank()
+                ? OBSERVACION_POR_DEFECTO : observacionesPorAgregar.trim());
+        try {
+            ppeDAO.crear(nuevo);
+            examenPorAgregar = null;
+            observacionesPorAgregar = null;
+            cargarDe(paso);
+            PrimeFaces.current().executeScript("PF('dlgAgregarExamen').hide()");
+            mensaje(FacesMessage.SEVERITY_INFO, "Examen agregado", "Examen asignado al paso");
+        } catch (Exception ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se puede agregar el examen", ex.getMessage());
+        }
+    }
+
+// Botón "Eliminar Seleccionado"
+    public void eliminarSeleccionado(ProcedimientoPaso paso) {
+        if (idSeleccionado == null || idSeleccionado.isBlank()) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un examen", "Elija un examen de la lista");
+            return;
+        }
+        if (!permitirAccion()) {
+            return;
+        }
+        try {
+            ppeDAO.eliminar(UUID.fromString(idSeleccionado));
+            idSeleccionado = null;
+            cargarDe(paso);
+            mensaje(FacesMessage.SEVERITY_INFO, "Examen eliminado", "Examen quitado del paso");
+        } catch (Exception ex) {
+            mensaje(FacesMessage.SEVERITY_ERROR, "No se puede eliminar el examen",
+                    "Tiene registros relacionados o ocurrió un error.");
+        }
     }
 
     // Se llama desde el botón "Gestionar Examen del Procedimiento": recarga
@@ -152,8 +263,8 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
                         "No se puede asignar un examen inactivo a un paso");
     }
 
-    // Al cambiar de paso padre o cerrar el diálogo, limpiar lo que haya
-    // quedado escrito/elegido en el autocomplete.
+    // Al cambiar de paso padre, limpiar también lo que haya quedado
+    // escrito/elegido en el autocomplete (igual que ProcedimientoPasoSecuenciaModel).
     @Override
     public void cargarDe(ProcedimientoPaso padre) {
         super.cargarDe(padre);

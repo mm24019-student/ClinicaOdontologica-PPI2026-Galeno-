@@ -29,12 +29,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  * llamando a cargarDe).
  *
  * Hereda de AbstracdetallecrudModel: de ahí sale cargar solo los hijos del
- * padre,
- * asignar el padre a cada paso nuevo y volver a filtrar tras guardar o
- * eliminar.
- * Aquí se indica cómo buscar por padre (ProcedimientoPasoDAO), cómo nace un
- * paso
- * nuevo y se ofrece el autocompletado de Rol (RolDAO).
+ * padre, asignar el padre a cada paso nuevo y volver a filtrar tras guardar o
+ * eliminar. Aquí se indica cómo buscar por padre (ProcedimientoPasoDAO), cómo
+ * nace un paso nuevo y se ofrece el autocompletado de Rol (RolDAO).
  *
  * @author antonio
  */
@@ -101,7 +98,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         hijo.setIdProcedimiento(padre);
     }
 
-        public List<Rol> completarRoles(String query) {
+    public List<Rol> completarRoles(String query) {
         if (roles == null) {
             roles = rolDAO.findRange(0, 100);
         }
@@ -124,7 +121,6 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     protected UUID obtenerId(ProcedimientoPaso registro) {
         return registro.getIdProcedimientoPaso();
     }
-
 
     // =====================================================================
     // "Depende de" + árbol de pasos
@@ -171,12 +167,35 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         construirArbol();
     }
 
+    // Un solo botón "Nuevo": sin pasos crea el paso inicial; con pasos siempre
+// crea un paso dependiente (de la fila seleccionada o, si no hay, del último).
     @Override
     public void btnNuevoHandler(jakarta.faces.event.ActionEvent ae) {
+        ProcedimientoPaso base = ultimoPaso();   // null si todavía no hay pasos
         super.btnNuevoHandler(ae);
-        // El paso nuevo depende automáticamente del paso anterior (el último
-        // del árbol); si es el primero del procedimiento queda sin dependencia.
-        this.dependeDe = ultimoPaso();
+        if (estado == Estado_Crud.CREAR) {
+            this.dependeDe = base;
+        }
+    }
+
+// Lo usa el botón para decidir su texto: "Nuevo paso" o "Nuevo paso dependiente".
+    public boolean isHayPasos() {
+        return !raiz.getChildren().isEmpty();
+    }
+
+// "Nuevo paso dependiente": depende del paso que está seleccionado.
+    public void btnNuevoDependienteHandler(jakarta.faces.event.ActionEvent ae) {
+        ProcedimientoPaso base = this.registro;
+        if (base == null || estado != Estado_Crud.MODIFICAR) {
+            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un paso",
+                    "Seleccione el paso del que dependerá el nuevo paso");
+            return;
+        }
+        // super.* apunta a AbstracCrudModel, así que no pasa por el override de arriba
+        super.btnNuevoHandler(ae);
+        if (estado == Estado_Crud.CREAR) {
+            this.dependeDe = base;
+        }
     }
 
     // Último paso en el orden en que se muestra el árbol (recorrido en
@@ -284,12 +303,12 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     @Override
     protected boolean validarAntesDeGuardar() {
         if (estado == Estado_Crud.CREAR) {
-    if (!requerir(registro.getIdRol(), "Seleccione un rol", "El rol es obligatorio")
-            || !requerirActivo(registro.getIdRol().getActivo(), "Rol inactivo",
-                    "No se puede asignar un rol inactivo a un paso")) {
-        return false;
-    }
-}
+            if (!requerir(registro.getIdRol(), "Seleccione un rol", "El rol es obligatorio")
+                    || !requerirActivo(registro.getIdRol().getActivo(), "Rol inactivo",
+                            "No se puede asignar un rol inactivo a un paso")) {
+                return false;
+            }
+        }
         if (dependeDe != null) {
             UUID propio = registro.getIdProcedimientoPaso();
             Map<UUID, UUID> dep = mapaDependencias();

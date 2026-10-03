@@ -4,6 +4,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -45,8 +47,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 @ExtendWith(MockitoExtension.class)
 public class ConsultaModelTest {
 
-    private static final String TAB_PROCEDIMIENTOS = "Procedimientos de la Consulta";
-    private static final String TAB_PASOS = "Pasos del Procedimiento";
+    // Debe coincidir con el p:tab de Consulta.xhtml (una sola pestaña con
+    // procedimientos y pasos).
+    private static final String TAB_PROCEDIMIENTOS = "Procedimientos";
 
     @Mock
     private ConsultaDAO cDAO;
@@ -118,9 +121,12 @@ public class ConsultaModelTest {
     // ---- inicializar() ----
 
     @Test
-    public void inicializar_cargaLasPrimeras100Consultas() {
+    public void inicializar_cargaLasPrimeras100ConsultasDelDiaDeHoy() {
+        // El filtro de fechas arranca con "hoy" (fechaDesde/fechaHasta), así que
+        // ya no se usa findRange sino buscarConFiltro. Sin sesión no hay clínica.
         List<Consulta> esperado = Arrays.asList(new Consulta(UUID.randomUUID()));
-        when(cDAO.findRange(0, 100)).thenReturn(esperado);
+        when(cDAO.buscarConFiltro(any(Date.class), any(Date.class), isNull(), eq(100)))
+                .thenReturn(esperado);
 
         bean.inicializar();
 
@@ -155,14 +161,15 @@ public class ConsultaModelTest {
     }
 
     @Test
-    public void btnNuevoHandler_tomaLaPersonaRolDeLaSesionYSeLaAsignaALaConsulta() {
+    public void btnNuevoHandler_creaLaConsultaSinPacienteHastaQueSeElija() {
+        // El paciente se busca con el diálogo (seleccionarPaciente); la sesión
+        // ya no se asigna a la consulta al pulsar "Nuevo".
         iniciarSesion();
-        when(sesionBean.getPersonaRolActual()).thenReturn(personaRol);
 
         bean.btnNuevoHandler(mock(ActionEvent.class));
 
-        assertSame(personaRol, bean.getPersonaRolSeleccionado());
-        assertSame(personaRol, bean.getRegistro().getIdPersonaRol());
+        assertNull(bean.getPersonaRolSeleccionado());
+        assertNull(bean.getRegistro().getIdPersonaRol());
     }
 
     @Test
@@ -172,7 +179,7 @@ public class ConsultaModelTest {
 
         bean.btnNuevoHandler(mock(ActionEvent.class));
 
-        // La sesión (mock) no tiene PersonaRol actual, así que queda en null.
+        // Una consulta nueva siempre empieza sin paciente.
         assertNull(bean.getPersonaRolSeleccionado());
     }
 
@@ -340,26 +347,28 @@ public class ConsultaModelTest {
     // ---- onTabChange() ----
 
     @Test
-    public void onTabChange_pestanaProcedimientos_cargaLosProcedimientosDeLaConsultaActual() {
+    public void onTabChange_pestanaProcedimientos_cargaLosProcedimientosYLimpiaLosPasos() {
         Consulta actual = new Consulta(UUID.randomUUID());
         bean.setRegistro(actual);
 
         bean.onTabChange(eventoDePestana(TAB_PROCEDIMIENTOS));
 
         verify(consultaProcedimientoModel).cargarDe(actual);
-        verifyNoInteractions(consultaProcedimientoPasoModel);
+        // Aún no hay un procedimiento elegido, así que los pasos quedan vacíos.
+        verify(consultaProcedimientoPasoModel).cargarDe(null);
     }
 
     @Test
-    public void onTabChange_pestanaPasos_cargaLosPasosDelProcedimientoDeConsultaSeleccionado() {
-        ConsultaProcedimiento seleccionado = new ConsultaProcedimiento(UUID.randomUUID());
-        when(consultaProcedimientoModel.getRegistro()).thenReturn(seleccionado);
+    @SuppressWarnings("unchecked")
+    public void onProcedimientoRowSelect_seleccionaElProcedimientoYCargaSusPasos() {
+        ConsultaProcedimiento elegido = new ConsultaProcedimiento(UUID.randomUUID());
+        SelectEvent<ConsultaProcedimiento> event = mock(SelectEvent.class);
+        when(event.getObject()).thenReturn(elegido);
 
-        bean.onTabChange(eventoDePestana(TAB_PASOS));
+        bean.onProcedimientoRowSelect(event);
 
-        verify(consultaProcedimientoPasoModel).cargarDe(seleccionado);
-        // Regresión: entrar a "Pasos" no debe recargar (ni reiniciar) la pestaña 2.
-        verify(consultaProcedimientoModel, never()).cargarDe(any());
+        verify(consultaProcedimientoModel).onRowSelect(event);
+        verify(consultaProcedimientoPasoModel).cargarDe(elegido);
     }
 
     @Test

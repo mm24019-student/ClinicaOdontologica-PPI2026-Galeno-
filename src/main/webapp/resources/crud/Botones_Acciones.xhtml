@@ -11,12 +11,13 @@
         <cc:attribute name="mostrarNuevo" type="java.lang.Boolean" default="true" />
         <cc:attribute name="mostrarCancelar" type="java.lang.Boolean" default="true" />
             <cc:attribute name="update" default="@all" />
+            <cc:attribute name="etiquetaNuevo" default="" />
 
     </cc:interface>
 
     <cc:implementation>
         <p:panelGrid columns="2" styleClass="botones-juntos">
-            <p:commandButton value="#{msg['crud.boton.nuevo']}" resetValues="true" update="#{cc.attrs.update}" 
+            <p:commandButton value="#{empty cc.attrs.etiquetaNuevo ? msg['crud.boton.nuevo'] : cc.attrs.etiquetaNuevo}" resetValues="true" update="#{cc.attrs.update}" 
                              actionListener="#{cc.attrs.modelo.btnNuevoHandler}" 
                              rendered="#{cc.attrs.mostrarNuevo}"/>
             <p:commandButton value="#{msg['crud.boton.cancelar']}" resetValues="true" immediate="true" process="@this" update="#{cc.attrs.update}" 
