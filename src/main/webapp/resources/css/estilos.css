@@ -141,6 +141,37 @@ h2 {
     color: white !important;
 }
 
+/* ===== TreeTable (pasos del procedimiento): mismo estilo que las dataTable ===== */
+.ui-treetable {
+    width: 100%;
+}
+.ui-treetable thead th {
+    background: var(--marino) !important;
+    color: white !important;
+    border-color: var(--marino-oscuro) !important;
+    font-weight: 700 !important;
+    border-radius: 0 !important;
+}
+.ui-treetable tbody tr:nth-child(even) {
+    background-color: #FFFFFF !important;
+}
+.ui-treetable tbody tr:nth-child(odd) {
+    background-color: var(--gris-claro) !important;
+}
+.ui-treetable tbody tr:hover {
+    background-color: #E6FBF9 !important;
+}
+.ui-treetable tbody tr.ui-state-highlight {
+    background-color: var(--teal) !important;
+    color: white !important;
+}
+.ui-treetable tbody tr.ui-state-highlight label {
+    color: white !important;
+}
+.ui-treetable tbody td {
+    padding: 8px 10px;
+}
+
 /* Panel / contenedor general */
 .ui-widget-content {
     border-color: var(--gris-borde) !important;
@@ -251,4 +282,3 @@ h2 {
     font-size: 44px !important;
     margin: 0 !important;
 }
-
