@@ -85,29 +85,7 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol> {
         }
         return q.getResultList().stream().limit(max).collect(java.util.stream.Collectors.toList());
     }
-
-    // Primera persona activa con ese rol en la clínica indicada (null si no hay).
-    public PersonaRol buscarPorRolYClinica(UUID idRol, UUID idClinica) {
-        StringBuilder jpql = new StringBuilder(
-                "SELECT pr FROM PersonaRol pr "
-                + "JOIN FETCH pr.idPersona "
-                + "JOIN FETCH pr.idRol r "
-                + "LEFT JOIN FETCH pr.idClinica c "
-                + "WHERE r.idRol = :idRol AND (r.activo IS NULL OR r.activo = true) ");
-        if (idClinica != null) {
-            jpql.append("AND c.idClinica = :idClinica ");
-        }
-        jpql.append("ORDER BY pr.fechaCreacion");
-        TypedQuery<PersonaRol> q = em.createQuery(jpql.toString(), PersonaRol.class);
-        q.setParameter("idRol", idRol);
-        if (idClinica != null) {
-            q.setParameter("idClinica", idClinica);
-        }
-        q.setMaxResults(1);
-        List<PersonaRol> r = q.getResultList();
-        return r.isEmpty() ? null : r.get(0);
-    }
-
+    
     // Devuelve una persona por su id, o null si no existe.
     public Persona buscarPersona(UUID id) {
         return id == null ? null : em.find(Persona.class, id);

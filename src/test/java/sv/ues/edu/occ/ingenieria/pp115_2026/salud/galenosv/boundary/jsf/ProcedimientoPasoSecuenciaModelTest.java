@@ -44,8 +44,6 @@ public class ProcedimientoPasoSecuenciaModelTest {
     private ProcedimientoPasoSecuenciaDAO dao;
     @Mock
     private ProcedimientoPasoDAO pasoDAO;
-    @Mock
-    private FacesContext fc;
  
     @InjectMocks
     private ProcedimientoPasoSecuenciaModel bean;
@@ -337,7 +335,7 @@ public class ProcedimientoPasoSecuenciaModelTest {
         bean.abrirGestionSecuencia(pasoPadre);
  
         assertEquals(esperado, bean.getregistros());
-        assertTrue(bean.isMostrarDialogo());
+        assertTrue(bean.mostrarDialogo);
     }
  
     // ---- cargarDe() / btnCerrarDialogo() ----
@@ -365,7 +363,7 @@ public class ProcedimientoPasoSecuenciaModelTest {
  
         bean.btnCerrarDialogo();
  
-        assertFalse(bean.isMostrarDialogo());
+        assertFalse(bean.mostrarDialogo);
         assertNull(bean.getRegistro());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getSeleccionAutocomplete());

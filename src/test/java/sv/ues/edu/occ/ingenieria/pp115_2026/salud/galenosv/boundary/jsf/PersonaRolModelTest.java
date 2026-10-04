@@ -12,10 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -39,12 +36,7 @@ public class PersonaRolModelTest {
 
     @Mock
     private PersonaRolDAO personaRolDAO;
-    @Mock
-    private PersonaDAO personaDAO;
-    @Mock
-    private RolDAO rolDAO;
-    @Mock
-    private ClinicaDAO clinicaDAO;
+    
     @Mock
     private FacesContext fc;
 
@@ -150,35 +142,4 @@ public class PersonaRolModelTest {
         assertEquals(recargados, bean.getregistros());
     }
 
-    // ---- getPersonas() / getRoles() / getClinicas() ----
-
-    @Test
-    public void getPersonas_cacheaEntreLlamadas() {
-        when(personaDAO.findRange(0, 100)).thenReturn(Arrays.asList(new Persona(UUID.randomUUID())));
-
-        bean.getPersonas();
-        bean.getPersonas();
-
-        verify(personaDAO, times(1)).findRange(0, 100);
-    }
-
-    @Test
-    public void getRoles_cacheaEntreLlamadas() {
-        when(rolDAO.findRange(0, 100)).thenReturn(Arrays.asList(new Rol(UUID.randomUUID())));
-
-        bean.getRoles();
-        bean.getRoles();
-
-        verify(rolDAO, times(1)).findRange(0, 100);
-    }
-
-    @Test
-    public void getClinicas_cacheaEntreLlamadas() {
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(new Clinica(UUID.randomUUID())));
-
-        bean.getClinicas();
-        bean.getClinicas();
-
-        verify(clinicaDAO, times(1)).findRange(0, 100);
-    }
 }

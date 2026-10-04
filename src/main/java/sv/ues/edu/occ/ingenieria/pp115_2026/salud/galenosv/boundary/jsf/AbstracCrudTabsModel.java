@@ -65,7 +65,7 @@ public abstract class AbstracCrudTabsModel<T> extends AbstracCrudModel<T> {
     // Listener del cambio de pestaña. Aquí no hace nada; las subclases con hijos
     // (ej. ConsultaModel) lo sobrescriben para cargar el hijo de la pestaña
     // activada.
-    public void onTabChange(TabChangeEvent event) {
+    public void onTabChange(TabChangeEvent<?> event) {
     }
 
     // ---- Ya no se implementa crearRegistroNuevo() directamente: cada

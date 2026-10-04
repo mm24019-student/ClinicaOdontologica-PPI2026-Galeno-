@@ -10,6 +10,12 @@
         <h:outputStylesheet library="css" name="estilos.css" />
     </h:head>
     <h:body>
+        <p:growl id="growlGlobal" globalOnly="true" showDetail="true" life="4000" sticky="false"/>
+        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+            <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+        </p:confirmDialog>
+
         <div class="ui-g" style="margin:0;">
 
             <!-- ===== CABECERA: 4 + 4 + 4 = 12 ===== -->

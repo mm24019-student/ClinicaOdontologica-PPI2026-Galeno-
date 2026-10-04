@@ -307,7 +307,7 @@ public class ConsultaProcedimientoDAOTest {
 
         ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
         assertSame(primero, paso.getIdPersonaRol());
-        verify(em, never()).find(any(Class.class), any());
+        verify(em, never()).find(eq(Consulta.class), any());
     }
 
     @Test

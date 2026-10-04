@@ -1,7 +1,5 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,10 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -72,15 +68,5 @@ public class PersonaModelTest {
         verify(personaMedioContactoModel).cargarDe(persona);
     }
 
-    // ---- getClinicasTabla() ----
-
-    @Test
-    public void getClinicasTabla_delegaEnClinicaDaoConLosPrimeros100() {
-        List<Clinica> esperado = Arrays.asList(new Clinica(UUID.randomUUID()));
-        when(clinicaDAO.findRange(0, 100)).thenReturn(esperado);
-
-        List<Clinica> resultado = bean.getClinicasTabla();
-
-        assertEquals(esperado, resultado);
-    }
+   
 }

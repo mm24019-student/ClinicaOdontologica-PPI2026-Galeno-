@@ -20,7 +20,7 @@
                              selectionMode="single" rowKey="#{r.idTipoExamen}"
                              rendered="#{tipoExamenModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{tipoExamenModel.onRowSelect}"
-                            update=":frmTabla :TipoExamen :mensajes"/>
+                            update=":frmTabla :TipoExamen :mensajes :growlGlobal"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idTipoExamen}" />
                     </p:column>
@@ -34,7 +34,7 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{tipoExamenModel}" update="@form :TipoExamen :mensajes" />
+                <g:Botones_Acciones modelo="#{tipoExamenModel}" update="@form :TipoExamen :mensajes :growlGlobal" />
             </h:form>
         </div>
 

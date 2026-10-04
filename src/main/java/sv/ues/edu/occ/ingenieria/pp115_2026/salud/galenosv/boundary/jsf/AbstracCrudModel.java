@@ -219,13 +219,6 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Diálogo
     // =====================================================================
-    public boolean isMostrarDialogo() {
-        return mostrarDialogo;
-    }
-
-    public void setMostrarDialogo(boolean mostrarDialogo) {
-        this.mostrarDialogo = mostrarDialogo;
-    }
 
     public void btnAbrirDialogo() {
         this.mostrarDialogo = true;

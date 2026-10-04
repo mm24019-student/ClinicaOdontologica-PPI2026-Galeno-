@@ -22,7 +22,7 @@
                              selectionMode="single" rowKey="#{r.idRol}"
                              rendered="#{rolModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{rolModel.onRowSelect}"
-                            update=":frmTabla :Rol :mensajes" resetValues="true"/>
+                            update=":frmTabla :Rol :mensajes :growlGlobal" resetValues="true"/>
                     <p:column headerText="Nombre">
                         <p:outputLabel value="#{r.nombre}"/>
                     </p:column>
@@ -34,7 +34,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{rolModel}" update="@form :Rol :mensajes"/>
+                <g:Botones_Acciones modelo="#{rolModel}" update="@form :Rol :mensajes :growlGlobal"/>
             </h:form>
         </div>
 

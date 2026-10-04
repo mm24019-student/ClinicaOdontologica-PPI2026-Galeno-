@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
 @Named
@@ -23,11 +21,8 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
     private MedioContactoDAO medioContactoDAO;
 
     @Inject
-    private PersonaDAO personaDAO;
-    @Inject
     private TipoMedioContactoDAO tipoMedioContactoDAO;
 
-    private List<Persona> personas;
     private List<TipoMedioContacto> tiposMedioContacto;
 
     @Override
@@ -47,12 +42,6 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
         return registro.getIdMedioContacto();
     }
 
-    public List<Persona> getPersonas() {
-        if (personas == null) {
-            personas = personaDAO.findRange(0, 100);
-        }
-        return personas;
-    }
 
     public List<TipoMedioContacto> getTiposMedioContacto() {
         if (tiposMedioContacto == null) {

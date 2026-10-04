@@ -4,14 +4,11 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
 @Named
@@ -22,12 +19,8 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     private DocumentoDAO documentoDAO;
 
     @Inject
-    private PersonaDAO personaDAO;
-    @Inject
     private TipoDocumentoDAO tipoDocumentoDAO;
 
-    private List<Persona> personas;
-    private List<TipoDocumento> tiposDocumento;
 
     @Override
     protected InterfaceDAO<Documento> getDAO() {
@@ -42,20 +35,6 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     @Override
     protected UUID obtenerId(Documento registro) {
         return registro.getIdDocumento();
-    }
-
-    public List<Persona> getPersonas() {
-        if (personas == null) {
-            personas = personaDAO.findRange(0, 100);
-        }
-        return personas;
-    }
-
-    public List<TipoDocumento> getTiposDocumento() {
-        if (tiposDocumento == null) {
-            tiposDocumento = tipoDocumentoDAO.findRange(0, 100);
-        }
-        return tiposDocumento;
     }
     
         @Override

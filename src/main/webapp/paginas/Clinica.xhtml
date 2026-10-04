@@ -22,7 +22,7 @@
                              selectionMode="single" rowKey="#{r.idClinica}"
                              rendered="#{clinicaModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{clinicaModel.onRowSelect}"
-                            update=":frmTabla :Clinica :mensajes" resetValues="true"/>
+                            update=":frmTabla :Clinica :mensajes :growlGlobal" resetValues="true"/>
                     <p:column headerText="Nombre">
                         <p:outputLabel value="#{r.nombre}"/>
                     </p:column>
@@ -34,7 +34,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{clinicaModel}" update="@form :Clinica :mensajes"/>
+                <g:Botones_Acciones modelo="#{clinicaModel}" update="@form :Clinica :mensajes :growlGlobal"/>
 
             </h:form>
         </div>
@@ -55,8 +55,9 @@
                     <p:outputLabel value="Tipo" for="tipo"/>
 
                     <p:selectOneMenu id="tipo"
-                                     value="#{clinicaModel.registro.tipo}"
-                                     style="width:100%;">
+                                      value="#{clinicaModel.registro.tipo}"
+                                      disabled="#{clinicaModel.estado=='MODIFICAR'}"
+                                      style="width:100%;">
                         <f:selectItem itemLabel="Clínica general"  itemValue="" />
                         <f:selectItem itemLabel="Clínica nivel 1" itemValue="GENERAL" />
                         <f:selectItem itemLabel="Clínica nivel 2" itemValue="ODONTOLOGICA" />

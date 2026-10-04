@@ -20,7 +20,7 @@
                              selectionMode="single" rowKey="#{r.idOrdenExamen}"
                              rendered="#{ordenExamenModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{ordenExamenModel.onRowSelect}"
-                            update=":frmTabla :OrdenExamen :mensajes"/>
+                            update="@form :frmTabla :OrdenExamen :mensajes :growlGlobal"/>
                     <p:ajax event="rowSelect" listener="#{ordenExamenModel.seleccionarOrdenExamen}"
                             update=":OrdenExamen:tabsOrden:pnlDetalleResultado"/>
                     <p:column headerText="ID">
@@ -38,7 +38,7 @@
                         <p:outputLabel value="#{r.indicaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{ordenExamenModel}" update="@form :OrdenExamen :mensajes" />
+                <g:Botones_Acciones modelo="#{ordenExamenModel}" update="@form :frmTabla :OrdenExamen :mensajes :growlGlobal" />
             </h:form>
         </div>
 

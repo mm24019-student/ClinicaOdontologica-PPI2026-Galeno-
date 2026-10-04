@@ -375,21 +375,14 @@ public class AbstracCrudModelTest {
 
     @Test
     public void dialogo_empiezaCerrado() {
-        assertFalse(bean.isMostrarDialogo());
+        assertFalse(bean.mostrarDialogo);
     }
 
     @Test
     public void btnAbrirDialogo_muestraElDialogo() {
         bean.btnAbrirDialogo();
 
-        assertTrue(bean.isMostrarDialogo());
-    }
-
-    @Test
-    public void setMostrarDialogo_actualizaElValor() {
-        bean.setMostrarDialogo(true);
-
-        assertTrue(bean.isMostrarDialogo());
+        assertTrue(bean.mostrarDialogo);
     }
 
     @Test
@@ -400,7 +393,7 @@ public class AbstracCrudModelTest {
 
         bean.btnCerrarDialogo();
 
-        assertFalse(bean.isMostrarDialogo());
+        assertFalse(bean.mostrarDialogo);
         assertNull(bean.getRegistro());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
     }

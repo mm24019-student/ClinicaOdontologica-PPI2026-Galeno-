@@ -20,8 +20,10 @@ public class ClinicaModelTest {
 
     @Mock
     private ClinicaDAO clinicaDAO;
+    
     @Mock
     private SesionBean sesionBean;
+    
     @Mock
     private FacesContext fc;
 
@@ -44,7 +46,7 @@ public class ClinicaModelTest {
 
         bean.inicializar();
 
-        assertEquals(clinicas, bean.getRegistros());
+        assertEquals(clinicas, bean.getregistros());
         verify(sesionBean).refrescar();
     }
 

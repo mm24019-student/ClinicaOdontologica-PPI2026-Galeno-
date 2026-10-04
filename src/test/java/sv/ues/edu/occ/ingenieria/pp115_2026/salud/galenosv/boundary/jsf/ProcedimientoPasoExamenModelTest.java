@@ -253,7 +253,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.abrirGestionExamen(pasoPadre);
  
         assertEquals(esperado, bean.getregistros());
-        assertTrue(bean.isMostrarDialogo());
+        assertTrue(bean.mostrarDialogo);
     }
  
     @Test
@@ -528,45 +528,6 @@ public class ProcedimientoPasoExamenModelTest {
         verify(ppeDAO, times(1)).findByProcedimientoPaso(otro.getIdProcedimientoPaso());
     }
 
-    // ---- abrirNuevoExamen() / onRowSelectAbrir() / prepararAgregar() ----
-
-    @Test
-    public void abrirNuevoExamen_pasoNulo_avisaYNoAbreNada() {
-        bean.abrirNuevoExamen(null);
-
-        assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        assertNull(bean.getRegistro());
-        assertFalse(bean.isMostrarDialogo());
-    }
-
-    @Test
-    public void abrirNuevoExamen_pasoSinGuardar_avisaYNoAbreNada() {
-        bean.abrirNuevoExamen(new ProcedimientoPaso());
-
-        assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        assertFalse(bean.isMostrarDialogo());
-    }
-
-    @Test
-    public void abrirNuevoExamen_preparaRegistroNuevoDelPasoYAbreElDialogo() {
-        bean.abrirNuevoExamen(pasoPadre);
-
-        assertEquals(Estado_Crud.CREAR, bean.getEstado());
-        assertSame(pasoPadre, bean.getRegistro().getIdProcedimientoPaso());
-        assertTrue(bean.isMostrarDialogo());
-    }
-
-    @Test
-    public void onRowSelectAbrir_seleccionaElExamenYAbreElDialogoParaEditarlo() {
-        ProcedimientoPasoExamen elegido = nuevoPPE(nuevoExamen("Radiografia"), true);
-
-        bean.onRowSelectAbrir(eventoCon(elegido));
-
-        assertSame(elegido, bean.getRegistro());
-        assertEquals(Estado_Crud.MODIFICAR, bean.getEstado());
-        assertTrue(bean.isMostrarDialogo());
-    }
-
     @Test
     public void prepararAgregar_dejaElDialogoVacio() {
         bean.setExamenPorAgregar(nuevoExamen("Radiografia"));
@@ -631,7 +592,7 @@ public class ProcedimientoPasoExamenModelTest {
 
         bean.recargarLista();
 
-        assertFalse(bean.isMostrarDialogo());
+        assertFalse(bean.mostrarDialogo);
         verify(ppeDAO, times(2)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
     }
 

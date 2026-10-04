@@ -4,13 +4,10 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
 @Named
@@ -34,10 +31,7 @@ public class PersonaModel extends AbstracCrudTabsModel<Persona> {
     private PersonaDocumentoModel personaDocumentoModel;
     @Inject
     private PersonaMedioContactoModel personaMedioContactoModel;
-
-    @Inject
-    private ClinicaDAO clinicaDAO;
-
+    
     // Recuerda en qué pestaña estaba el usuario para que los refrescos
     // ajax (seleccionar fila, crear/actualizar rol, etc.) no lo regresen
     // siempre a "Datos de Persona".
@@ -80,9 +74,4 @@ public class PersonaModel extends AbstracCrudTabsModel<Persona> {
         personaDocumentoModel.cargarDe(registro);
         personaMedioContactoModel.cargarDe(registro);
     }
-
-    public List<Clinica> getClinicasTabla() {
-        return clinicaDAO.findRange(0, 100);
-    }
-
 }

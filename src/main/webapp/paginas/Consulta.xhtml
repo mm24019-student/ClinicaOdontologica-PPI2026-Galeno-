@@ -58,7 +58,8 @@
                     <p:column headerText="Observaciones"><h:outputText value="#{r.observaciones}"/></p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{consultaModel}"  mostrarNuevo="#{sesionBean.autenticado}" mostrarCancelar="#{consultaModel.estado!='NINGUNO'}" update="@form :Consulta :mensajes"/>
+                <g:Botones_Acciones modelo="#{consultaModel}" 
+                                    mostrarNuevo="#{sesionBean.autenticado}" mostrarCancelar="#{consultaModel.estado!='NINGUNO'}" update="@form :Consulta :mensajes :growlGlobal"/>
             </h:form>
         </div>
 
@@ -192,14 +193,14 @@
                                 </p:dataTable>
 
                                 <!-- NUEVO PROCEDIMIENTO -->
-                                <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
+                                <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form :mensajes :growlGlobal"
                                                     mostrarCancelar="false" rendered="#{consultaProcedimientoModel.estado=='NINGUNO'}" />
 
                                 <!-- FORMULARIO DEL PROCEDIMIENTO-->
                                 <p:panelGrid columns="2"
                                              rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}">
-                                     <p:outputLabel value="ID" for="txtIdConsultaProcedimiento"/>
-                                <p:inputText id="txtIdConsultaProcedimiento" disabled="true" style="width:100%" value="#{consultaProcedimientoModel.registro.idConsultaProcedimiento}"/>
+                                    <p:outputLabel value="ID" for="txtIdConsultaProcedimiento"/>
+                                    <p:inputText id="txtIdConsultaProcedimiento" disabled="true" style="width:100%" value="#{consultaProcedimientoModel.registro.idConsultaProcedimiento}"/>
 
                                     <p:outputLabel value="Tipo" for="acProcedimientoConsulta"/>
                                     <p:autoComplete id="acProcedimientoConsulta"
@@ -242,7 +243,7 @@
                                                    process=":Consulta:tabsConsulta:pnlProcedimientos"
                                                    tabla="Consulta:tabsConsulta:pnlProcedimientoPasos"
                                                    rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}"/>
-                                    <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form"
+                                    <g:Botones_Acciones modelo="#{consultaProcedimientoModel}" update="@form :mensajes :growlGlobal"
                                                         mostrarNuevo="false" rendered="#{consultaProcedimientoModel.estado!='NINGUNO'}" />
                                 </div>
                             </h:panelGroup>

@@ -13,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
@@ -22,14 +20,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
 
 /**
  * Prueba de DocumentoModel (CRUD standalone). El flujo estándar heredado de
  * AbstracCrudModel ya está cubierto por RolModelTest; aquí solo se prueba lo
  * propio de esta clase: la validación relacionesCompletas() (persona +
  * tipoDocumento, incluyendo la rama de persona que PersonaDocumentoModelTest
- * no cubre porque ahí la persona ya viene fija) y los getters de combo
- * getPersonas()/getTiposDocumento(). Representa también a MedioContactoModel
+ * no cubre porque ahí la persona ya viene fija) . Representa también a MedioContactoModel
  * (mismo patrón, cambiando el nombre del campo).
  *
  * @author oscar
@@ -39,10 +37,11 @@ public class DocumentoModelTest {
 
     @Mock
     private DocumentoDAO documentoDAO;
-    @Mock
-    private PersonaDAO personaDAO;
-    @Mock
+    
+    @Mock 
     private TipoDocumentoDAO tipoDocumentoDAO;
+
+ 
     @Mock
     private FacesContext fc;
 
@@ -128,27 +127,4 @@ public class DocumentoModelTest {
         assertEquals(recargados, bean.getregistros());
     }
 
-    // ---- getPersonas() ----
-
-    @Test
-    public void getPersonas_cacheaEntreLlamadas() {
-        when(personaDAO.findRange(0, 100)).thenReturn(Arrays.asList(new Persona(UUID.randomUUID())));
-
-        bean.getPersonas();
-        bean.getPersonas();
-
-        verify(personaDAO, times(1)).findRange(0, 100);
-    }
-
-    // ---- getTiposDocumento() ----
-
-    @Test
-    public void getTiposDocumento_cacheaEntreLlamadas() {
-        when(tipoDocumentoDAO.findRange(0, 100)).thenReturn(Arrays.asList(new TipoDocumento(UUID.randomUUID())));
-
-        bean.getTiposDocumento();
-        bean.getTiposDocumento();
-
-        verify(tipoDocumentoDAO, times(1)).findRange(0, 100);
-    }
 }

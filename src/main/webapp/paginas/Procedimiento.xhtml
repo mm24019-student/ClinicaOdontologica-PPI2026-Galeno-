@@ -24,7 +24,7 @@
                              selectionMode="single" rowKey="#{r.idProcedimiento}"
                              rendered="#{procedimientoModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{procedimientoModel.onRowSelect}"
-                            update=":frmTabla :Procedimiento :mensajes"/>
+                            update="@form :frmTabla :Procedimiento :mensajes :growlGlobal"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idProcedimiento}" />
                     </p:column>
@@ -38,7 +38,7 @@
                         <p:outputLabel value="#{r.observaciones}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{procedimientoModel}" update="@form :Procedimiento :mensajes"/>
+                <g:Botones_Acciones modelo="#{procedimientoModel}" update="@form :frmTabla :Procedimiento :mensajes :growlGlobal"/>
             </h:form>
         </div>
 
@@ -96,7 +96,7 @@
                                 <p:column headerText="Fin"><p:outputLabel value="#{ps.indicaFin ? 'SÍ' : 'NO'}"/></p:column>
                             </p:treeTable>
 
-                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form :mensajes"
+                            <g:Botones_Acciones modelo="#{procedimientoPasoModel}" update="@form :mensajes :growlGlobal"
                                                 etiquetaNuevo="#{procedimientoPasoModel.hayPasos ? msg['crud.boton.nuevoPasoDependiente'] : msg['crud.boton.nuevoPaso']}"
                                                 mostrarCancelar="false"
                                                 rendered="#{procedimientoPasoModel.estado=='NINGUNO'}"/>
@@ -146,7 +146,7 @@
                                                 <p:commandButton value="Eliminar Seleccionado" process="lstExamenes @this"
                                                                  disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
                                                                  actionListener="#{procedimientoPasoExamenModel.eliminarSeleccionado(procedimientoPasoModel.registro)}"
-                                                                 update="pnlExamenes :mensajes"/>
+                                                                 update="@form :mensajes :growlGlobal"/>
                                             </div>
                                         </div>
                                     </h:panelGroup>
@@ -185,7 +185,7 @@
                         </p:panelGrid>
                         <p:commandButton value="Seleccionar" process="@this acExamen txtObsExamen"
                                          actionListener="#{procedimientoPasoExamenModel.agregarExamen(procedimientoPasoModel.registro)}"
-                                         update="pnlDialogoExamen :Procedimiento:tabsProcedimiento:pnlExamenes :mensajes"/>
+                                         update="@form :mensajes :growlGlobal"/>
                     </h:panelGroup>
                 </p:dialog>
             </h:form>

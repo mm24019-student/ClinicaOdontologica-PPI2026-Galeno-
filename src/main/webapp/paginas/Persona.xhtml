@@ -21,7 +21,7 @@
                              selectionMode="single" rowKey="#{r.idPersona}"
                              rendered="#{personaModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{personaModel.onRowSelect}"
-                            update=":frmTabla :Persona :mensajes" resetValues="true"/>
+                            update=":frmTabla :Persona :mensajes :growlGlobal" resetValues="true"/>
                     <p:column headerText="Nombres">
                         <p:outputLabel value="#{r.nombres}"/>
                     </p:column>
@@ -40,7 +40,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{personaModel}"  update="@form :Persona :mensajes"/>
+                <g:Botones_Acciones modelo="#{personaModel}"  update="@form :Persona :mensajes :growlGlobal"/>
             </h:form>
         </div>
 
@@ -207,6 +207,7 @@
                             <p:outputLabel value="Tipo de Documento" for="acTipoDocumento"/>
                             <p:autoComplete id="acTipoDocumento" style="width:100%"
                                             value="#{personaDocumentoModel.registro.idTipoDocumento}"
+                                            disabled="#{personaDocumentoModel.estado=='MODIFICAR'}"
                                             completeMethod="#{personaDocumentoModel.completarTiposDocumento}"
                                             var="td" itemLabel="#{td.nombre}" itemValue="#{td}"
                                             converter="#{tipoDocumentoConverter}" forceSelection="true"
@@ -223,7 +224,7 @@
 
                         <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                             <g:botones_top modelo="#{personaDocumentoModel}"/>
-                            <g:Botones_Acciones modelo="#{personaDocumentoModel}" update="@form"
+                            <g:Botones_Acciones modelo="#{personaDocumentoModel}" update="@form :mensajes :growlGlobal"
                                                 mostrarNuevo="false" rendered="#{personaDocumentoModel.estado!='NINGUNO'}" />
                         </div>
                     </p:tab>
@@ -258,6 +259,7 @@
                             <p:outputLabel value="Tipo de Medio de Contacto" for="acTipoMedioContacto"/>
                             <p:autoComplete id="acTipoMedioContacto" style="width:100%"
                                             value="#{personaMedioContactoModel.registro.idTipoMedioContacto}"
+                                            disabled="#{personaMedioContactoModel.estado=='MODIFICAR'}"
                                             completeMethod="#{personaMedioContactoModel.completarTiposMedioContacto}"
                                             var="tmc" itemLabel="#{tmc.nombre}" itemValue="#{tmc}"
                                             converter="#{tipoMedioContactoConverter}" forceSelection="true"
@@ -269,7 +271,7 @@
                         </p:panelGrid>
                         <div class="pasos-botones" style="display:flex; align-items:center; gap:10px;">
                             <g:botones_top modelo="#{personaMedioContactoModel}"/>
-                            <g:Botones_Acciones modelo="#{personaMedioContactoModel}" update="@form"
+                            <g:Botones_Acciones modelo="#{personaMedioContactoModel}" update="@form :mensajes :growlGlobal"
                                                 mostrarNuevo="false" rendered="#{personaMedioContactoModel.estado!='NINGUNO'}" />
                         </div>
                     </p:tab>

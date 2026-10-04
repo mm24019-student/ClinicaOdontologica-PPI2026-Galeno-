@@ -227,27 +227,6 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         return getregistros();
     }
 
-    // Botón "Nuevo examen" del panel: carga los exámenes del paso, prepara un
-    // registro nuevo (queda en estado CREAR) y abre el diálogo ya con el
-    // formulario visible.
-    public void abrirNuevoExamen(ProcedimientoPaso paso) {
-        if (paso == null || paso.getIdProcedimientoPaso() == null) {
-            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un paso",
-                    "Guarde o seleccione un paso antes de agregarle exámenes");
-            return;
-        }
-        cargarDe(paso);
-        btnNuevoHandler(null);
-        btnAbrirDialogo();
-    }
-
-    // Click en una fila del panel: selecciona el examen (estado MODIFICAR) y
-    // abre el diálogo con el formulario cargado.
-    public void onRowSelectAbrir(SelectEvent<ProcedimientoPasoExamen> event) {
-        onRowSelect(event);
-        btnAbrirDialogo();
-    }
-
     // AbstracdetallecrudModel llama a este hook tras crear, modificar o
     // eliminar con éxito: se refresca la lista del panel y se cierra el diálogo.
     @Override

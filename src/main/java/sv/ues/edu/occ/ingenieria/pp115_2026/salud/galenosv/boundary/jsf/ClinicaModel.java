@@ -3,7 +3,6 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.jsf;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
@@ -34,10 +33,6 @@ public class ClinicaModel extends AbstracCrudModel<Clinica> {
     @Override
     protected UUID obtenerId(Clinica registro) {
         return registro.getIdClinica();
-    }
-
-    public List<Clinica> getRegistros() {
-        return getregistros();
     }
     
     // Al guardar o eliminar un clínica, se refresca el selector de sesión de arriba

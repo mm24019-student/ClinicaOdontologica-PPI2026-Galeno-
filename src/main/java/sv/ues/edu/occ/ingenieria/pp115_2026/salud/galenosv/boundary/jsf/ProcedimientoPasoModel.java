@@ -183,21 +183,6 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         return !raiz.getChildren().isEmpty();
     }
 
-// "Nuevo paso dependiente": depende del paso que está seleccionado.
-    public void btnNuevoDependienteHandler(jakarta.faces.event.ActionEvent ae) {
-        ProcedimientoPaso base = this.registro;
-        if (base == null || estado != Estado_Crud.MODIFICAR) {
-            mensaje(FacesMessage.SEVERITY_WARN, "Seleccione un paso",
-                    "Seleccione el paso del que dependerá el nuevo paso");
-            return;
-        }
-        // super.* apunta a AbstracCrudModel, así que no pasa por el override de arriba
-        super.btnNuevoHandler(ae);
-        if (estado == Estado_Crud.CREAR) {
-            this.dependeDe = base;
-        }
-    }
-
     // Último paso en el orden en que se muestra el árbol (recorrido en
     // profundidad). En una cadena de pasos es el paso más reciente.
     private ProcedimientoPaso ultimoPaso() {

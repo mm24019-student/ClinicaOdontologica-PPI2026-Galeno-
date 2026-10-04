@@ -20,7 +20,7 @@
                              selectionMode="single" rowKey="#{r.idTipoMedioContacto}"
                              rendered="#{tipoMedioContactoModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{tipoMedioContactoModel.onRowSelect}"
-                            update=":frmTabla :TipoMedioContacto :mensajes"/>
+                            update=":frmTabla :TipoMedioContacto :mensajes :growlGlobal"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idTipoMedioContacto}" />
                     </p:column>
@@ -34,7 +34,7 @@
                         <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
                     </p:column>
                 </p:dataTable>
-                <g:Botones_Acciones modelo="#{tipoMedioContactoModel}" update="@form :TipoMedioContacto :mensajes"/>
+                <g:Botones_Acciones modelo="#{tipoMedioContactoModel}" update="@form :TipoMedioContacto :mensajes :growlGlobal"/>
             </h:form>
         </div>
 
@@ -53,7 +53,7 @@
                     <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
                     <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" disabled="#{tipoMedioContactoModel.estado=='MODIFICAR'}" value="#{tipoMedioContactoModel.registro.indicaciones}"/>
                     <p:outputLabel for="txtExpresionRegular" value="Expresión Regular"/>
-                    <p:inputText id="txtExpresionRegular" style="width:100%" value="#{tipoMedioContactoModel.registro.expresionRegular}"/>
+                    <p:inputText id="txtExpresionRegular" style="width:100%" disabled="#{tipoMedioContactoModel.estado=='MODIFICAR'}" value="#{tipoMedioContactoModel.registro.expresionRegular}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>
                     <p:selectBooleanCheckbox id="chkActivo" value="#{tipoMedioContactoModel.registro.activo}"/>
                 </p:panelGrid>

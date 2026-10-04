@@ -356,16 +356,6 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         consultaProcedimientoPasoModel.cargarDe(event.getObject());
     }
 
-    // Texto que muestra la pantalla: en CREAR, el usuario con sesión;
-    // en edición, el que quedó guardado en la consulta.
-    public String getPersonaRolEtiqueta() {
-        if (estado == Estado_Crud.CREAR) {
-            PersonaRol actual = sesionBean.getPersonaRolActual();
-            return actual == null ? "Sin sesión: seleccione un usuario arriba" : etiquetaPersonaRol(actual);
-        }
-        return registro == null ? "" : etiquetaPersonaRol(registro.getIdPersonaRol());
-    }
-
     @Override
     protected boolean validarAntesDeGuardar() {
         return requerir(registro.getIdPersonaRol(), "Seleccione un paciente",

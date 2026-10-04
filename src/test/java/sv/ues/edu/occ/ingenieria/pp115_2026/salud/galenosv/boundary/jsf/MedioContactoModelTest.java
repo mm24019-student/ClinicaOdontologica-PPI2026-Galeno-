@@ -13,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
@@ -22,6 +20,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
 
 /**
  * Prueba de MedioContactoModel (CRUD standalone). Mismo caso que
@@ -37,10 +36,10 @@ public class MedioContactoModelTest {
 
     @Mock
     private MedioContactoDAO medioContactoDAO;
-    @Mock
-    private PersonaDAO personaDAO;
-    @Mock
+
+    @Mock 
     private TipoMedioContactoDAO tipoMedioContactoDAO;
+
     @Mock
     private FacesContext fc;
 
@@ -124,29 +123,5 @@ public class MedioContactoModelTest {
         verify(medioContactoDAO).actualizar(mc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
-    }
-
-    // ---- getPersonas() ----
-
-    @Test
-    public void getPersonas_cacheaEntreLlamadas() {
-        when(personaDAO.findRange(0, 100)).thenReturn(Arrays.asList(new Persona(UUID.randomUUID())));
-
-        bean.getPersonas();
-        bean.getPersonas();
-
-        verify(personaDAO, times(1)).findRange(0, 100);
-    }
-
-    // ---- getTiposMedioContacto() ----
-
-    @Test
-    public void getTiposMedioContacto_cacheaEntreLlamadas() {
-        when(tipoMedioContactoDAO.findRange(0, 100)).thenReturn(Arrays.asList(new TipoMedioContacto(UUID.randomUUID())));
-
-        bean.getTiposMedioContacto();
-        bean.getTiposMedioContacto();
-
-        verify(tipoMedioContactoDAO, times(1)).findRange(0, 100);
     }
 }

@@ -29,7 +29,7 @@
                         queden pegados valores viejos de un registro anterior.
                     -->
                     <p:ajax event="rowSelect" listener="#{tipoDocumentoModel.onRowSelect}"
-                            update=":frmTabla :TipoDocumento :mensajes" resetValues="true"/>
+                             update=":frmTabla :TipoDocumento :mensajes :growlGlobal" resetValues="true"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idTipoDocumento}" />
                     </p:column>
@@ -44,7 +44,7 @@
                     </p:column>
                 </p:dataTable>
 
-                <g:Botones_Acciones modelo="#{tipoDocumentoModel}"   update="@form :TipoDocumento :mensajes"/>
+                 <g:Botones_Acciones modelo="#{tipoDocumentoModel}"   update="@form :TipoDocumento :mensajes :growlGlobal"/>
             </h:form>
         </div>
 
@@ -71,7 +71,7 @@
                     <p:outputLabel for="txtIndicaciones" value="Indicaciones"/>
                     <p:inputTextarea id="txtIndicaciones" rows="3" style="width:100%" disabled="#{tipoDocumentoModel.estado=='MODIFICAR'}" value="#{tipoDocumentoModel.registro.indicaciones}"/>
                     <p:outputLabel for="txtExpresionRegular" value="Expresión Regular"/>
-                    <p:inputText id="txtExpresionRegular" style="width:100%" value="#{tipoDocumentoModel.registro.expresionRegular}"/>
+                    <p:inputText id="txtExpresionRegular" style="width:100%" disabled="#{tipoDocumentoModel.estado=='MODIFICAR'}" value="#{tipoDocumentoModel.registro.expresionRegular}"/>
                     <p:outputLabel for="chkActivo" value="Activo"/>
                     <p:selectBooleanCheckbox id="chkActivo" value="#{tipoDocumentoModel.registro.activo}"/>
                 </p:panelGrid>
