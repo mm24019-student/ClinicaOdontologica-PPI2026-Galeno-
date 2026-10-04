@@ -22,6 +22,9 @@
                              rendered="#{personaModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{personaModel.onRowSelect}"
                             update=":frmTabla :Persona :mensajes :growlGlobal" resetValues="true"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idPersona}" />
+                    </p:column>
                     <p:column headerText="Nombres">
                         <p:outputLabel value="#{r.nombres}"/>
                     </p:column>

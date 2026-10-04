@@ -2,12 +2,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- Página CRUD de Rol -->
 <ui:composition template="/WEB-INF/general.xhtml"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets"
-      xmlns:g="jakarta.faces.composite/crud">
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
 
     <ui:define name="titulo_pagina">
         <h2>Rol</h2>
@@ -23,6 +23,9 @@
                              rendered="#{rolModel.estado=='NINGUNO'}">
                     <p:ajax event="rowSelect" listener="#{rolModel.onRowSelect}"
                             update=":frmTabla :Rol :mensajes :growlGlobal" resetValues="true"/>
+                    <p:column headerText="ID">
+                        <p:outputLabel value="#{r.idRol}" />
+                    </p:column>
                     <p:column headerText="Nombre">
                         <p:outputLabel value="#{r.nombre}"/>
                     </p:column>

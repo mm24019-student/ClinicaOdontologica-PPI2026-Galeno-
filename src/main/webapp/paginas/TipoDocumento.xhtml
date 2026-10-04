@@ -2,12 +2,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- Página CRUD de Tipo de Documento. Hereda cabecera/menú/pie de general.xhtml -->
 <ui:composition template="/WEB-INF/general.xhtml"
-      xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="jakarta.faces.html"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:f="jakarta.faces.core"
-      xmlns:ui="jakarta.faces.facelets"
-      xmlns:g="jakarta.faces.composite/crud">
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:g="jakarta.faces.composite/crud">
 
     <ui:define name="titulo_pagina">
         <h2>Tipo Documento</h2>
@@ -29,7 +29,7 @@
                         queden pegados valores viejos de un registro anterior.
                     -->
                     <p:ajax event="rowSelect" listener="#{tipoDocumentoModel.onRowSelect}"
-                             update=":frmTabla :TipoDocumento :mensajes :growlGlobal" resetValues="true"/>
+                            update=":frmTabla :TipoDocumento :mensajes :growlGlobal" resetValues="true"/>
                     <p:column headerText="ID">
                         <p:outputLabel value="#{r.idTipoDocumento}" />
                     </p:column>
@@ -39,12 +39,16 @@
                     <p:column headerText="Indicaciones">
                         <p:outputLabel value="#{r.indicaciones}"/>
                     </p:column>
+                    <p:column headerText="Expresión Regular">
+                        <h:outputText value="#{r.expresionRegular}"
+                                      style="font-family:monospace; word-break:break-all;"/>
+                    </p:column>
                     <p:column headerText="Estado">
                         <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
                     </p:column>
                 </p:dataTable>
 
-                 <g:Botones_Acciones modelo="#{tipoDocumentoModel}"   update="@form :TipoDocumento :mensajes :growlGlobal"/>
+                <g:Botones_Acciones modelo="#{tipoDocumentoModel}"   update="@form :TipoDocumento :mensajes :growlGlobal"/>
             </h:form>
         </div>
 

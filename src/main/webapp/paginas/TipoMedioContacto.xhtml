@@ -30,6 +30,10 @@
                     <p:column headerText="Indicaciones">
                         <p:outputLabel value="#{r.indicaciones}"/>
                     </p:column>
+                    <p:column headerText="Expresión Regular">
+                        <h:outputText value="#{r.expresionRegular}"
+                                      style="font-family:monospace; word-break:break-all;"/>
+                    </p:column>
                     <p:column headerText="Estado">
                         <p:outputLabel value="#{r.activo?'ACTIVO':'INACTIVO'}"/>
                     </p:column>
