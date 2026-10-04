@@ -5,127 +5,127 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui">
     <f:view locale="#{localBean.locale}">
-    <h:head>
-        <title><ui:insert name="titulo"><h:outputText value="GalenoSV"/></ui:insert></title>
-        <h:outputStylesheet library="css" name="estilos.css" />
-    </h:head>
-    <h:body>
-        <p:growl id="growlGlobal" globalOnly="true" showDetail="true" life="4000" sticky="false"/>
-        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-            <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
-            <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
-        </p:confirmDialog>
+        <h:head>
+            <title><ui:insert name="titulo"><h:outputText value="GalenoSV"/></ui:insert></title>
+            <h:outputStylesheet library="css" name="estilos.css" />
+        </h:head>
+        <h:body>
+            <p:growl id="growlGlobal" globalOnly="true" showDetail="true" life="4000" sticky="false"/>
+            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                <p:commandButton value="Sí" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times"/>
+            </p:confirmDialog>
 
-        <div class="ui-g" style="margin:0;">
+            <div class="ui-g" style="margin:0;">
 
-            <!-- ===== CABECERA: 4 + 4 + 4 = 12 ===== -->
-            <div class="ui-g-12 cabecera-app" style="padding:0;">
-                <div class="ui-g">
-                    <div class="ui-g-4">
-                        <ui:insert name="logo">
-                            <h:graphicImage library="imagenes" name="logoGaleno2609.png" style="max-height:100px; width:auto;" />
-                        </ui:insert>
-                    </div>
-                    <div class="ui-g-4" style="text-align:center;">
-                        <ui:insert name="titulo_pagina">Título de la página</ui:insert>
-                    </div>
-                    <div class="ui-g-4" style="text-align:right; gap:12px;">
-                        <ui:insert name="idioma">
-                            <h:form id="frmIdioma">
-                                <p:selectOneMenu value="#{localBean.idiomaActual}">
-                                    <f:selectItem itemLabel="Español" itemValue="es"/>
-                                    <f:selectItem itemLabel="English" itemValue="en"/>
-                                    <f:selectItem itemLabel="中文" itemValue="zh"/>
-                                    <p:ajax listener="#{localBean.onIdiomaChange}" update="@all"/>
-                                </p:selectOneMenu>
-                            </h:form>
-                        </ui:insert>
-                        <ui:insert name="sesion">
-                            <h:form id="frmSesion" style="display:flex; align-items:center; gap:8px;">
-                                <p:selectOneMenu id="cmbClinicaTrabajo" value="#{sesionBean.idClinicaSeleccionada}"
-                                                 style="min-width:200px; max-width:260px;">
-                                    <f:selectItem itemLabel="#{msg['sesion.sinClinica']}" itemValue="" noSelectionOption="true"/>
-                                    <f:selectItems value="#{sesionBean.clinicasTrabajo}" var="cl"
-                                                   itemLabel="#{cl.nombre}"
-                                                   itemValue="#{cl.idClinica.toString()}"/>
-                                    <p:ajax listener="#{sesionBean.cambiarClinica}" update="@all"/>
-                                </p:selectOneMenu>
-                                <p:selectOneMenu id="cmbSesion" value="#{sesionBean.idSeleccionado}"
-                                                 filter="true" filterMatchMode="contains"
-                                                 style="min-width:280px; max-width:380px;">
-                                    <f:selectItem itemLabel="#{msg['sesion.sinSesion']}" itemValue="" noSelectionOption="true"/>
-                                    <f:selectItems value="#{sesionBean.opciones}" var="pr"
-                                                   itemLabel="#{sesionBean.etiqueta(pr)}"
-                                                   itemValue="#{pr.idPersonaRol.toString()}"/>
-                                    <p:ajax listener="#{sesionBean.cambiar}" update="@all"/>
-                                </p:selectOneMenu>
-                                <p:commandButton icon="pi pi-sign-out" title="#{msg['sesion.cerrar']}"
-                                                 action="#{sesionBean.cerrarSesion}"
-                                                 ajax="false" immediate="true"
-                                                 rendered="#{sesionBean.autenticado}"/>
-                            </h:form>
-                        </ui:insert>
-                    </div>
-                </div>
-            </div>
+                <!-- ===== CABECERA: 4 + 4 + 4 = 12 ===== -->
+                <div class="ui-g-12 cabecera-app" style="padding:0;">
+                    <div class="ui-g">
+                        <div class="ui-g-4">
+                            <ui:insert name="logo">
+                                <h:graphicImage library="imagenes" name="logoGaleno2609.png" style="max-height:100px; width:auto;" />
+                            </ui:insert>
+                        </div>
+                        <div class="ui-g-4" style="text-align:center;">
+                            <ui:insert name="titulo_pagina">Título de la página</ui:insert>
+                        </div>
+                        <div class="ui-g-4" style="text-align:right; gap:12px;">
+                            <ui:insert name="idioma">
+                                <h:form id="frmIdioma">
+                                    <p:selectOneMenu value="#{localBean.idiomaActual}">
+                                        <f:selectItem itemLabel="🇸🇻 Español" itemValue="es"/>
+                                        <f:selectItem itemLabel="🇺🇸 English" itemValue="en"/>
+                                        <f:selectItem itemLabel="🇨🇳 中文" itemValue="zh"/>
+                                        <p:ajax listener="#{localBean.onIdiomaChange}" update="@all"/>
+                                    </p:selectOneMenu></h:form>
 
-            <!-- ===== CUERPO: menú (2) + contenido (10) = 12 ===== -->
-            <div class="ui-g-12" style="padding:0;">
-                <div class="ui-g">
-                    <div class="ui-g-2">
-                        <ui:insert name="menu">
-                            <p:menu styleClass="menu-lateral">
-                                <p:submenu label="#{msg['menu.catalogos']}" icon="pi pi-tags">
-                                    <p:menuitem value="#{msg['menu.tipoDocumento']}" icon="pi pi-file-o" outcome="/paginas/TipoDocumento.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoDocumento.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.tipoMedioContacto']}" icon="pi pi-phone" outcome="/paginas/TipoMedioContacto.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoMedioContacto.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.tipoExamen']}" icon="pi pi-list" outcome="/paginas/TipoExamen.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoExamen.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.examenTipoExamen']}" icon="pi pi-sitemap" outcome="/paginas/ExamenTipoExamen.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenTipoExamen.xhtml' ? 'activo' : ''}"/>
-                                </p:submenu>
-                                <p:submenu label="#{msg['menu.clinica.grupo']}" icon="pi pi-building">
-                                    <p:menuitem value="#{msg['menu.clinica']}" icon="pi pi-building" outcome="/paginas/Clinica.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Clinica.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.persona']}" icon="pi pi-user" outcome="/paginas/Persona.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Persona.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.rol']}" icon="pi pi-id-card" outcome="/paginas/Rol.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Rol.xhtml' ? 'activo' : ''}"/>
-                                </p:submenu>
-                                <p:submenu label="#{msg['menu.examenes']}" icon="pi pi-file">
-                                    <p:menuitem value="#{msg['menu.examen']}" icon="pi pi-file-edit" outcome="/paginas/Examen.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Examen.xhtml' ? 'activo' : ''}"/>
-                                    <p:menuitem value="#{msg['menu.ordenExamen']}" icon="pi pi-book" outcome="/paginas/OrdenExamen.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/OrdenExamen.xhtml' ? 'activo' : ''}"/>
-                                </p:submenu>
-                                <p:submenu label="#{msg['menu.procedimientos']}" icon="pi pi-list">
-                                    <p:menuitem value="#{msg['menu.procedimiento']}" icon="pi pi-cog" outcome="/paginas/Procedimiento.xhtml"
-                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
-                                </p:submenu>
-
-                                <p:menuitem value="#{msg['menu.consulta']}" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
-                                            styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
-                                <p:submenu/>
-                            </p:menu>
-                        </ui:insert>
-                    </div>
-                    <div class="ui-g-10">
-                        <ui:insert name="contenido">
-                            Contenido por defecto
-                        </ui:insert>
+                            </ui:insert>
+                            <ui:insert name="sesion">
+                                <h:form id="frmSesion" style="display:flex; align-items:center; gap:8px;">
+                                    <p:selectOneMenu id="cmbClinicaTrabajo" value="#{sesionBean.idClinicaSeleccionada}"
+                                                     style="min-width:200px; max-width:260px;">
+                                        <f:selectItem itemLabel="#{msg['sesion.sinClinica']}" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{sesionBean.clinicasTrabajo}" var="cl"
+                                                       itemLabel="#{cl.nombre}"
+                                                       itemValue="#{cl.idClinica.toString()}"/>
+                                        <p:ajax listener="#{sesionBean.cambiarClinica}" update="@all"/>
+                                    </p:selectOneMenu>
+                                    <p:selectOneMenu id="cmbSesion" value="#{sesionBean.idSeleccionado}"
+                                                     filter="true" filterMatchMode="contains"
+                                                     style="min-width:280px; max-width:380px;">
+                                        <f:selectItem itemLabel="#{msg['sesion.sinSesion']}" itemValue="" noSelectionOption="true"/>
+                                        <f:selectItems value="#{sesionBean.opciones}" var="pr"
+                                                       itemLabel="#{sesionBean.etiqueta(pr)}"
+                                                       itemValue="#{pr.idPersonaRol.toString()}"/>
+                                        <p:ajax listener="#{sesionBean.cambiar}" update="@all"/>
+                                    </p:selectOneMenu>
+                                    <p:commandButton icon="pi pi-sign-out" title="#{msg['sesion.cerrar']}"
+                                                     action="#{sesionBean.cerrarSesion}"
+                                                     ajax="false" immediate="true"
+                                                     rendered="#{sesionBean.autenticado}"/>
+                                </h:form>
+                            </ui:insert>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- ===== PIE DE PÁGINA: 12 ===== -->
-            <div class="ui-g-12" style="padding:0; text-align:center;">
-                <ui:insert name="pie">
-                    #{msg['menu.pie']}
-                </ui:insert>
-            </div>
+                <!-- ===== CUERPO: menú (2) + contenido (10) = 12 ===== -->
+                <div class="ui-g-12" style="padding:0;">
+                    <div class="ui-g">
+                        <div class="ui-g-2">
+                            <ui:insert name="menu">
+                                <p:menu styleClass="menu-lateral">
+                                    <p:submenu label="#{msg['menu.catalogos']}" icon="pi pi-tags">
+                                        <p:menuitem value="#{msg['menu.tipoDocumento']}" icon="pi pi-file-o" outcome="/paginas/TipoDocumento.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoDocumento.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.tipoMedioContacto']}" icon="pi pi-phone" outcome="/paginas/TipoMedioContacto.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoMedioContacto.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.tipoExamen']}" icon="pi pi-list" outcome="/paginas/TipoExamen.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/TipoExamen.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.examenTipoExamen']}" icon="pi pi-sitemap" outcome="/paginas/ExamenTipoExamen.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/ExamenTipoExamen.xhtml' ? 'activo' : ''}"/>
+                                    </p:submenu>
+                                    <p:submenu label="#{msg['menu.clinica.grupo']}" icon="pi pi-building">
+                                        <p:menuitem value="#{msg['menu.clinica']}" icon="pi pi-building" outcome="/paginas/Clinica.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/Clinica.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.persona']}" icon="pi pi-user" outcome="/paginas/Persona.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/Persona.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.rol']}" icon="pi pi-id-card" outcome="/paginas/Rol.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/Rol.xhtml' ? 'activo' : ''}"/>
+                                    </p:submenu>
+                                    <p:submenu label="#{msg['menu.examenes']}" icon="pi pi-file">
+                                        <p:menuitem value="#{msg['menu.examen']}" icon="pi pi-file-edit" outcome="/paginas/Examen.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/Examen.xhtml' ? 'activo' : ''}"/>
+                                        <p:menuitem value="#{msg['menu.ordenExamen']}" icon="pi pi-book" outcome="/paginas/OrdenExamen.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/OrdenExamen.xhtml' ? 'activo' : ''}"/>
+                                    </p:submenu>
+                                    <p:submenu label="#{msg['menu.procedimientos']}" icon="pi pi-list">
+                                        <p:menuitem value="#{msg['menu.procedimiento']}" icon="pi pi-cog" outcome="/paginas/Procedimiento.xhtml"
+                                                    styleClass="#{facesContext.viewRoot.viewId == '/paginas/Procedimiento.xhtml' ? 'activo' : ''}"/>
+                                    </p:submenu>
 
-        </div>
-    </h:body>
+                                    <p:menuitem value="#{msg['menu.consulta']}" icon="pi pi-calendar" outcome="/paginas/Consulta.xhtml"
+                                                styleClass="#{facesContext.viewRoot.viewId == '/paginas/Consulta.xhtml' ? 'activo' : ''}"/>
+                                    <p:submenu/>
+                                </p:menu>
+                            </ui:insert>
+                        </div>
+                        <div class="ui-g-10">
+                            <ui:insert name="contenido">
+                                Contenido por defecto
+                            </ui:insert>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== PIE DE PÁGINA: 12 ===== -->
+                <div class="ui-g-12" style="padding:0; text-align:center;">
+                    <ui:insert name="pie">
+                        #{msg['menu.pie']}
+                    </ui:insert>
+                </div>
+
+            </div>
+        </h:body>
     </f:view>
 </html>

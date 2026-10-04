@@ -260,25 +260,43 @@ h2 {
     padding: 4px 0 !important;
 }
 .cabecera-app .ui-g {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
     padding: 0 !important;
     margin: 0 !important;
 }
 .cabecera-app .ui-g-4 {
+    width: auto !important;
     display: flex;
     align-items: center;
     padding: 0 !important;
 }
-.cabecera-app .ui-g-4:first-child {
+/* Logo */
+.cabecera-app .ui-g-4:nth-child(1) {
+    flex: 0 0 auto;
     justify-content: flex-start;
     padding-left: 40px !important;
 }
+/* Título: ocupa el espacio sobrante y nunca queda tapado */
 .cabecera-app .ui-g-4:nth-child(2) {
+    flex: 1 1 280px;
+    min-width: 0;
     justify-content: center;
 }
+/* Desplegables: tamaño por contenido, y bajan de línea si no caben */
 .cabecera-app .ui-g-4:nth-child(3) {
+    flex: 0 1 auto;
+    flex-wrap: wrap;
     justify-content: flex-end;
+    gap: 10px;
 }
 .cabecera-app h2 {
-    font-size: 44px !important;
+    font-size: clamp(28px, 3vw, 44px) !important;
     margin: 0 !important;
+}
+.cabecera-app .ui-selectonemenu {
+    min-width: 150px !important;
+    max-width: 240px !important;
 }
