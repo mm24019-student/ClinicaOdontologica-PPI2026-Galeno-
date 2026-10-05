@@ -11,11 +11,15 @@ import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
  * Managed bean de la pestaña "Procedimientos de la Consulta" en Consulta.xhtml:
@@ -44,6 +48,11 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     // relación @ManyToOne (a diferencia de idConsulta, que sí lo es).
     @Inject
     private ProcedimientoDAO procedimientoDAO;
+
+    // Para revisar los pasos iniciales del procedimiento elegido: cada uno
+    // necesita un rol con persona asignada en la clinica de la sesion.
+    @Inject
+    private PersonaRolDAO personaRolDAO;
 
     @Inject
     private SesionBean sesionBean;
@@ -143,7 +152,45 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         Procedimiento elegido = procedimientoDAO.buscar(registro.getIdProcedimiento());
         return requerir(elegido, "Procedimiento no encontrado", "El procedimiento elegido ya no existe")
                 && requerirActivo(elegido.getActivo(), "Procedimiento inactivo",
-                        "No se puede asignar un procedimiento inactivo a la consulta");
+                        "No se puede asignar un procedimiento inactivo a la consulta")
+                && pasoInicialTieneResponsableEnClinica(elegido);
+    }
+
+    // Al guardar se crea solo el paso INICIAL de cada procedimiento, y ese paso
+    // necesita un responsable: su rol debe tener una persona asignada EN LA
+    // CLINICA DE LA SESION. Se revisan TODOS los pasos iniciales (no solo el
+    // primero) y si falta uno solo, no se deja crear el registro.
+    private boolean pasoInicialTieneResponsableEnClinica(Procedimiento proc) {
+        Clinica clinica = sesionBean == null ? null : sesionBean.getClinicaActual();
+        if (clinica == null) {
+            mensaje(jakarta.faces.application.FacesMessage.SEVERITY_ERROR,
+                    "Sin clinica de trabajo",
+                    "Seleccione la clinica de trabajo en la barra superior para registrar el procedimiento");
+            return false;
+        }
+        // Todos los roles sin persona de la clinica, no solo el primero.
+        List<String> sinResponsable = new java.util.ArrayList<>();
+        for (ProcedimientoPaso paso : cpDAO.findTodos(proc.getIdProcedimiento())) {
+            Rol rol = paso.getIdRol();
+            if (rol == null) {
+                sinResponsable.add("Paso \"" + Objects.toString(paso.getNombre(), "") + "\" (sin rol)");
+                continue;
+            }
+            if (!personaRolDAO.existePersonaAsignada(rol.getIdRol(), clinica.getIdClinica())) {
+                sinResponsable.add("Rol \"" + Objects.toString(rol.getNombre(), "") + "\" del paso \""
+                        + Objects.toString(paso.getNombre(), "") + "\"");
+            }
+        }
+        if (sinResponsable.isEmpty()) {
+            return true;
+        }
+        mensaje(jakarta.faces.application.FacesMessage.SEVERITY_ERROR,
+                "Rol sin persona en la clinica",
+                "No se puede registrar el procedimiento. En " + clinica.getNombre()
+                + " no hay ninguna persona asignada para: "
+                + String.join("; ", sinResponsable)
+                + ". Asigne esas personas en esa clinica antes de registrar");
+        return false;
     }
 
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----

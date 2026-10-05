@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,10 +26,14 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
  * Prueba de ConsultaProcedimientoModel (detalle de Consulta). Aquí solo se
@@ -47,6 +52,8 @@ public class ConsultaProcedimientoModelTest {
     private ProcedimientoDAO procedimientoDAO;
     @Mock
     private SesionBean sesionBean;
+    @Mock
+    private PersonaRolDAO personaRolDAO;
     @Mock
     private FacesContext fc;
 
@@ -187,7 +194,16 @@ public class ConsultaProcedimientoModelTest {
 
     @Test
     public void btnCrearhandler_exito_creaYRecargaSoloLosProcedimientosDeLaConsulta() {
+        Clinica clinica = new Clinica(UUID.randomUUID());
+        Rol rol = new Rol(UUID.randomUUID());
+        ProcedimientoPaso pasoInicial = new ProcedimientoPaso(UUID.randomUUID());
+        pasoInicial.setNombre("Recepcion");
+        pasoInicial.setIdRol(rol);
         iniciarSesion();
+        when(sesionBean.getClinicaActual()).thenReturn(clinica);
+        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
+        when(personaRolDAO.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
+                .thenReturn(true);
         UUID idConsulta = consulta.getIdConsulta();
         when(cpDAO.findByConsulta(idConsulta)).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
@@ -204,6 +220,92 @@ public class ConsultaProcedimientoModelTest {
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_INFO, captor.getValue().getSeverity());
+    }
+
+    // ---- paso inicial sin persona en la clinica de la sesion ----
+
+    @Test
+    public void btnCrearhandler_pasoInicialSinPersonaEnLaClinica_noCreaElRegistro() {
+        Clinica clinica = new Clinica(UUID.randomUUID());
+        Rol rol = new Rol(UUID.randomUUID());
+        rol.setNombre("Odontologo");
+        ProcedimientoPaso pasoInicial = new ProcedimientoPaso(UUID.randomUUID());
+        pasoInicial.setNombre("Revision");
+        pasoInicial.setIdRol(rol);
+        iniciarSesion();
+        when(sesionBean.getClinicaActual()).thenReturn(clinica);
+        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
+        when(personaRolDAO.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
+                .thenReturn(false);
+        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        bean.cargarDe(consulta);
+        bean.btnNuevoHandler(mock(ActionEvent.class));
+        ConsultaProcedimiento nuevo = bean.getRegistro();
+        Procedimiento elegido = nuevoProcedimiento("Endodoncia");
+        nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
+        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+
+        bean.btnCrearhandler(mock(ActionEvent.class));
+
+        verify(cpDAO, never()).crear(any());
+    }
+
+    @Test
+    public void btnCrearhandler_ultimoPasoSinPersona_tampocoCreaElRegistro() {
+        Clinica clinica = new Clinica(UUID.randomUUID());
+        Rol rolConPersona = new Rol(UUID.randomUUID());
+        rolConPersona.setNombre("Recepcion");
+        Rol rolSinPersona = new Rol(UUID.randomUUID());
+        rolSinPersona.setNombre("Odontologo");
+        ProcedimientoPaso p1 = new ProcedimientoPaso(UUID.randomUUID());
+        p1.setNombre("Recepcion");
+        p1.setIdRol(rolConPersona);
+        ProcedimientoPaso p2 = new ProcedimientoPaso(UUID.randomUUID());
+        p2.setNombre("Esterilizacion");
+        p2.setIdRol(rolConPersona);
+        ProcedimientoPaso p3 = new ProcedimientoPaso(UUID.randomUUID());
+        p3.setNombre("Revision");
+        p3.setIdRol(rolSinPersona);
+        iniciarSesion();
+        when(sesionBean.getClinicaActual()).thenReturn(clinica);
+        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(p1, p2, p3));
+        when(personaRolDAO.existePersonaAsignada(eq(rolConPersona.getIdRol()), eq(clinica.getIdClinica())))
+                .thenReturn(true);
+        when(personaRolDAO.existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica())))
+                .thenReturn(false);
+        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        bean.cargarDe(consulta);
+        bean.btnNuevoHandler(mock(ActionEvent.class));
+        ConsultaProcedimiento nuevo = bean.getRegistro();
+        Procedimiento elegido = nuevoProcedimiento("Endodoncia");
+        nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
+        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+
+        bean.btnCrearhandler(mock(ActionEvent.class));
+
+        // Se revisan los 3: el tercero sin persona bloquea todo el guardado.
+        verify(personaRolDAO).existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica()));
+        verify(cpDAO, never()).crear(any());
+    }
+    
+    
+    
+
+    @Test
+    public void btnCrearhandler_sinClinicaDeTrabajo_noCreaElRegistro() {
+        iniciarSesion();
+        when(sesionBean.getClinicaActual()).thenReturn(null);
+        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        bean.cargarDe(consulta);
+        bean.btnNuevoHandler(mock(ActionEvent.class));
+        ConsultaProcedimiento nuevo = bean.getRegistro();
+        Procedimiento elegido = nuevoProcedimiento("Endodoncia");
+        nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
+        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+
+        bean.btnCrearhandler(mock(ActionEvent.class));
+
+        verify(cpDAO, never()).crear(any());
     }
 
     // ---- setProcedimientoSeleccionado() ----

@@ -4,7 +4,10 @@ import jakarta.ejb.LocalBean;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
@@ -50,34 +53,66 @@ public class ConsultaProcedimientoDAO extends DefaultDAO<ConsultaProcedimiento> 
         if (cp.getIdProcedimiento() == null) {
             return;
         }
-        List<ProcedimientoPaso> definidos = em.createQuery(
-                "SELECT pp FROM ProcedimientoPaso pp WHERE pp.idProcedimiento.idProcedimiento = :id ORDER BY pp.nombre",
-                ProcedimientoPaso.class)
-                .setParameter("id", cp.getIdProcedimiento())
-                .getResultList();
-
-        // Pasos que dependen de otro (tienen una secuencia con referencia): no se crean todavía.
-        List<UUID> dependientes = em.createQuery(
-                "SELECT s.idProcedimientoPaso.idProcedimientoPaso FROM ProcedimientoPasoSecuencia s "
-                + "WHERE s.idProcedimientoPaso.idProcedimiento.idProcedimiento = :id "
-                + "AND s.idProcedimientoPasoReferencia IS NOT NULL", UUID.class)
-                .setParameter("id", cp.getIdProcedimiento())
-                .getResultList();
-
         UUID idClinica = clinicaDe(cp);
-        for (ProcedimientoPaso definido : definidos) {
-            if (dependientes.contains(definido.getIdProcedimientoPaso())) {
-                continue;   // solo se crea el paso inicial
+        List<ProcedimientoPaso> iniciales = findIniciales(cp.getIdProcedimiento());
+        List<ProcedimientoPaso> todos = findTodos(cp.getIdProcedimiento());
+
+        // 1) Se valida el responsable de TODOS los pasos (iniciales y dependientes),
+        // pero solo se preparan para crear los iniciales. No se persiste nada aun.
+        Map<ProcedimientoPaso, PersonaRol> responsables = new LinkedHashMap<>();
+        List<String> sinResponsable = new ArrayList<>();
+        for (ProcedimientoPaso definido : todos) {
+            PersonaRol responsable = responsableDe(definido, idClinica);
+            if (responsable == null) {
+                sinResponsable.add("rol \"" + nombreRol(definido) + "\" del paso \""
+                        + definido.getNombre() + "\"");
+            } else if (iniciales.contains(definido)) {
+                responsables.put(definido, responsable);
             }
+        }
+        if (!sinResponsable.isEmpty()) {
+            throw new IllegalStateException(
+                    "No se puede registrar el procedimiento: en la clinica de la consulta no hay ninguna "
+                    + "persona asignada para " + String.join("; ", sinResponsable));
+        }
+
+        // 2) Todos tienen responsable: se persisten solo los pasos iniciales.
+        for (Map.Entry<ProcedimientoPaso, PersonaRol> e : responsables.entrySet()) {
+            ProcedimientoPaso definido = e.getKey();
             ConsultaProcedimientoPaso paso = new ConsultaProcedimientoPaso(UUID.randomUUID());
             paso.setIdConsultaProcedimiento(cp);
             paso.setIdProcedimientoPaso(definido);
             paso.setEstado("PENDIENTE");
             paso.setFechaInicio(cp.getFechaInicio());
             paso.setFechaFin(cp.getFechaFin());
-            paso.setIdPersonaRol(responsableDe(definido, idClinica));
+            paso.setIdPersonaRol(e.getValue());
             em.persist(paso);
         }
+    }
+
+    private String nombreRol(ProcedimientoPaso definido) {
+        return definido.getIdRol() == null ? "" : definido.getIdRol().getNombre();
+    }
+
+// Pasos INICIALES de un procedimiento: los que no dependen de otro paso. Es la
+    // MISMA lista que generarPasos() usa para crear, así que lo que la pantalla
+    // valide antes de guardar y lo que se crea nunca se contradicen.
+    public List<ProcedimientoPaso> findIniciales(UUID idProcedimiento) {
+        List<ProcedimientoPaso> todos = em.createQuery(
+                "SELECT pp FROM ProcedimientoPaso pp "
+                + "WHERE pp.idProcedimiento.idProcedimiento = :id ORDER BY pp.nombre",
+                ProcedimientoPaso.class)
+                .setParameter("id", idProcedimiento)
+                .getResultList();
+        List<UUID> dependientes = em.createQuery(
+                "SELECT s.idProcedimientoPaso.idProcedimientoPaso FROM ProcedimientoPasoSecuencia s "
+                + "WHERE s.idProcedimientoPaso.idProcedimiento.idProcedimiento = :id "
+                + "AND s.idProcedimientoPasoReferencia IS NOT NULL", UUID.class)
+                .setParameter("id", idProcedimiento)
+                .getResultList();
+        return todos.stream()
+                .filter(pp -> !dependientes.contains(pp.getIdProcedimientoPaso()))
+                .collect(java.util.stream.Collectors.toList());
     }
 
 // Clínica de la consulta (la de su persona/rol), o null si no se puede determinar.
@@ -92,8 +127,20 @@ public class ConsultaProcedimientoDAO extends DefaultDAO<ConsultaProcedimiento> 
         return c.getIdPersonaRol().getIdClinica().getIdClinica();
     }
 
-// Quien atiende el paso: alguien con el rol del paso, de preferencia en la misma clínica.
-// Si no existe nadie con ese rol, se cancela todo con un mensaje claro.
+    // TODOS los pasos del procedimiento (iniciales y dependientes)
+    public List<ProcedimientoPaso> findTodos(UUID idProcedimiento) {
+        return em.createQuery(
+                "SELECT pp FROM ProcedimientoPaso pp "
+                + "WHERE pp.idProcedimiento.idProcedimiento = :id ORDER BY pp.nombre",
+                ProcedimientoPaso.class)
+                .setParameter("id", idProcedimiento)
+                .getResultList();
+    }
+
+// Quien atiende el paso: alguien con el rol del paso asignado EN LA MISMA
+    // clinica de la consulta. Devuelve null si el rol no tiene a nadie aqui: la
+    // decision de cancelar queda en generarPasos, que revisa todos los pasos
+    // antes de persistir ninguno.
     private PersonaRol responsableDe(ProcedimientoPaso definido, UUID idClinica) {
         if (definido.getIdRol() == null) {
             throw new IllegalStateException("El paso \"" + definido.getNombre() + "\" no tiene rol asignado");
@@ -105,13 +152,11 @@ public class ConsultaProcedimientoDAO extends DefaultDAO<ConsultaProcedimiento> 
                 .setMaxResults(50)
                 .getResultList();
         return candidatos.stream()
-                .filter(pr -> idClinica != null && pr.getIdClinica() != null
+                .filter(pr -> pr.getIdPersona() != null // <-- NUEVO
+                && idClinica != null && pr.getIdClinica() != null
                 && idClinica.equals(pr.getIdClinica().getIdClinica()))
                 .findFirst()
-                .orElseGet(() -> candidatos.stream().findFirst()
-                .orElseThrow(() -> new IllegalStateException(
-                "No hay ninguna persona con el rol \"" + definido.getIdRol().getNombre()
-                + "\" para atender el paso \"" + definido.getNombre() + "\"")));
+                .orElse(null);
     }
 
     // Como los pasos ahora se crean solos, al eliminar el procedimiento hay

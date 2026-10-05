@@ -108,7 +108,28 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol> {
                 "id", idPersona);
     }
 
-    // Devuelve todas las combinaciones persona/rol/clinica con sus relaciones
+    // Dice si el rol indicado ya tiene al menos una persona asignada. Si
+    // idClinica no es null, SOLO cuentan las asignaciones de esa clinica: una
+    // persona con el rol en otra clinica no cuenta como responsable aqui.
+    public boolean existePersonaAsignada(UUID idRol, UUID idClinica) {
+        if (idRol == null) {
+            return false;
+        }
+        StringBuilder jpql = new StringBuilder(
+                "SELECT COUNT(pr) FROM PersonaRol pr "
+                + "WHERE pr.idRol.idRol = :idRol AND pr.idPersona IS NOT NULL ");
+        if (idClinica != null) {
+            jpql.append("AND pr.idClinica.idClinica = :idClinica ");
+        }
+        TypedQuery<Long> q = em.createQuery(jpql.toString(), Long.class);
+        q.setParameter("idRol", idRol);
+        if (idClinica != null) {
+            q.setParameter("idClinica", idClinica);
+        }
+        return q.getSingleResult() > 0;
+    }
+
+// Devuelve todas las combinaciones persona/rol/clinica con sus relaciones
     // ya cargadas (JOIN FETCH), porque las entidades son LAZY y el selector
     // de sesion las lee fuera de la transaccion.
     public List<PersonaRol> listarConDetalle() {

@@ -31,6 +31,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
@@ -81,6 +82,7 @@ public class ConsultaProcedimientoDAOTest {
     private PersonaRol personaRol(Clinica clinica) {
         PersonaRol pr = new PersonaRol(UUID.randomUUID());
         pr.setIdClinica(clinica);
+        pr.setIdPersona(new Persona(UUID.randomUUID()));
         return pr;
     }
 
@@ -278,7 +280,7 @@ public class ConsultaProcedimientoDAOTest {
     }
 
     @Test
-    public void crear_siNadieEsDeLaMismaClinica_usaAlPrimerCandidatoConEseRol() {
+    public void crear_siNadieEsDeLaMismaClinica_lanzaIllegalState() {
         Consulta consulta = consultaDeClinica(clinica("Clinica A"));
         ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
         PersonaRol primero = personaRol(clinica("Clinica B"));
@@ -288,30 +290,28 @@ public class ConsultaProcedimientoDAOTest {
         when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(consulta);
         stubResponsables(Arrays.asList(primero, segundo));
 
-        dao.crear(cp);
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> dao.crear(cp));
 
-        ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
-        assertSame(primero, paso.getIdPersonaRol());
+        assertTrue(ex.getMessage().contains("Odontologo"));
+        verify(em, times(1)).persist(any());
     }
 
     // ---- crear(): cuando no se puede determinar la clínica de la consulta ----
     @Test
-    public void crear_procedimientoSinConsulta_noBuscaLaClinicaYUsaAlPrimerCandidato() {
+    public void crear_procedimientoSinConsulta_noBuscaLaClinicaYLanzaIllegalState() {
         ConsultaProcedimiento cp = procedimientoDeConsulta(null);
         PersonaRol primero = personaRol(clinica("Clinica B"));
         stubPasosDefinidos(Arrays.asList(pasoDefinido("Revision", rol("Odontologo"))));
         stubDependientes(Collections.emptyList());
         stubResponsables(Arrays.asList(primero));
 
-        dao.crear(cp);
+        assertThrows(IllegalStateException.class, () -> dao.crear(cp));
 
-        ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
-        assertSame(primero, paso.getIdPersonaRol());
         verify(em, never()).find(eq(Consulta.class), any());
     }
 
     @Test
-    public void crear_consultaQueYaNoExisteEnLaBase_usaAlPrimerCandidato() {
+    public void crear_consultaQueYaNoExisteEnLaBase_lanzaIllegalState() {
         Consulta consulta = consultaDeClinica(clinica("Clinica A"));
         ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
         PersonaRol primero = personaRol(clinica("Clinica B"));
@@ -320,14 +320,13 @@ public class ConsultaProcedimientoDAOTest {
         when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(null);
         stubResponsables(Arrays.asList(primero));
 
-        dao.crear(cp);
+        assertThrows(IllegalStateException.class, () -> dao.crear(cp));
 
-        ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
-        assertSame(primero, paso.getIdPersonaRol());
+        verify(em, times(1)).persist(any());
     }
 
     @Test
-    public void crear_consultaSinPersonaRol_usaAlPrimerCandidato() {
+    public void crear_consultaSinPersonaRol_lanzaIllegalState() {
         Consulta consultaSinPersonaRol = new Consulta(UUID.randomUUID());
         ConsultaProcedimiento cp = procedimientoDeConsulta(consultaSinPersonaRol);
         PersonaRol primero = personaRol(clinica("Clinica B"));
@@ -336,14 +335,13 @@ public class ConsultaProcedimientoDAOTest {
         when(em.find(Consulta.class, consultaSinPersonaRol.getIdConsulta())).thenReturn(consultaSinPersonaRol);
         stubResponsables(Arrays.asList(primero));
 
-        dao.crear(cp);
+        assertThrows(IllegalStateException.class, () -> dao.crear(cp));
 
-        ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
-        assertSame(primero, paso.getIdPersonaRol());
+        verify(em, times(1)).persist(any());
     }
 
     @Test
-    public void crear_personaRolDeLaConsultaSinClinica_usaAlPrimerCandidato() {
+    public void crear_personaRolDeLaConsultaSinClinica_lanzaIllegalState() {
         Consulta consulta = consultaDeClinica(null);
         ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
         PersonaRol primero = personaRol(clinica("Clinica B"));
@@ -352,10 +350,9 @@ public class ConsultaProcedimientoDAOTest {
         when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(consulta);
         stubResponsables(Arrays.asList(primero));
 
-        dao.crear(cp);
+        assertThrows(IllegalStateException.class, () -> dao.crear(cp));
 
-        ConsultaProcedimientoPaso paso = (ConsultaProcedimientoPaso) persistidos(2).get(1);
-        assertSame(primero, paso.getIdPersonaRol());
+        verify(em, times(1)).persist(any());
     }
 
     // ---- crear(): errores que cancelan todo (la transacción se revierte) ----
@@ -384,6 +381,43 @@ public class ConsultaProcedimientoDAOTest {
         assertTrue(ex.getMessage().contains("Odontologo"));
         assertTrue(ex.getMessage().contains("Revision"));
         verify(em, times(1)).persist(any());
+    }
+
+    // El caso que se reporto: el primer paso tiene responsable y el ultimo no. No
+    // debe quedar el procedimiento con los primeros pasos ya guardados.
+    @Test
+    public void crear_elUltimoPasoSinResponsable_noGuardaNingunPaso() {
+        Clinica clinicaA = clinica("Clinica A");
+        Consulta consulta = consultaDeClinica(clinicaA);
+        ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
+        ProcedimientoPaso p1 = pasoDefinido("A-Recepcion", rol("Recepcion"));
+        ProcedimientoPaso p2 = pasoDefinido("B-Esterilizacion", rol("Auxiliar"));
+        ProcedimientoPaso p3 = pasoDefinido("C-Revision", rol("Odontologo"));
+        stubPasosDefinidos(Arrays.asList(p1, p2, p3));
+        stubDependientes(Collections.emptyList());
+        when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(consulta);
+        PersonaRol deLaClinica = personaRol(clinicaA);
+        PersonaRol deOtra = personaRol(clinica("Clinica B"));
+        // Los dos primeros pasos sí tienen responsable; el tercero solo tiene
+        // a alguien de otra clínica.
+        stubResponsablesPorPaso(Arrays.asList(
+                Arrays.asList(deLaClinica),
+                Arrays.asList(deLaClinica),
+                Arrays.asList(deOtra)));
+
+        assertThrows(IllegalStateException.class, () -> dao.crear(cp));
+
+        // Solo se persistió el procedimiento: ningún paso a medias.
+        assertEquals(1, persistidos(1).size());
+    }
+
+    private void stubResponsablesPorPaso(List<List<PersonaRol>> porPaso) {
+        when(em.createQuery(contains("FROM PersonaRol pr"), eq(PersonaRol.class)))
+                .thenReturn(qResponsables);
+        when(qResponsables.setParameter(anyString(), any())).thenReturn(qResponsables);
+        when(qResponsables.setMaxResults(50)).thenReturn(qResponsables);
+        java.util.concurrent.atomic.AtomicInteger i = new java.util.concurrent.atomic.AtomicInteger();
+        when(qResponsables.getResultList()).thenAnswer(x -> porPaso.get(i.getAndIncrement()));
     }
 
     // ---- eliminar() ----
@@ -459,4 +493,46 @@ public class ConsultaProcedimientoDAOTest {
 
         verify(em, never()).remove(any());
     }
+    
+    // ---- crear(): validación de TODOS los pasos ----
+@Test
+public void crear_pasoDependienteSinPersona_lanzaIllegalStateYNoPersisteNada() {
+    Clinica clinicaA = clinica("Clinica A");
+    Consulta consulta = consultaDeClinica(clinicaA);
+    ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
+    Rol conPersona = rol("Recepcion");
+    Rol sinPersona = rol("Odontologo");
+    ProcedimientoPaso inicial = pasoDefinido("A inicial", conPersona);
+    ProcedimientoPaso dependiente = pasoDefinido("B dependiente", sinPersona);
+    PersonaRol soloRolSinPersona = personaRol(clinicaA);
+    soloRolSinPersona.setIdPersona(null);   // el rol existe pero sin persona
+    stubPasosDefinidos(Arrays.asList(inicial, dependiente));
+    stubDependientes(Arrays.asList(dependiente.getIdProcedimientoPaso()));
+    when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(consulta);
+    stubResponsables(Arrays.asList(soloRolSinPersona));
+
+    IllegalStateException ex = assertThrows(IllegalStateException.class, () -> dao.crear(cp));
+
+    assertTrue(ex.getMessage().contains("A inicial"));
+    assertTrue(ex.getMessage().contains("B dependiente"));
+    verify(em, times(1)).persist(any());   // solo el ConsultaProcedimiento, ningun paso
+}
+
+@Test
+public void crear_candidatoConRolPeroSinPersona_noCuentaComoResponsable() {
+    Clinica clinicaA = clinica("Clinica A");
+    Consulta consulta = consultaDeClinica(clinicaA);
+    ConsultaProcedimiento cp = procedimientoDeConsulta(consulta);
+    PersonaRol sinPersona = personaRol(clinicaA);
+    sinPersona.setIdPersona(null);
+    stubPasosDefinidos(Arrays.asList(pasoDefinido("Revision", rol("Odontologo"))));
+    stubDependientes(Collections.emptyList());
+    when(em.find(Consulta.class, consulta.getIdConsulta())).thenReturn(consulta);
+    stubResponsables(Arrays.asList(sinPersona));
+
+    assertThrows(IllegalStateException.class, () -> dao.crear(cp));
+
+    verify(em, times(1)).persist(any());
+}
+
 }
