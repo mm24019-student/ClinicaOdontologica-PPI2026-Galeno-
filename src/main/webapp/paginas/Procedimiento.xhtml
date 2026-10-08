@@ -138,12 +138,12 @@
                                             </p:selectOneListbox>
 
                                             <div style="display:flex; flex-direction:column; gap:8px;">
-                                                <p:commandButton value="Agregar Examen" process="@this"
+                                                <p:commandButton value="Agregar" process="@this"
                                                                  disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
                                                                  actionListener="#{procedimientoPasoExamenModel.prepararAgregar}"
                                                                  update="pnlDialogoExamen"
                                                                  oncomplete="PF('dlgAgregarExamen').show()"/>
-                                                <p:commandButton value="Eliminar Seleccionado" process="lstExamenes @this"
+                                                <p:commandButton value="Eliminar" process="lstExamenes @this"
                                                                  disabled="#{procedimientoPasoModel.estado!='MODIFICAR'}"
                                                                  actionListener="#{procedimientoPasoExamenModel.eliminarSeleccionado(procedimientoPasoModel.registro)}"
                                                                  update="@form :mensajes :growlGlobal"/>
