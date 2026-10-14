@@ -138,4 +138,16 @@ public abstract class DefaultDAO<T> implements InterfaceDAO<T>, Serializable {
         q.setParameter(nombreParametro, idPadre);
         return q.getResultList();
     }
+        // Cuenta el total de registros de la entidad. Lo usan los servicios REST
+    // para informar al cliente cuántos hay en total y pueda paginar.
+    public long contar() throws IllegalStateException {
+        try {
+            String jpql = "SELECT COUNT(e) FROM " + getEntityClass().getSimpleName() + " e";
+            TypedQuery<Long> q = getEntityManager().createQuery(jpql, Long.class);
+            return q.getSingleResult();
+        } catch (Exception ex) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+            throw new IllegalStateException("Error al contar los registros", ex);
+        }
+    }
 }

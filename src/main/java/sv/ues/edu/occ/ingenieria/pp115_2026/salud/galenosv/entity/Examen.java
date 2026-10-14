@@ -15,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
+import jakarta.json.bind.annotation.JsonbTransient;
 
 /**
  *
@@ -46,8 +47,10 @@ public class Examen implements Serializable {
     @Column(name = "observaciones")
     private String observaciones;
     @OneToMany(mappedBy = "idExamen", fetch = FetchType.LAZY)
+    @JsonbTransient
     private List<ExamenTipoExamen> examenTipoExamenList;
     @OneToMany(mappedBy = "idExamen", fetch = FetchType.LAZY)
+    @JsonbTransient
     private List<ProcedimientoPasoExamen> procedimientoPasoExamenList;
 
     public Examen() {

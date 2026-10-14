@@ -1,0 +1,24 @@
+package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.rest;
+
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Path;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.*;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
+
+@Path("examenresultado")
+@RequestScoped
+public class ExamenResultadoResource extends AbstractResource<ExamenResultado> {
+
+    @Inject
+    ExamenResultadoDAO dao;
+
+    public ExamenResultadoResource() {
+        super(ExamenResultado.class);
+    }
+
+    @Override
+    protected DefaultDAO<ExamenResultado> dao() {
+        return dao;
+    }
+}

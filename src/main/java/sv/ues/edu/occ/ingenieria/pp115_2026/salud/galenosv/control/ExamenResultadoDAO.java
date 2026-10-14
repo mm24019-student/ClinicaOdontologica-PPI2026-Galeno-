@@ -8,6 +8,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
 @Stateless
 @LocalBean
@@ -21,12 +22,34 @@ public class ExamenResultadoDAO extends DefaultDAO<ExamenResultado> {
         return em;
     }
 
-    public List<ExamenResultado> findByOrdenExamen(UUID idOrdenExamen) {
+    public List<ExamenResultado> findRangeConRelaciones(int first, int max) {
         TypedQuery<ExamenResultado> q = em.createQuery(
-                "SELECT r FROM ExamenResultado r WHERE r.idOrdenExamen.idOrdenExamen = :id "
-                + "ORDER BY r.fechaCreacion DESC",
+                "SELECT e FROM ExamenResultado e JOIN FETCH e.idOrdenExamen",
                 ExamenResultado.class);
-        q.setParameter("id", idOrdenExamen);
+        q.setFirstResult(first);
+        q.setMaxResults(max);
         return q.getResultList();
+    }
+    
+    public List<ExamenResultado> findByOrdenExamen(UUID idOrdenExamen) {
+    TypedQuery<ExamenResultado> q = em.createQuery(
+            "SELECT r FROM ExamenResultado r WHERE r.idOrdenExamen.idOrdenExamen = :id "
+            + "ORDER BY r.fechaCreacion DESC",
+            ExamenResultado.class);
+    q.setParameter("id", idOrdenExamen);
+    return q.getResultList();
+}
+
+    public ExamenResultado buscarConRelaciones(UUID id) {
+        TypedQuery<ExamenResultado> q = em.createQuery(
+                "SELECT e FROM ExamenResultado e JOIN FETCH e.idOrdenExamen WHERE e.idExamenResultado = :id",
+                ExamenResultado.class);
+        q.setParameter("id", id);
+        List<ExamenResultado> resultado = q.getResultList();
+        return resultado.isEmpty() ? null : resultado.get(0);
+    }
+
+    public OrdenExamen referenciaOrdenExamen(UUID id) {
+        return em.getReference(OrdenExamen.class, id);
     }
 }
