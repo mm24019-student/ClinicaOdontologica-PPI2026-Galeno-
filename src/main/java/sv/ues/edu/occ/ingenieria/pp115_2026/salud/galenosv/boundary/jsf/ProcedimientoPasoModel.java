@@ -278,7 +278,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
             return;
         }
         TreeNode<ProcedimientoPaso> nodo = new DefaultTreeNode<>(p, padre);
-        nodo.setExpanded(true);
+        nodo.setExpanded(false);
         for (ProcedimientoPaso h : hijos.getOrDefault(p.getIdProcedimientoPaso(), new ArrayList<>())) {
             agregarNodo(nodo, h, hijos, visitados);
         }
