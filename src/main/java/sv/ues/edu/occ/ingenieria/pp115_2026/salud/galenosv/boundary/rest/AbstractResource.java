@@ -64,7 +64,7 @@ public abstract class AbstractResource<T> {
     }
 
     // GET /resources/<recurso>?first=0&max=50
-    @GET
+        @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response findRange(@QueryParam("first") @DefaultValue("0") int first,
             @QueryParam("max") @DefaultValue("50") int max) {
@@ -72,7 +72,9 @@ public abstract class AbstractResource<T> {
             return wrong("first,max");
         }
         try {
-            return ok(dao().findRange(first, max));
+            return Response.ok(GalenoJson.get().toJson(dao().findRange(first, max)), MediaType.APPLICATION_JSON)
+                    .header("Total-registros", dao().contar())
+                    .build();
         } catch (Exception ex) {
             return manejar(ex, "first,max");
         }

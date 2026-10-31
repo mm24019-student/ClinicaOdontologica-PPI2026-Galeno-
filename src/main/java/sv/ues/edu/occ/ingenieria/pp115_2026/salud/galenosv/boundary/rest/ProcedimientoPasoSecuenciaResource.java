@@ -17,7 +17,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
  *
  * @author antonio
  */
-@Path("procedimeientopasosecuencia")
+@Path("procedimientopasosecuencia")
 @RequestScoped
 public class ProcedimientoPasoSecuenciaResource extends AbstractResource<ProcedimientoPasoSecuencia> {
     
