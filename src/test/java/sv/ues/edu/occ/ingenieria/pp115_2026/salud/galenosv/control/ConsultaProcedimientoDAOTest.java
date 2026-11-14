@@ -49,7 +49,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 public class ConsultaProcedimientoDAOTest {
 
     private static final String JPQL_POR_CONSULTA
-            = "SELECT e FROM ConsultaProcedimiento e WHERE e.idConsulta.idConsulta = :id";
+            = "SELECT DISTINCT cp FROM ConsultaProcedimiento cp "
+            + "JOIN FETCH cp.idConsulta c "
+            + "LEFT JOIN FETCH c.idPersonaRol pr "
+            + "LEFT JOIN FETCH pr.idPersona "
+            + "LEFT JOIN FETCH pr.idRol "
+            + "LEFT JOIN FETCH pr.idClinica "
+            + "WHERE c.idConsulta = :id "
+            + "ORDER BY cp.fechaInicio";
 
     @Mock
     private EntityManager em;

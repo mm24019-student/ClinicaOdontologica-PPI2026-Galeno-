@@ -28,7 +28,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoExamenDAOTest {
  
     private static final String JPQL_POR_PASO
-            = "SELECT e FROM ProcedimientoPasoExamen e WHERE e.idProcedimientoPaso.idProcedimientoPaso = :id";
+            = "SELECT DISTINCT e FROM ProcedimientoPasoExamen e "
+            + "JOIN FETCH e.idExamen x "
+            + "JOIN FETCH e.idProcedimientoPaso pp "
+            + "LEFT JOIN FETCH pp.idProcedimiento "
+            + "LEFT JOIN FETCH pp.idRol "
+            + "WHERE pp.idProcedimientoPaso = :id "
+            + "ORDER BY x.nombre";
  
     @Mock
     private EntityManager em;

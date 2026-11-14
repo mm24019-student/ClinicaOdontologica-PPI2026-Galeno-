@@ -62,7 +62,12 @@ public class PersonaRolDAOTest {
         UUID idPersona = UUID.randomUUID();
         List<PersonaRol> esperado = Arrays.asList(
                 new PersonaRol(UUID.randomUUID()), new PersonaRol(UUID.randomUUID()));
-        String jpqlEsperado = "SELECT pr FROM PersonaRol pr WHERE pr.idPersona.idPersona = :id";
+        String jpqlEsperado = "SELECT DISTINCT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "WHERE p.idPersona = :id "
+                + "ORDER BY r.nombre, c.nombre";
 
         when(em.createQuery(jpqlEsperado, PersonaRol.class)).thenReturn(queryPersonaRol);
         when(queryPersonaRol.setParameter("id", idPersona)).thenReturn(queryPersonaRol);

@@ -29,7 +29,12 @@ public class ProcedimientoPasoSecuenciaDAOTest {
             = "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimientoPaso = :id";
 
     private static final String JPQL_POR_PROCEDIMIENTO
-            = "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimiento.idProcedimiento = :id";
+            = "SELECT DISTINCT s FROM ProcedimientoPasoSecuencia s "
+            + "JOIN FETCH s.idProcedimientoPaso pp "
+            + "LEFT JOIN FETCH pp.idProcedimiento "
+            + "LEFT JOIN FETCH pp.idRol "
+            + "WHERE pp.idProcedimiento.idProcedimiento = :id "
+            + "ORDER BY s.fechaCreacion";
 
     @Mock
     private EntityManager em;

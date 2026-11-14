@@ -33,7 +33,18 @@ public class ExamenResultadoDAO extends DefaultDAO<ExamenResultado> {
     
     public List<ExamenResultado> findByOrdenExamen(UUID idOrdenExamen) {
     TypedQuery<ExamenResultado> q = em.createQuery(
-            "SELECT r FROM ExamenResultado r WHERE r.idOrdenExamen.idOrdenExamen = :id "
+            "SELECT DISTINCT r FROM ExamenResultado r "
+            + "JOIN FETCH r.idOrdenExamen o "
+            + "JOIN FETCH o.idConsultaProcedimientoPaso p "
+            + "JOIN FETCH p.idConsultaProcedimiento cp "
+            + "JOIN FETCH p.idProcedimientoPaso pp "
+            + "LEFT JOIN FETCH pp.idProcedimiento "
+            + "LEFT JOIN FETCH pp.idRol "
+            + "LEFT JOIN FETCH p.idPersonaRol pr "
+            + "LEFT JOIN FETCH pr.idPersona "
+            + "LEFT JOIN FETCH pr.idRol "
+            + "LEFT JOIN FETCH pr.idClinica "
+            + "WHERE o.idOrdenExamen = :id "
             + "ORDER BY r.fechaCreacion DESC",
             ExamenResultado.class);
     q.setParameter("id", idOrdenExamen);

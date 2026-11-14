@@ -31,6 +31,24 @@ public class OrdenExamenDAO extends DefaultDAO<OrdenExamen> {
         return q.getResultList();
     }
 
+    public List<OrdenExamen> findByConsultaProcedimientoPaso(UUID idPaso) {
+        TypedQuery<OrdenExamen> q = em.createQuery(
+                "SELECT DISTINCT o FROM OrdenExamen o "
+                + "JOIN FETCH o.idConsultaProcedimientoPaso p "
+                + "JOIN FETCH p.idConsultaProcedimiento cp "
+                + "JOIN FETCH p.idProcedimientoPaso pp "
+                + "LEFT JOIN FETCH pp.idProcedimiento "
+                + "LEFT JOIN FETCH pp.idRol "
+                + "LEFT JOIN FETCH p.idPersonaRol pr "
+                + "LEFT JOIN FETCH pr.idPersona "
+                + "LEFT JOIN FETCH pr.idRol "
+                + "LEFT JOIN FETCH pr.idClinica "
+                + "WHERE p.idConsultaProcedimientoPaso = :id "
+                + "ORDER BY o.fechaCreacion DESC", OrdenExamen.class);
+        q.setParameter("id", idPaso);
+        return q.getResultList();
+    }
+
     public OrdenExamen buscarConRelaciones(UUID id) {
         TypedQuery<OrdenExamen> q = em.createQuery(
                 "SELECT o FROM OrdenExamen o JOIN FETCH o.idConsultaProcedimientoPaso WHERE o.idOrdenExamen = :id",

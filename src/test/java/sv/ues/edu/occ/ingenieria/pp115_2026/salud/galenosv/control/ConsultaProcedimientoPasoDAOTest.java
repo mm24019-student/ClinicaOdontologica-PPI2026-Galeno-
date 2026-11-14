@@ -33,7 +33,17 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProced
 public class ConsultaProcedimientoPasoDAOTest {
  
     private static final String JPQL_POR_CONSULTA_PROCEDIMIENTO
-            = "SELECT e FROM ConsultaProcedimientoPaso e WHERE e.idConsultaProcedimiento.idConsultaProcedimiento = :id";
+            = "SELECT DISTINCT e FROM ConsultaProcedimientoPaso e "
+            + "JOIN FETCH e.idConsultaProcedimiento cp "
+            + "JOIN FETCH e.idProcedimientoPaso pp "
+            + "LEFT JOIN FETCH pp.idProcedimiento "
+            + "LEFT JOIN FETCH pp.idRol "
+            + "LEFT JOIN FETCH e.idPersonaRol pr "
+            + "LEFT JOIN FETCH pr.idPersona "
+            + "LEFT JOIN FETCH pr.idRol "
+            + "LEFT JOIN FETCH pr.idClinica "
+            + "WHERE cp.idConsultaProcedimiento = :id "
+            + "ORDER BY e.fechaInicio";
  
     private static final String JPQL_CONTAR_ORDENES
             = "SELECT COUNT(o) FROM OrdenExamen o WHERE o.idConsultaProcedimientoPaso.idConsultaProcedimientoPaso = :id";

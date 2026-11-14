@@ -33,10 +33,19 @@ public class ConsultaProcedimientoDAO extends DefaultDAO<ConsultaProcedimiento> 
 
     // Devuelve solo los exámenes del paso indicado (para la pestaña
     // "Exámenes" dentro de un paso, en vez de traer todos los de todos los pasos).
-    public List<ConsultaProcedimiento> findByConsulta(UUID idConsulta) {
-        return buscarPorPadre(
-                "SELECT e FROM ConsultaProcedimiento e WHERE e.idConsulta.idConsulta = :id",
-                "id", idConsulta);
+        public List<ConsultaProcedimiento> findByConsulta(UUID idConsulta) {
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT cp FROM ConsultaProcedimiento cp "
+                + "JOIN FETCH cp.idConsulta c "
+                + "LEFT JOIN FETCH c.idPersonaRol pr "
+                + "LEFT JOIN FETCH pr.idPersona "
+                + "LEFT JOIN FETCH pr.idRol "
+                + "LEFT JOIN FETCH pr.idClinica "
+                + "WHERE c.idConsulta = :id "
+                + "ORDER BY cp.fechaInicio",
+                ConsultaProcedimiento.class)
+                .setParameter("id", idConsulta)
+                .getResultList();
     }
 
     // Al crear un procedimiento de la consulta se generan automáticamente sus

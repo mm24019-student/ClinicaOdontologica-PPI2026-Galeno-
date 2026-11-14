@@ -3,6 +3,7 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.rest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -45,6 +46,22 @@ public class DocumentoResource extends AbstractResource<Documento> {
             return "valor";
         }
         return null;
+    }
+
+    @GET
+    @Path("buscar")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscar(@QueryParam("valor") String valor,
+            @QueryParam("idTipoDocumento") String idTipoDocumento) {
+        if (valor == null || valor.isBlank()) {
+            return Response.ok("[]", MediaType.APPLICATION_JSON).build();
+        }
+        try {
+            UUID tipo = uuidOpcional(idTipoDocumento);
+            return ok(dao.buscarPorValor(valor, tipo));
+        } catch (Exception ex) {
+            return manejar(ex, "valor,idTipoDocumento");
+        }
     }
 
     @GET

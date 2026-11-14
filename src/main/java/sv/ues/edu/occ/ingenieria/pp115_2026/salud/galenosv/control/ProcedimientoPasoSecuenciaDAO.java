@@ -26,17 +26,24 @@ public class ProcedimientoPasoSecuenciaDAO extends DefaultDAO<ProcedimientoPasoS
     
       // Devuelve solo las secuencias del paso indicado (para la pestaña
     // "Secuencias" dentro de un paso, en vez de traer todas las de todos los pasos).
-    public List<ProcedimientoPasoSecuencia> findByProcedimientoPaso(UUID idProcedimientoPaso) {
-        return buscarPorPadre(
+        public List<ProcedimientoPasoSecuencia> findByProcedimientoPaso(UUID idProcedimientoPaso) {
+        return getEntityManager().createQuery(
                 "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimientoPaso = :id",
-                "id", idProcedimientoPaso);
+                ProcedimientoPasoSecuencia.class)
+                .setParameter("id", idProcedimientoPaso)
+                .getResultList();
     }
-    
-     // Devuelve las secuencias de todos los pasos de un procedimiento (una sola
-    // consulta). Se usa para armar el árbol de pasos y detectar ciclos.
+
     public List<ProcedimientoPasoSecuencia> findByProcedimiento(UUID idProcedimiento) {
-        return buscarPorPadre(
-                "SELECT s FROM ProcedimientoPasoSecuencia s WHERE s.idProcedimientoPaso.idProcedimiento.idProcedimiento = :id",
-                "id", idProcedimiento);
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT s FROM ProcedimientoPasoSecuencia s "
+                + "JOIN FETCH s.idProcedimientoPaso pp "
+                + "LEFT JOIN FETCH pp.idProcedimiento "
+                + "LEFT JOIN FETCH pp.idRol "
+                + "WHERE pp.idProcedimiento.idProcedimiento = :id "
+                + "ORDER BY s.fechaCreacion",
+                ProcedimientoPasoSecuencia.class)
+                .setParameter("id", idProcedimiento)
+                .getResultList();
     }
 }

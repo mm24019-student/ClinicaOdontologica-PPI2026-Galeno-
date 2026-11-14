@@ -52,7 +52,7 @@ public class ExamenResultadoDAOTest {
         assertEquals(esperado, resultado);
         ArgumentCaptor<String> jpql = ArgumentCaptor.forClass(String.class);
         verify(em).createQuery(jpql.capture(), eq(ExamenResultado.class));
-        assertTrue(jpql.getValue().contains("r.idOrdenExamen.idOrdenExamen = :id"));
+        assertTrue(jpql.getValue().contains("o.idOrdenExamen = :id"));
         verify(query).setParameter("id", idOrden);
     }
 

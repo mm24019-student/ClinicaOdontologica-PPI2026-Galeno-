@@ -50,10 +50,33 @@ public class DocumentoDAO extends DefaultDAO<Documento>{
     // Devuelve solo los documentos de una persona especifica. Se usa en la
     // pestana "Documentos" dentro de la pantalla de Persona, en vez de traer
     // siempre los 100 Documento de todas las personas.
-    public List<Documento> findByPersona(UUID idPersona) {
-        return buscarPorPadre(
+        public List<Documento> findByPersona(UUID idPersona) {
+        return getEntityManager().createQuery(
                 "SELECT d FROM Documento d WHERE d.idPersona.idPersona = :id",
-                "id", idPersona);
+                Documento.class)
+                .setParameter("id", idPersona)
+                .getResultList();
+    }
+
+    // Busca documentos por su valor (numero de documento) y, opcionalmente, por
+    // el tipo de documento. Se usa para validar la identidad en el frontend.
+    public List<Documento> buscarPorValor(String valor, UUID idTipoDocumento) {
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT d FROM Documento d "
+                + "LEFT JOIN FETCH d.idPersona "
+                + "LEFT JOIN FETCH d.idTipoDocumento "
+                + "WHERE LOWER(TRIM(d.valor)) = :valor ");
+        if (idTipoDocumento != null) {
+            jpql.append("AND d.idTipoDocumento.idTipoDocumento = :tipo ");
+        }
+        jpql.append("ORDER BY d.idDocumento");
+        TypedQuery<Documento> q = em.createQuery(jpql.toString(), Documento.class);
+        q.setParameter("valor", valor == null ? "" : valor.trim().toLowerCase());
+        if (idTipoDocumento != null) {
+            q.setParameter("tipo", idTipoDocumento);
+        }
+        q.setMaxResults(20);
+        return q.getResultList();
     }
 
     // ---- Validaciones de duplicados ----

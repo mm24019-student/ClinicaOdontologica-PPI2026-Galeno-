@@ -102,10 +102,17 @@ public class PersonaRolDAO extends DefaultDAO<PersonaRol> {
     // Devuelve solo los roles/clinica asignados a una persona especifica.
     // Se usa en la pestana "Roles" dentro de la pantalla de Persona, en vez
     // de traer siempre los 100 PersonaRol de todas las personas.
-    public List<PersonaRol> findByPersona(UUID idPersona) {
-        return buscarPorPadre(
-                "SELECT pr FROM PersonaRol pr WHERE pr.idPersona.idPersona = :id",
-                "id", idPersona);
+        public List<PersonaRol> findByPersona(UUID idPersona) {
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "WHERE p.idPersona = :id "
+                + "ORDER BY r.nombre, c.nombre",
+                PersonaRol.class)
+                .setParameter("id", idPersona)
+                .getResultList();
     }
 
     // Dice si el rol indicado ya tiene al menos una persona asignada. Si

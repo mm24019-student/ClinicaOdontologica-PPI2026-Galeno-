@@ -33,9 +33,15 @@ public class ProcedimientoPasoDAO extends DefaultDAO<ProcedimientoPaso> {
     // Devuelve solo los pasos que pertenecen a un procedimiento específico.
     // Se usa para la pestaña "Pasos" dentro de la pantalla de Procedimiento,
     // en vez de traer siempre los 100 pasos de todos los procedimientos.
-    public List<ProcedimientoPaso> findByProcedimiento(UUID idProcedimiento) {
-        return buscarPorPadre(
-                "SELECT pp FROM ProcedimientoPaso pp WHERE pp.idProcedimiento.idProcedimiento = :id",
-                "id", idProcedimiento);
+        public List<ProcedimientoPaso> findByProcedimiento(UUID idProcedimiento) {
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT pp FROM ProcedimientoPaso pp "
+                + "LEFT JOIN FETCH pp.idProcedimiento "
+                + "LEFT JOIN FETCH pp.idRol "
+                + "WHERE pp.idProcedimiento.idProcedimiento = :id "
+                + "ORDER BY pp.nombre",
+                ProcedimientoPaso.class)
+                .setParameter("id", idProcedimiento)
+                .getResultList();
     }
 }

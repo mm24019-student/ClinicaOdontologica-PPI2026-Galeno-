@@ -23,9 +23,17 @@ public class ProcedimientoPasoExamenDAO extends DefaultDAO<ProcedimientoPasoExam
     
     // Devuelve solo los exámenes del paso indicado (para la pestaña
     // "Exámenes" dentro de un paso, en vez de traer todos los de todos los pasos).
-    public List<ProcedimientoPasoExamen> findByProcedimientoPaso(UUID idProcedimientoPaso) {
-        return buscarPorPadre(
-                "SELECT e FROM ProcedimientoPasoExamen e WHERE e.idProcedimientoPaso.idProcedimientoPaso = :id",
-                "id", idProcedimientoPaso);
+        public List<ProcedimientoPasoExamen> findByProcedimientoPaso(UUID idProcedimientoPaso) {
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT e FROM ProcedimientoPasoExamen e "
+                + "JOIN FETCH e.idExamen x "
+                + "JOIN FETCH e.idProcedimientoPaso pp "
+                + "LEFT JOIN FETCH pp.idProcedimiento "
+                + "LEFT JOIN FETCH pp.idRol "
+                + "WHERE pp.idProcedimientoPaso = :id "
+                + "ORDER BY x.nombre",
+                ProcedimientoPasoExamen.class)
+                .setParameter("id", idProcedimientoPaso)
+                .getResultList();
     }
 }
