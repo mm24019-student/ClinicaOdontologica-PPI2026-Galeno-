@@ -33,8 +33,7 @@ public class ProcedimientoPasoSecuenciaDAOTest {
             + "JOIN FETCH s.idProcedimientoPaso pp "
             + "LEFT JOIN FETCH pp.idProcedimiento "
             + "LEFT JOIN FETCH pp.idRol "
-            + "WHERE pp.idProcedimiento.idProcedimiento = :id "
-            + "ORDER BY s.fechaCreacion";
+            + "WHERE pp.idProcedimiento.idProcedimiento = :id";
 
     @Mock
     private EntityManager em;

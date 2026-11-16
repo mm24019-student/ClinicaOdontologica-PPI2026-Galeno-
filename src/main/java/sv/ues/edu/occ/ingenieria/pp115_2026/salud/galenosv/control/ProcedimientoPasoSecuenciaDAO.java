@@ -40,8 +40,7 @@ public class ProcedimientoPasoSecuenciaDAO extends DefaultDAO<ProcedimientoPasoS
                 + "JOIN FETCH s.idProcedimientoPaso pp "
                 + "LEFT JOIN FETCH pp.idProcedimiento "
                 + "LEFT JOIN FETCH pp.idRol "
-                + "WHERE pp.idProcedimiento.idProcedimiento = :id "
-                + "ORDER BY s.fechaCreacion",
+                + "WHERE pp.idProcedimiento.idProcedimiento = :id",
                 ProcedimientoPasoSecuencia.class)
                 .setParameter("id", idProcedimiento)
                 .getResultList();
