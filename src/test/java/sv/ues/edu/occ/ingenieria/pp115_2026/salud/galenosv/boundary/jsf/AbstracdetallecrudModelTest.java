@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -47,17 +47,17 @@ public class AbstracdetallecrudModelTest {
 
         private static final long serialVersionUID = 1L;
 
-        private final transient InterfaceDAO<Hijo> dao;
+        private final transient InterfaceService<Hijo> dao;
         transient List<Hijo> respuesta = new ArrayList<>();
         final transient List<UUID> busquedas = new ArrayList<>();
 
-        DetalleModel(InterfaceDAO<Hijo> dao, FacesContext fc) {
+        DetalleModel(InterfaceService<Hijo> dao, FacesContext fc) {
             this.dao = dao;
             this.fc = fc;
         }
 
         @Override
-        protected InterfaceDAO<Hijo> getDAO() {
+        protected InterfaceService<Hijo> getService() {
             return dao;
         }
 
@@ -88,14 +88,14 @@ public class AbstracdetallecrudModelTest {
         }
     }
 
-    private InterfaceDAO<Hijo> dao;
+    private InterfaceService<Hijo> dao;
     private DetalleModel bean;
     private Padre padre;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setUp() {
-        dao = mock(InterfaceDAO.class);
+        dao = mock(InterfaceService.class);
         bean = new DetalleModel(dao, mock(FacesContext.class));
         padre = new Padre(UUID.randomUUID());
     }

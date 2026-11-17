@@ -16,14 +16,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class PersonaRolResource extends AbstractResource<PersonaRol> {
 
     @Inject
-    PersonaRolDAO dao;
+    PersonaRolService dao;
 
     public PersonaRolResource() {
         super(PersonaRol.class);
     }
 
     @Override
-    protected DefaultDAO<PersonaRol> dao() {
+    protected DefaultService<PersonaRol> dao() {
         return dao;
     }
 

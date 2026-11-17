@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
@@ -20,7 +20,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoService;
 
 /**
  * Prueba de DocumentoModel (CRUD standalone). El flujo estándar heredado de
@@ -36,10 +36,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumento
 public class DocumentoModelTest {
 
     @Mock
-    private DocumentoDAO documentoDAO;
+    private DocumentoService documentoService;
     
     @Mock 
-    private TipoDocumentoDAO tipoDocumentoDAO;
+    private TipoDocumentoService tipoDocumentoService;
 
  
     @Mock
@@ -58,7 +58,7 @@ public class DocumentoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(documentoDAO, never()).crear(any());
+        verify(documentoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -72,7 +72,7 @@ public class DocumentoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(documentoDAO, never()).crear(any());
+        verify(documentoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -85,11 +85,11 @@ public class DocumentoModelTest {
         doc.setIdTipoDocumento(new TipoDocumento(UUID.randomUUID()));
         bean.setRegistro(doc);
         List<Documento> recargados = Arrays.asList(doc);
-        when(documentoDAO.findRange(0, 100)).thenReturn(recargados);
+        when(documentoService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(documentoDAO).crear(doc);
+        verify(documentoService).crear(doc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -104,7 +104,7 @@ public class DocumentoModelTest {
 
         bean.btnModificarHandler();
 
-        verify(documentoDAO, never()).actualizar(any());
+        verify(documentoService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -116,13 +116,13 @@ public class DocumentoModelTest {
         doc.setIdPersona(new Persona(UUID.randomUUID()));
         doc.setIdTipoDocumento(new TipoDocumento(UUID.randomUUID()));
         bean.setRegistro(doc);
-        when(documentoDAO.actualizar(doc)).thenReturn(doc);
+        when(documentoService.actualizar(doc)).thenReturn(doc);
         List<Documento> recargados = Arrays.asList(doc);
-        when(documentoDAO.findRange(0, 100)).thenReturn(recargados);
+        when(documentoService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(documentoDAO).actualizar(doc);
+        verify(documentoService).actualizar(doc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }

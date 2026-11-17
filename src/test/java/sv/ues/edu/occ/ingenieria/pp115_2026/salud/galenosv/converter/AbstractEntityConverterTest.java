@@ -14,7 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 
 /**
  * Prueba de AbstractEntityConverter con un converter mínimo de prueba. Aquí
@@ -42,14 +42,14 @@ public class AbstractEntityConverterTest {
  
     static class ConverterDePrueba extends AbstractEntityConverter<Entidad> {
  
-        private final InterfaceDAO<Entidad> dao;
+        private final InterfaceService<Entidad> dao;
  
-        ConverterDePrueba(InterfaceDAO<Entidad> dao) {
+        ConverterDePrueba(InterfaceService<Entidad> dao) {
             this.dao = dao;
         }
  
         @Override
-        protected InterfaceDAO<Entidad> dao() {
+        protected InterfaceService<Entidad> dao() {
             return dao;
         }
  
@@ -61,7 +61,7 @@ public class AbstractEntityConverterTest {
  
     static class ConverterConMensajePropio extends ConverterDePrueba {
  
-        ConverterConMensajePropio(InterfaceDAO<Entidad> dao) {
+        ConverterConMensajePropio(InterfaceService<Entidad> dao) {
             super(dao);
         }
  
@@ -72,7 +72,7 @@ public class AbstractEntityConverterTest {
     }
  
     @Mock
-    private InterfaceDAO<Entidad> dao;
+    private InterfaceService<Entidad> dao;
  
     private ConverterDePrueba converter;
  

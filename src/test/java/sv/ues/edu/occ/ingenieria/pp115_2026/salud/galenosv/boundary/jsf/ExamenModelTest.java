@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.*;
 public class ExamenModelTest {
 
     @Mock
-    private ExamenDAO examenDAO;
+    private ExamenService examenService;
     @Mock
     private ExamenTipoExamenModel examenTipoExamenModel;
     @Mock
@@ -39,11 +39,11 @@ public class ExamenModelTest {
     @InjectMocks
     private ExamenModel bean;
 
-    // ---- getDAO() / obtenerId() ----
+    // ---- getService() / obtenerId() ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(examenDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(examenService, bean.getService());
     }
 
     @Test
@@ -100,11 +100,11 @@ public class ExamenModelTest {
         Examen nuevo = new Examen(UUID.randomUUID());
         bean.setRegistro(nuevo);
         List<Examen> recargados = Arrays.asList(nuevo);
-        when(examenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(examenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenDAO).crear(nuevo);
+        verify(examenService).crear(nuevo);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
@@ -117,7 +117,7 @@ public class ExamenModelTest {
     @Test
     public void inicializar_cargaLosPrimeros100Examenes() {
         List<Examen> esperado = Arrays.asList(new Examen(UUID.randomUUID()));
-        when(examenDAO.findRange(0, 100)).thenReturn(esperado);
+        when(examenService.findRange(0, 100)).thenReturn(esperado);
 
         bean.inicializar();
 

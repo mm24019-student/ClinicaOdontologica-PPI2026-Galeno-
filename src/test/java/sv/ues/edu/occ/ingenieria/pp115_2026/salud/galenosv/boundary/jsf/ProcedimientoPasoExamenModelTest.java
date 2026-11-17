@@ -28,8 +28,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoExamen;
@@ -48,9 +48,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoExamenModelTest {
  
     @Mock
-    private ProcedimientoPasoExamenDAO ppeDAO;
+    private ProcedimientoPasoExamenService ppeService;
     @Mock
-    private ExamenDAO eDAO;
+    private ExamenService eService;
     @Mock
     private FacesContext fc;
  
@@ -84,11 +84,11 @@ public class ProcedimientoPasoExamenModelTest {
         return event;
     }
  
-    // ---- getDAO() / obtenerId() / los 3 métodos del detalle ----
+    // ---- getService() / obtenerId() / los 3 métodos del detalle ----
  
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(ppeDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(ppeService, bean.getService());
     }
  
     @Test
@@ -115,7 +115,7 @@ public class ProcedimientoPasoExamenModelTest {
     @Test
     public void buscarPorPadre_delegaEnFindByProcedimientoPaso() {
         List<ProcedimientoPasoExamen> esperado = Arrays.asList(nuevoPPE(null, true));
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
  
         assertEquals(esperado, bean.buscarPorPadre(pasoPadre.getIdProcedimientoPaso()));
     }
@@ -124,7 +124,7 @@ public class ProcedimientoPasoExamenModelTest {
  
     @Test
     public void btnNuevoHandler_creaRegistroActivoConFechaYLigadoAlPasoActual() {
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
                 .thenReturn(Collections.emptyList());
         bean.cargarDe(pasoPadre);
  
@@ -248,7 +248,7 @@ public class ProcedimientoPasoExamenModelTest {
     @Test
     public void abrirGestionExamen_recargaLosExamenesDelPasoYAbreElDialogo() {
         List<ProcedimientoPasoExamen> esperado = Arrays.asList(nuevoPPE(nuevoExamen("Radiografia"), true));
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
  
         bean.abrirGestionExamen(pasoPadre);
  
@@ -258,7 +258,7 @@ public class ProcedimientoPasoExamenModelTest {
  
     @Test
     public void cargarDe_limpiaLaSeleccionDelAutocomplete() {
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
                 .thenReturn(Collections.emptyList());
         bean.setSeleccionAutocomplete(nuevoPPE(nuevoExamen("Radiografia"), true));
  
@@ -271,19 +271,19 @@ public class ProcedimientoPasoExamenModelTest {
  
     @Test
     public void getExamenes_cacheaElCatalogoEntreLlamadas() {
-        when(eDAO.findRange(0, 100)).thenReturn(Arrays.asList(nuevoExamen("Radiografia")));
+        when(eService.findRange(0, 100)).thenReturn(Arrays.asList(nuevoExamen("Radiografia")));
  
         bean.getExamenes();
         bean.getExamenes();
  
-        verify(eDAO, times(1)).findRange(0, 100);
+        verify(eService, times(1)).findRange(0, 100);
     }
  
     @Test
     public void completarExamenesFormulario_filtraPorNombreSinImportarMayusculas() {
         Examen rx = nuevoExamen("Radiografia");
         Examen sangre = nuevoExamen("Hemograma");
-        when(eDAO.findRange(0, 100)).thenReturn(Arrays.asList(rx, sangre));
+        when(eService.findRange(0, 100)).thenReturn(Arrays.asList(rx, sangre));
  
         List<Examen> resultado = bean.completarExamenesFormulario("hemo");
  
@@ -314,7 +314,7 @@ public class ProcedimientoPasoExamenModelTest {
             bean.agregarExamen(pasoPadre);
         }
         ArgumentCaptor<ProcedimientoPasoExamen> captor = ArgumentCaptor.forClass(ProcedimientoPasoExamen.class);
-        verify(ppeDAO).crear(captor.capture());
+        verify(ppeService).crear(captor.capture());
         return captor.getValue();
     }
 
@@ -325,7 +325,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.agregarExamen(null);
 
         assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
@@ -333,7 +333,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.agregarExamen(new ProcedimientoPaso());   // sin id
 
         assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
@@ -343,7 +343,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.agregarExamen(pasoPadre);
 
         assertEquals(FacesMessage.SEVERITY_ERROR, ultimoMensaje().getSeverity());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
@@ -357,14 +357,14 @@ public class ProcedimientoPasoExamenModelTest {
         FacesMessage m = ultimoMensaje();
         assertEquals(FacesMessage.SEVERITY_ERROR, m.getSeverity());
         assertEquals("Examen inactivo", m.getSummary());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
     public void agregarExamen_examenYaAsignadoAlPaso_avisaYNoCreaDuplicado() {
         Examen rx = nuevoExamen("Radiografia");
         bean.setExamenPorAgregar(rx);
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso()))
                 .thenReturn(Arrays.asList(nuevoPPE(rx, true)));
 
         bean.agregarExamen(pasoPadre);
@@ -372,7 +372,7 @@ public class ProcedimientoPasoExamenModelTest {
         FacesMessage m = ultimoMensaje();
         assertEquals(FacesMessage.SEVERITY_WARN, m.getSeverity());
         assertEquals("Examen repetido", m.getSummary());
-        verify(ppeDAO, never()).crear(any());
+        verify(ppeService, never()).crear(any());
     }
 
     @Test
@@ -418,7 +418,7 @@ public class ProcedimientoPasoExamenModelTest {
     public void agregarExamen_siLaBaseFalla_muestraElErrorYConservaLoEscrito() {
         Examen rx = nuevoExamen("Radiografia");
         bean.setExamenPorAgregar(rx);
-        doThrow(new IllegalStateException("fallo bd")).when(ppeDAO).crear(any());
+        doThrow(new IllegalStateException("fallo bd")).when(ppeService).crear(any());
 
         bean.agregarExamen(pasoPadre);
 
@@ -437,7 +437,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.eliminarSeleccionado(pasoPadre);
 
         assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
@@ -447,7 +447,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.eliminarSeleccionado(pasoPadre);
 
         assertEquals(FacesMessage.SEVERITY_WARN, ultimoMensaje().getSeverity());
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
@@ -457,8 +457,8 @@ public class ProcedimientoPasoExamenModelTest {
 
         bean.eliminarSeleccionado(pasoPadre);
 
-        verify(ppeDAO).eliminar(id);
-        verify(ppeDAO).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
+        verify(ppeService).eliminar(id);
+        verify(ppeService).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
         assertNull(bean.getIdSeleccionado());
         assertEquals(FacesMessage.SEVERITY_INFO, ultimoMensaje().getSeverity());
     }
@@ -467,7 +467,7 @@ public class ProcedimientoPasoExamenModelTest {
     public void eliminarSeleccionado_siLaBaseFalla_muestraErrorYConservaLaSeleccion() {
         UUID id = UUID.randomUUID();
         bean.setIdSeleccionado(id.toString());
-        doThrow(new IllegalStateException("fk")).when(ppeDAO).eliminar(id);
+        doThrow(new IllegalStateException("fk")).when(ppeService).eliminar(id);
 
         bean.eliminarSeleccionado(pasoPadre);
 
@@ -482,7 +482,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.eliminarSeleccionado(pasoPadre);
 
         assertEquals(FacesMessage.SEVERITY_ERROR, ultimoMensaje().getSeverity());
-        verify(ppeDAO, never()).eliminar(any());
+        verify(ppeService, never()).eliminar(any());
     }
 
     // ---- examenesDe() (lista del panel) ----
@@ -491,20 +491,20 @@ public class ProcedimientoPasoExamenModelTest {
     public void examenesDe_pasoNulo_devuelveListaVaciaSinConsultar() {
         assertTrue(bean.examenesDe(null).isEmpty());
 
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
     public void examenesDe_pasoSinGuardar_devuelveListaVaciaSinConsultar() {
         assertTrue(bean.examenesDe(new ProcedimientoPaso()).isEmpty());
 
-        verifyNoInteractions(ppeDAO);
+        verifyNoInteractions(ppeService);
     }
 
     @Test
     public void examenesDe_primeraVez_cargaLosExamenesDelPaso() {
         List<ProcedimientoPasoExamen> esperado = Arrays.asList(nuevoPPE(nuevoExamen("Radiografia"), true));
-        when(ppeDAO.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
+        when(ppeService.findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso())).thenReturn(esperado);
 
         assertEquals(esperado, bean.examenesDe(pasoPadre));
     }
@@ -514,7 +514,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.examenesDe(pasoPadre);
         bean.examenesDe(pasoPadre);
 
-        verify(ppeDAO, times(1)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
+        verify(ppeService, times(1)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
     }
 
     @Test
@@ -524,8 +524,8 @@ public class ProcedimientoPasoExamenModelTest {
         bean.examenesDe(pasoPadre);
         bean.examenesDe(otro);
 
-        verify(ppeDAO, times(1)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
-        verify(ppeDAO, times(1)).findByProcedimientoPaso(otro.getIdProcedimientoPaso());
+        verify(ppeService, times(1)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
+        verify(ppeService, times(1)).findByProcedimientoPaso(otro.getIdProcedimientoPaso());
     }
 
     @Test
@@ -593,7 +593,7 @@ public class ProcedimientoPasoExamenModelTest {
         bean.recargarLista();
 
         assertFalse(bean.mostrarDialogo);
-        verify(ppeDAO, times(2)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
+        verify(ppeService, times(2)).findByProcedimientoPaso(pasoPadre.getIdProcedimientoPaso());
     }
 
     // ---- validarAntesDeGuardar() (no asignar exámenes inactivos) ----

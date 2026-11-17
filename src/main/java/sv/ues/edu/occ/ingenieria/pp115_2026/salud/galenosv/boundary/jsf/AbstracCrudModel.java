@@ -17,7 +17,7 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.SelectableDataModel;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
@@ -60,7 +60,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // =====================================================================
     // Métodos que cada subclase DEBE implementar
     // =====================================================================
-    protected abstract InterfaceDAO<T> getDAO();
+    protected abstract InterfaceService<T> getService();
 
     protected abstract T crearRegistroNuevo();
 
@@ -122,7 +122,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
      * detalle lo sobreescriben para volver a filtrar por padre.
      */
     protected void recargarLista() {
-        setWrappedData(getDAO().findRange(0, MAX_REGISTROS));
+        setWrappedData(getService().findRange(0, MAX_REGISTROS));
     }
 
     // =====================================================================
@@ -275,18 +275,18 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // Crear / Modificar (comparten la misma lógica en guardar)
     // =====================================================================
     // Botón "Guardar" de un registro nuevo: llama a guardar(true), que hace persist
-    // en el DAO.
+    // en el Service.
     public void btnCrearhandler(ActionEvent ae) {
         guardar(true);
     }
 
     // Botón "Guardar" de un registro existente: llama a guardar(false), que hace
-    // merge en el DAO.
+    // merge en el Service.
     public void btnModificarHandler() {
         guardar(false);
     }
 
-    // Lógica común de crear y modificar: valida, llama al DAO, muestra el mensaje
+    // Lógica común de crear y modificar: valida, llama al Service, muestra el mensaje
     // de éxito o
     // error y recarga la lista. esNuevo = true crea; false actualiza.
     private void guardar(boolean esNuevo) {
@@ -304,9 +304,9 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         }
         try {
             if (esNuevo) {
-                getDAO().crear(registro);
+                getService().crear(registro);
             } else {
-                getDAO().actualizar(registro);
+                getService().actualizar(registro);
             }
             mensaje(FacesMessage.SEVERITY_INFO,
                     esNuevo ? "Registro creado con exito" : "Registro actualizado con exito",
@@ -324,7 +324,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
     // Eliminar
     // =====================================================================
     // Elimina el registro con ese id: primero revisa si tiene dependientes y luego
-    // llama al DAO.
+    // llama al Service.
     public void btnEliminarHandler(UUID id) {
          if (!permitirAccion()) {
             return;
@@ -345,7 +345,7 @@ public abstract class AbstracCrudModel<T> extends ListDataModel<T> implements Se
         }
 
         try {
-            getDAO().eliminar(id);
+            getService().eliminar(id);
             mensaje(FacesMessage.SEVERITY_INFO, "Registro eliminado con exito", "Registro borrado");
             limpiarSeleccion();
             recargarLista();

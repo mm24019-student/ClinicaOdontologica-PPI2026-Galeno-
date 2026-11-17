@@ -25,9 +25,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
@@ -47,13 +47,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 public class ConsultaProcedimientoModelTest {
 
     @Mock
-    private ConsultaProcedimientoDAO cpDAO;
+    private ConsultaProcedimientoService cpService;
     @Mock
-    private ProcedimientoDAO procedimientoDAO;
+    private ProcedimientoService procedimientoService;
     @Mock
     private SesionBean sesionBean;
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Mock
     private FacesContext fc;
 
@@ -86,11 +86,11 @@ public class ConsultaProcedimientoModelTest {
         return event;
     }
 
-    // ---- getDAO() / obtenerId() / los 3 métodos del detalle ----
+    // ---- getService() / obtenerId() / los 3 métodos del detalle ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(cpDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(cpService, bean.getService());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class ConsultaProcedimientoModelTest {
     @Test
     public void buscarPorPadre_delegaEnFindByConsulta() {
         List<ConsultaProcedimiento> esperado = Arrays.asList(new ConsultaProcedimiento(UUID.randomUUID()));
-        when(cpDAO.findByConsulta(consulta.getIdConsulta())).thenReturn(esperado);
+        when(cpService.findByConsulta(consulta.getIdConsulta())).thenReturn(esperado);
 
         assertEquals(esperado, bean.buscarPorPadre(consulta.getIdConsulta()));
     }
@@ -129,13 +129,13 @@ public class ConsultaProcedimientoModelTest {
         bean.inicializar();
 
         assertTrue(bean.getregistros().isEmpty());
-        verifyNoInteractions(cpDAO);
+        verifyNoInteractions(cpService);
     }
 
     @Test
     public void cargarDe_consultaConId_cargaSoloSusProcedimientos() {
         List<ConsultaProcedimiento> esperado = Arrays.asList(new ConsultaProcedimiento(UUID.randomUUID()));
-        when(cpDAO.findByConsulta(consulta.getIdConsulta())).thenReturn(esperado);
+        when(cpService.findByConsulta(consulta.getIdConsulta())).thenReturn(esperado);
 
         bean.cargarDe(consulta);
 
@@ -149,7 +149,7 @@ public class ConsultaProcedimientoModelTest {
         bean.cargarDe(null);
 
         assertTrue(bean.getregistros().isEmpty());
-        verify(cpDAO, never()).findByConsulta(any());
+        verify(cpService, never()).findByConsulta(any());
     }
 
     // ---- btnNuevoHandler() / crearRegistroNuevo() / configurarNuevoRegistro() ----
@@ -157,7 +157,7 @@ public class ConsultaProcedimientoModelTest {
     @Test
     public void btnNuevoHandler_creaRegistroConFechaDeInicioYLigadoALaConsultaActual() {
         iniciarSesion();
-        when(cpDAO.findByConsulta(consulta.getIdConsulta())).thenReturn(Collections.emptyList());
+        when(cpService.findByConsulta(consulta.getIdConsulta())).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
 
         bean.btnNuevoHandler(mock(ActionEvent.class));
@@ -201,22 +201,22 @@ public class ConsultaProcedimientoModelTest {
         pasoInicial.setIdRol(rol);
         iniciarSesion();
         when(sesionBean.getClinicaActual()).thenReturn(clinica);
-        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
-        when(personaRolDAO.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
+        when(cpService.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
+        when(personaRolService.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
                 .thenReturn(true);
         UUID idConsulta = consulta.getIdConsulta();
-        when(cpDAO.findByConsulta(idConsulta)).thenReturn(Collections.emptyList());
+        when(cpService.findByConsulta(idConsulta)).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
         bean.btnNuevoHandler(mock(ActionEvent.class));
         ConsultaProcedimiento nuevo = bean.getRegistro();
         Procedimiento elegido = nuevoProcedimiento("Endodoncia");
         nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
-        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+        when(procedimientoService.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(cpDAO).crear(nuevo);
-        verify(cpDAO, times(2)).findByConsulta(idConsulta);
+        verify(cpService).crear(nuevo);
+        verify(cpService, times(2)).findByConsulta(idConsulta);
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_INFO, captor.getValue().getSeverity());
@@ -234,20 +234,20 @@ public class ConsultaProcedimientoModelTest {
         pasoInicial.setIdRol(rol);
         iniciarSesion();
         when(sesionBean.getClinicaActual()).thenReturn(clinica);
-        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
-        when(personaRolDAO.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
+        when(cpService.findTodos(any())).thenReturn(Arrays.asList(pasoInicial));
+        when(personaRolService.existePersonaAsignada(eq(rol.getIdRol()), eq(clinica.getIdClinica())))
                 .thenReturn(false);
-        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        when(cpService.findByConsulta(any())).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
         bean.btnNuevoHandler(mock(ActionEvent.class));
         ConsultaProcedimiento nuevo = bean.getRegistro();
         Procedimiento elegido = nuevoProcedimiento("Endodoncia");
         nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
-        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+        when(procedimientoService.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(cpDAO, never()).crear(any());
+        verify(cpService, never()).crear(any());
     }
 
     @Test
@@ -268,24 +268,24 @@ public class ConsultaProcedimientoModelTest {
         p3.setIdRol(rolSinPersona);
         iniciarSesion();
         when(sesionBean.getClinicaActual()).thenReturn(clinica);
-        when(cpDAO.findTodos(any())).thenReturn(Arrays.asList(p1, p2, p3));
-        when(personaRolDAO.existePersonaAsignada(eq(rolConPersona.getIdRol()), eq(clinica.getIdClinica())))
+        when(cpService.findTodos(any())).thenReturn(Arrays.asList(p1, p2, p3));
+        when(personaRolService.existePersonaAsignada(eq(rolConPersona.getIdRol()), eq(clinica.getIdClinica())))
                 .thenReturn(true);
-        when(personaRolDAO.existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica())))
+        when(personaRolService.existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica())))
                 .thenReturn(false);
-        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        when(cpService.findByConsulta(any())).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
         bean.btnNuevoHandler(mock(ActionEvent.class));
         ConsultaProcedimiento nuevo = bean.getRegistro();
         Procedimiento elegido = nuevoProcedimiento("Endodoncia");
         nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
-        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+        when(procedimientoService.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
         // Se revisan los 3: el tercero sin persona bloquea todo el guardado.
-        verify(personaRolDAO).existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica()));
-        verify(cpDAO, never()).crear(any());
+        verify(personaRolService).existePersonaAsignada(eq(rolSinPersona.getIdRol()), eq(clinica.getIdClinica()));
+        verify(cpService, never()).crear(any());
     }
     
     
@@ -295,17 +295,17 @@ public class ConsultaProcedimientoModelTest {
     public void btnCrearhandler_sinClinicaDeTrabajo_noCreaElRegistro() {
         iniciarSesion();
         when(sesionBean.getClinicaActual()).thenReturn(null);
-        when(cpDAO.findByConsulta(any())).thenReturn(Collections.emptyList());
+        when(cpService.findByConsulta(any())).thenReturn(Collections.emptyList());
         bean.cargarDe(consulta);
         bean.btnNuevoHandler(mock(ActionEvent.class));
         ConsultaProcedimiento nuevo = bean.getRegistro();
         Procedimiento elegido = nuevoProcedimiento("Endodoncia");
         nuevo.setIdProcedimiento(elegido.getIdProcedimiento());
-        when(procedimientoDAO.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
+        when(procedimientoService.buscar(elegido.getIdProcedimiento())).thenReturn(elegido);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(cpDAO, never()).crear(any());
+        verify(cpService, never()).crear(any());
     }
 
     // ---- setProcedimientoSeleccionado() ----
@@ -349,7 +349,7 @@ public class ConsultaProcedimientoModelTest {
         Procedimiento p = nuevoProcedimiento("Endodoncia");
         ConsultaProcedimiento cp = new ConsultaProcedimiento(UUID.randomUUID());
         cp.setIdProcedimiento(p.getIdProcedimiento());
-        when(procedimientoDAO.buscar(p.getIdProcedimiento())).thenReturn(p);
+        when(procedimientoService.buscar(p.getIdProcedimiento())).thenReturn(p);
 
         bean.onRowSelect(eventoCon(cp));
 
@@ -365,26 +365,26 @@ public class ConsultaProcedimientoModelTest {
         bean.onRowSelect(eventoCon(new ConsultaProcedimiento(UUID.randomUUID())));
 
         assertNull(bean.getProcedimientoSeleccionado());
-        verifyNoInteractions(procedimientoDAO);
+        verifyNoInteractions(procedimientoService);
     }
 
     // ---- getProcedimientos() / completarProcedimientos() ----
 
     @Test
     public void getProcedimientos_cacheaElCatalogoEntreLlamadas() {
-        when(procedimientoDAO.findRange(0, 100)).thenReturn(Arrays.asList(nuevoProcedimiento("Endodoncia")));
+        when(procedimientoService.findRange(0, 100)).thenReturn(Arrays.asList(nuevoProcedimiento("Endodoncia")));
 
         bean.getProcedimientos();
         bean.getProcedimientos();
 
-        verify(procedimientoDAO, times(1)).findRange(0, 100);
+        verify(procedimientoService, times(1)).findRange(0, 100);
     }
 
     @Test
     public void completarProcedimientos_filtraPorNombreSinImportarMayusculas() {
         Procedimiento endodoncia = nuevoProcedimiento("Endodoncia");
         Procedimiento limpieza = nuevoProcedimiento("Limpieza dental");
-        when(procedimientoDAO.findRange(0, 100)).thenReturn(Arrays.asList(endodoncia, limpieza));
+        when(procedimientoService.findRange(0, 100)).thenReturn(Arrays.asList(endodoncia, limpieza));
 
         List<Procedimiento> resultado = bean.completarProcedimientos("ENDO");
 
@@ -397,13 +397,13 @@ public class ConsultaProcedimientoModelTest {
     @Test
     public void nombreProcedimiento_idNulo_devuelveCadenaVaciaSinConsultar() {
         assertEquals("", bean.nombreProcedimiento(null));
-        verifyNoInteractions(procedimientoDAO);
+        verifyNoInteractions(procedimientoService);
     }
 
     @Test
     public void nombreProcedimiento_existente_devuelveSuNombre() {
         Procedimiento p = nuevoProcedimiento("Endodoncia");
-        when(procedimientoDAO.findRange(0, 100)).thenReturn(Arrays.asList(p));
+        when(procedimientoService.findRange(0, 100)).thenReturn(Arrays.asList(p));
 
         assertEquals("Endodoncia", bean.nombreProcedimiento(p.getIdProcedimiento()));
     }
@@ -411,7 +411,7 @@ public class ConsultaProcedimientoModelTest {
     @Test
     public void nombreProcedimiento_inexistente_devuelveElUuidEnTexto() {
         UUID id = UUID.randomUUID();
-        when(procedimientoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(procedimientoService.findRange(0, 100)).thenReturn(Collections.emptyList());
 
         assertEquals(id.toString(), bean.nombreProcedimiento(id));
     }

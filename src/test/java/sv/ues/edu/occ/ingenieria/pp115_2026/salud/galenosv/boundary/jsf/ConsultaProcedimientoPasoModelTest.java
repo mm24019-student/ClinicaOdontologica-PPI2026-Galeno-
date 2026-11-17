@@ -23,9 +23,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
@@ -45,11 +45,11 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 public class ConsultaProcedimientoPasoModelTest {
 
     @Mock
-    private ConsultaProcedimientoPasoDAO pasoDAO;
+    private ConsultaProcedimientoPasoService pasoService;
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Mock
-    private ProcedimientoPasoDAO procedimientoPasoDAO;
+    private ProcedimientoPasoService procedimientoPasoService;
     @Mock
     private SesionBean sesionBean;
     @Mock
@@ -85,11 +85,11 @@ public class ConsultaProcedimientoPasoModelTest {
         return pr;
     }
 
-    // ---- getDAO() / obtenerId() / los 3 métodos del detalle ----
+    // ---- getService() / obtenerId() / los 3 métodos del detalle ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(pasoDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(pasoService, bean.getService());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ConsultaProcedimientoPasoModelTest {
     @Test
     public void buscarPorPadre_delegaEnFindByConsultaProcedimiento() {
         List<ConsultaProcedimientoPaso> esperado = Arrays.asList(new ConsultaProcedimientoPaso(UUID.randomUUID()));
-        when(pasoDAO.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento())).thenReturn(esperado);
+        when(pasoService.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento())).thenReturn(esperado);
 
         assertEquals(esperado, bean.buscarPorPadre(padre.getIdConsultaProcedimiento()));
     }
@@ -128,13 +128,13 @@ public class ConsultaProcedimientoPasoModelTest {
         bean.inicializar();
 
         assertTrue(bean.getregistros().isEmpty());
-        verifyNoInteractions(pasoDAO);
+        verifyNoInteractions(pasoService);
     }
 
     @Test
     public void cargarDe_padreConId_cargaSoloSusPasos() {
         List<ConsultaProcedimientoPaso> esperado = Arrays.asList(new ConsultaProcedimientoPaso(UUID.randomUUID()));
-        when(pasoDAO.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento())).thenReturn(esperado);
+        when(pasoService.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento())).thenReturn(esperado);
 
         bean.cargarDe(padre);
 
@@ -147,7 +147,7 @@ public class ConsultaProcedimientoPasoModelTest {
         bean.cargarDe(null);
 
         assertTrue(bean.getregistros().isEmpty());
-        verify(pasoDAO, never()).findByConsultaProcedimiento(any());
+        verify(pasoService, never()).findByConsultaProcedimiento(any());
     }
 
     // ---- btnNuevoHandler() / crearRegistroNuevo() ----
@@ -155,7 +155,7 @@ public class ConsultaProcedimientoPasoModelTest {
     @Test
     public void btnNuevoHandler_creaPasoPendienteConFechaYLigadoAlPadreActual() {
         iniciarSesion();
-        when(pasoDAO.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento()))
+        when(pasoService.findByConsultaProcedimiento(padre.getIdConsultaProcedimiento()))
                 .thenReturn(Collections.emptyList());
         bean.cargarDe(padre);
 
@@ -176,7 +176,7 @@ public class ConsultaProcedimientoPasoModelTest {
         PersonaRol usuario = nuevaPersonaRol("Ana", "Perez", "Odontologo");
         when(sesionBean.getPersonaRolActual()).thenReturn(usuario);
         UUID idPadre = padre.getIdConsultaProcedimiento();
-        when(pasoDAO.findByConsultaProcedimiento(idPadre)).thenReturn(Collections.emptyList());
+        when(pasoService.findByConsultaProcedimiento(idPadre)).thenReturn(Collections.emptyList());
         bean.cargarDe(padre);
         bean.btnNuevoHandler(mock(ActionEvent.class));
         ConsultaProcedimientoPaso nuevo = bean.getRegistro();
@@ -184,9 +184,9 @@ public class ConsultaProcedimientoPasoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(pasoDAO).crear(nuevo);
+        verify(pasoService).crear(nuevo);
         assertSame(usuario, nuevo.getIdPersonaRol());
-        verify(pasoDAO, times(2)).findByConsultaProcedimiento(idPadre);
+        verify(pasoService, times(2)).findByConsultaProcedimiento(idPadre);
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_INFO, captor.getValue().getSeverity());
@@ -211,19 +211,19 @@ public class ConsultaProcedimientoPasoModelTest {
 
     @Test
     public void getPersonasRol_cacheaElCatalogoEntreLlamadas() {
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(nuevaPersonaRol("Ana", "Perez", "Odontologo")));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(nuevaPersonaRol("Ana", "Perez", "Odontologo")));
 
         bean.getPersonasRol();
         bean.getPersonasRol();
 
-        verify(personaRolDAO, times(1)).findRange(0, 100);
+        verify(personaRolService, times(1)).findRange(0, 100);
     }
 
     @Test
     public void completarPersonasRol_filtraPorLaEtiquetaSinImportarMayusculas() {
         PersonaRol ana = nuevaPersonaRol("Ana", "Perez", "Odontologo");
         PersonaRol luis = nuevaPersonaRol("Luis", "Gomez", "Recepcionista");
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(ana, luis));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(ana, luis));
         when(sesionBean.perteneceAClinicaActual(any())).thenReturn(true);
 
         List<PersonaRol> resultado = bean.completarPersonasRol("ODONTO");
@@ -234,7 +234,7 @@ public class ConsultaProcedimientoPasoModelTest {
 
     @Test
     public void completarPersonasRol_consultaNula_devuelveTodas() {
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(
                 nuevaPersonaRol("Ana", "Perez", "Odontologo"),
                 nuevaPersonaRol("Luis", "Gomez", "Recepcionista")));
         when(sesionBean.perteneceAClinicaActual(any())).thenReturn(true);

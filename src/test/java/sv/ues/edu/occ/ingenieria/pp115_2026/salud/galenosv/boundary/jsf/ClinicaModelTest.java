@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 public class ClinicaModelTest {
 
     @Mock
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
     
     @Mock
     private SesionBean sesionBean;
@@ -42,7 +42,7 @@ public class ClinicaModelTest {
     @Test
     public void inicializar_cargaLaListaYRefrescaLaSesion() {
         List<Clinica> clinicas = Arrays.asList(new Clinica(UUID.randomUUID()));
-        when(clinicaDAO.findRange(0, 100)).thenReturn(clinicas);
+        when(clinicaService.findRange(0, 100)).thenReturn(clinicas);
 
         bean.inicializar();
 
@@ -57,7 +57,7 @@ public class ClinicaModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(clinicaDAO).crear(nueva);
+        verify(clinicaService).crear(nueva);
         verify(sesionBean).refrescar();
     }
 
@@ -65,7 +65,7 @@ public class ClinicaModelTest {
     public void btnCrearhandler_daoLanzaExcepcion_noRefrescaLaSesion() {
         Clinica nueva = new Clinica(UUID.randomUUID());
         bean.setRegistro(nueva);
-        doThrow(new RuntimeException("fallo bd")).when(clinicaDAO).crear(nueva);
+        doThrow(new RuntimeException("fallo bd")).when(clinicaService).crear(nueva);
 
         assertDoesNotThrow(() -> bean.btnCrearhandler(null));
 
@@ -80,7 +80,7 @@ public class ClinicaModelTest {
 
         bean.btnEliminarHandler();
 
-        verify(clinicaDAO).eliminar(existente.getIdClinica());
+        verify(clinicaService).eliminar(existente.getIdClinica());
         verify(sesionBean).refrescar();
     }
 }

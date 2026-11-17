@@ -4,8 +4,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 
 @Named
@@ -13,14 +13,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 public class ClinicaModel extends AbstracCrudModel<Clinica> {
 
     @Inject
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
     
     @Inject
     private SesionBean sesionBean;
 
     @Override
-    protected InterfaceDAO<Clinica> getDAO() {
-        return clinicaDAO;
+    protected InterfaceService<Clinica> getService() {
+        return clinicaService;
     }
 
     @Override

@@ -32,7 +32,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultService;
 
 // Resource generico: GET (lista), GET {id}, POST, PUT {id} y DELETE {id}.
 // Codigos: 200 ok, 201 creado, 404 no existe, 422 dato invalido o regla de
@@ -55,7 +55,7 @@ public abstract class AbstractResource<T> {
         this.clase = clase;
     }
 
-    protected abstract DefaultDAO<T> dao();
+    protected abstract DefaultService<T> dao();
 
     // Regla de negocio propia de la entidad: devuelve el nombre del campo con
     // problema (-> 422) o null si todo esta bien.
@@ -216,7 +216,7 @@ public abstract class AbstractResource<T> {
 
     // Traduce excepciones a codigos:
     //  - IllegalArgumentException            -> 422
-    //  - IllegalStateException SIN causa     -> 422 (regla de negocio del DAO, con su mensaje)
+    //  - IllegalStateException SIN causa     -> 422 (regla de negocio del Service, con su mensaje)
     //  - violacion de integridad de la BD    -> 422 (duplicado o registro en uso)
     //  - cualquier otra                      -> 500
     protected Response manejar(Exception ex, String campo) {

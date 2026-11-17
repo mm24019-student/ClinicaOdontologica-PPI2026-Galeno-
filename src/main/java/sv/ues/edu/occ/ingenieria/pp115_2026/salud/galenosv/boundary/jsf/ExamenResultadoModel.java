@@ -6,8 +6,8 @@ import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
@@ -16,11 +16,11 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 public class ExamenResultadoModel extends AbstracdetallecrudModel<ExamenResultado, OrdenExamen> {
 
     @Inject
-    private ExamenResultadoDAO erDAO;
+    private ExamenResultadoService erService;
 
     @Override
-    protected InterfaceDAO<ExamenResultado> getDAO() {
-        return erDAO;
+    protected InterfaceService<ExamenResultado> getService() {
+        return erService;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class ExamenResultadoModel extends AbstracdetallecrudModel<ExamenResultad
 
     @Override
     protected List<ExamenResultado> buscarPorPadre(UUID idPadre) {
-        return erDAO.findByOrdenExamen(idPadre);
+        return erService.findByOrdenExamen(idPadre);
     }
 
 // UUID del padre (OrdenExamen)

@@ -26,8 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.component.tabview.Tab;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
@@ -52,9 +52,9 @@ public class ConsultaModelTest {
     private static final String TAB_PROCEDIMIENTOS = "Procedimientos";
 
     @Mock
-    private ConsultaDAO cDAO;
+    private ConsultaService cService;
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Mock
     private SesionBean sesionBean;
     @Mock
@@ -104,11 +104,11 @@ public class ConsultaModelTest {
         return event;
     }
 
-    // ---- getDAO() / obtenerId() ----
+    // ---- getService() / obtenerId() ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(cDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(cService, bean.getService());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ConsultaModelTest {
         // El filtro de fechas arranca con "hoy" (fechaDesde/fechaHasta), así que
         // ya no se usa findRange sino buscarConFiltro. Sin sesión no hay clínica.
         List<Consulta> esperado = Arrays.asList(new Consulta(UUID.randomUUID()));
-        when(cDAO.buscarConFiltro(any(Date.class), any(Date.class), isNull(), eq(100)))
+        when(cService.buscarConFiltro(any(Date.class), any(Date.class), isNull(), eq(100)))
                 .thenReturn(esperado);
 
         bean.inicializar();
@@ -263,18 +263,18 @@ public class ConsultaModelTest {
 
     @Test
     public void getPersonasRol_cacheaElCatalogoEntreLlamadas() {
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(personaRol));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(personaRol));
 
         bean.getPersonasRol();
         bean.getPersonasRol();
 
-        verify(personaRolDAO, times(1)).findRange(0, 100);
+        verify(personaRolService, times(1)).findRange(0, 100);
     }
 
     @Test
     public void completarPersonasRol_filtraPorLaEtiquetaSinImportarMayusculas() {
         PersonaRol otra = nuevaPersonaRol("Luis", "Gomez", "Recepcionista");
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
         when(sesionBean.perteneceAClinicaActual(any())).thenReturn(true);
 
         List<PersonaRol> resultado = bean.completarPersonasRol("ANA PEREZ");
@@ -286,7 +286,7 @@ public class ConsultaModelTest {
     @Test
     public void completarPersonasRol_tambienBuscaPorElNombreDelRol() {
         PersonaRol otra = nuevaPersonaRol("Luis", "Gomez", "Recepcionista");
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
         when(sesionBean.perteneceAClinicaActual(any())).thenReturn(true);
 
         List<PersonaRol> resultado = bean.completarPersonasRol("recepcion");
@@ -297,7 +297,7 @@ public class ConsultaModelTest {
 
     @Test
     public void completarPersonasRol_consultaNula_devuelveTodas() {
-        when(personaRolDAO.findRange(0, 100))
+        when(personaRolService.findRange(0, 100))
                 .thenReturn(Arrays.asList(personaRol, nuevaPersonaRol("Luis", "Gomez", "Recepcionista")));
         when(sesionBean.perteneceAClinicaActual(any())).thenReturn(true);
 
@@ -307,7 +307,7 @@ public class ConsultaModelTest {
     @Test
     public void completarPersonasRol_excluyeLasDeOtraClinica() {
         PersonaRol otra = nuevaPersonaRol("Luis", "Gomez", "Recepcionista");
-        when(personaRolDAO.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
+        when(personaRolService.findRange(0, 100)).thenReturn(Arrays.asList(personaRol, otra));
         when(sesionBean.perteneceAClinicaActual(personaRol)).thenReturn(true);
         when(sesionBean.perteneceAClinicaActual(otra)).thenReturn(false);
 

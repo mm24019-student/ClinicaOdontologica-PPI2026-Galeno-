@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 
 @Named
@@ -13,10 +13,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 public class TipoExamenConverter extends AbstractEntityConverter<TipoExamen> {
 
     @Inject
-    private TipoExamenDAO dao;
+    private TipoExamenService dao;
 
     @Override
-    protected InterfaceDAO<TipoExamen> dao() {
+    protected InterfaceService<TipoExamen> dao() {
         return dao;
     }
 

@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
@@ -28,7 +28,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  *
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
  * recargar). Como la entidad guarda el procedimiento como UUID suelto, este
- * bean mantiene el objeto procedimientoSeleccionado (ProcedimientoDAO) para el
+ * bean mantiene el objeto procedimientoSeleccionado (ProcedimientoService) para el
  * autocomplete y traduce el UUID a nombre para mostrarlo en la tabla.
  *
  * @author antonio
@@ -38,21 +38,21 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<ConsultaProcedimiento, Consulta> {
 
     @Inject
-    private ConsultaProcedimientoDAO cpDAO;
+    private ConsultaProcedimientoService cpService;
 
     @Inject
-    private ConsultaProcedimientoPasoDAO pasoDAO;
+    private ConsultaProcedimientoPasoService pasoService;
 
-    // Solo hace falta el DAO de Procedimiento: sigue siendo un combo normal
+    // Solo hace falta el Service de Procedimiento: sigue siendo un combo normal
     // porque idProcedimiento en la entidad es un UUID suelto, no una
     // relación @ManyToOne (a diferencia de idConsulta, que sí lo es).
     @Inject
-    private ProcedimientoDAO procedimientoDAO;
+    private ProcedimientoService procedimientoService;
 
     // Para revisar los pasos iniciales del procedimiento elegido: cada uno
     // necesita un rol con persona asignada en la clinica de la sesion.
     @Inject
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
 
     @Inject
     private SesionBean sesionBean;
@@ -75,7 +75,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         if (cp == null || cp.getIdConsultaProcedimiento() == null) {
             return "";
         }
-        return pasoDAO.findByConsultaProcedimiento(cp.getIdConsultaProcedimiento())
+        return pasoService.findByConsultaProcedimiento(cp.getIdConsultaProcedimiento())
                 .stream()
                 .findFirst()
                 .map(this::lineaPaso)
@@ -124,15 +124,15 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         UUID idProcedimiento = event.getObject().getIdProcedimiento();
 
         if (idProcedimiento != null) {
-            this.procedimientoSeleccionado = procedimientoDAO.buscar(idProcedimiento);
+            this.procedimientoSeleccionado = procedimientoService.buscar(idProcedimiento);
         } else {
             this.procedimientoSeleccionado = null;
         }
     }
 
     @Override
-    protected InterfaceDAO<ConsultaProcedimiento> getDAO() {
-        return cpDAO;
+    protected InterfaceService<ConsultaProcedimiento> getService() {
+        return cpService;
     }
 
     //Activamos que si ah iniciado secion se motrara el boton nuevo 
@@ -141,7 +141,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         return exigirSesion(sesionBean);
     }
 
-    // El procedimiento se guarda como UUID suelto, así que se busca con el DAO
+    // El procedimiento se guarda como UUID suelto, así que se busca con el Service
     // para revisar su estado "activo" actual.
     @Override
     protected boolean validarAntesDeGuardar() {
@@ -149,7 +149,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
                 "El procedimiento es obligatorio")) {
             return false;
         }
-        Procedimiento elegido = procedimientoDAO.buscar(registro.getIdProcedimiento());
+        Procedimiento elegido = procedimientoService.buscar(registro.getIdProcedimiento());
         return requerir(elegido, "Procedimiento no encontrado", "El procedimiento elegido ya no existe")
                 && requerirActivo(elegido.getActivo(), "Procedimiento inactivo",
                         "No se puede asignar un procedimiento inactivo a la consulta")
@@ -170,13 +170,13 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
         }
         // Todos los roles sin persona de la clinica, no solo el primero.
         List<String> sinResponsable = new java.util.ArrayList<>();
-        for (ProcedimientoPaso paso : cpDAO.findTodos(proc.getIdProcedimiento())) {
+        for (ProcedimientoPaso paso : cpService.findTodos(proc.getIdProcedimiento())) {
             Rol rol = paso.getIdRol();
             if (rol == null) {
                 sinResponsable.add("Paso \"" + Objects.toString(paso.getNombre(), "") + "\" (sin rol)");
                 continue;
             }
-            if (!personaRolDAO.existePersonaAsignada(rol.getIdRol(), clinica.getIdClinica())) {
+            if (!personaRolService.existePersonaAsignada(rol.getIdRol(), clinica.getIdClinica())) {
                 sinResponsable.add("Rol \"" + Objects.toString(rol.getNombre(), "") + "\" del paso \""
                         + Objects.toString(paso.getNombre(), "") + "\"");
             }
@@ -196,7 +196,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ConsultaProcedimiento> buscarPorPadre(UUID idPadre) {
-        return cpDAO.findByConsulta(idPadre);
+        return cpService.findByConsulta(idPadre);
     }
 
     @Override
@@ -235,7 +235,7 @@ public class ConsultaProcedimientoModel extends AbstracdetallecrudModel<Consulta
     // Combo para elegir qué Procedimiento se está aplicando.
     public List<Procedimiento> getProcedimientos() {
         if (procedimientos == null) {
-            procedimientos = procedimientoDAO.findRange(0, 100);
+            procedimientos = procedimientoService.findRange(0, 100);
         }
         return procedimientos;
     }

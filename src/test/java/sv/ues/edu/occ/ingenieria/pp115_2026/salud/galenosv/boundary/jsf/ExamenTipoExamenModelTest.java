@@ -15,9 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenTipoExamen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
@@ -36,11 +36,11 @@ import static org.mockito.Mockito.*;
 public class ExamenTipoExamenModelTest {
 
     @Mock
-    private ExamenTipoExamenDAO examenTipoExamenDAO;
+    private ExamenTipoExamenService examenTipoExamenService;
     @Mock
-    private ExamenDAO examenDAO;
+    private ExamenService examenService;
     @Mock
-    private TipoExamenDAO tipoExamenDAO;
+    private TipoExamenService tipoExamenService;
     @Mock
     private FacesContext fc;
 
@@ -68,11 +68,11 @@ public class ExamenTipoExamenModelTest {
     
     
 
-    // ---- getDAO() / obtenerId() ----
+    // ---- getService() / obtenerId() ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(examenTipoExamenDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(examenTipoExamenService, bean.getService());
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void cargarPorExamen_examenValido_cargaSoloSusTiposYReseteaElEstado() {
         List<ExamenTipoExamen> esperado = Arrays.asList(new ExamenTipoExamen(UUID.randomUUID()));
-        when(examenTipoExamenDAO.findByExamen(examen.getIdExamen())).thenReturn(esperado);
+        when(examenTipoExamenService.findByExamen(examen.getIdExamen())).thenReturn(esperado);
         bean.setRegistro(new ExamenTipoExamen(UUID.randomUUID()));
         bean.setEstado(Estado_Crud.MODIFICAR);
 
@@ -104,7 +104,7 @@ public class ExamenTipoExamenModelTest {
 
         assertTrue(bean.getregistros().isEmpty());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
-        verify(examenTipoExamenDAO, never()).findByExamen(any());
+        verify(examenTipoExamenService, never()).findByExamen(any());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ExamenTipoExamenModelTest {
         bean.cargarPorExamen(new Examen());
 
         assertTrue(bean.getregistros().isEmpty());
-        verify(examenTipoExamenDAO, never()).findByExamen(any());
+        verify(examenTipoExamenService, never()).findByExamen(any());
     }
 
     // ---- btnNuevoHandler() / crearRegistroNuevo() ----
@@ -129,7 +129,7 @@ public class ExamenTipoExamenModelTest {
 
     @Test
     public void btnNuevoHandler_conExamenPadre_ligaElRegistroAlExamen() {
-        when(examenTipoExamenDAO.findByExamen(examen.getIdExamen())).thenReturn(Collections.emptyList());
+        when(examenTipoExamenService.findByExamen(examen.getIdExamen())).thenReturn(Collections.emptyList());
         bean.cargarPorExamen(examen);
 
         bean.btnNuevoHandler(mock(ActionEvent.class));
@@ -144,7 +144,7 @@ public class ExamenTipoExamenModelTest {
     public void btnCrearhandler_registroNulo_agregaMensajeDeErrorYNoCrea() {
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenTipoExamenDAO, never()).crear(any());
+        verify(examenTipoExamenService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -158,7 +158,7 @@ public class ExamenTipoExamenModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenTipoExamenDAO, never()).crear(any());
+        verify(examenTipoExamenService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -172,7 +172,7 @@ public class ExamenTipoExamenModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenTipoExamenDAO, never()).crear(any());
+        verify(examenTipoExamenService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -185,11 +185,11 @@ public class ExamenTipoExamenModelTest {
         r.setIdTipoExamen(tipo);
         bean.setRegistro(r);
         List<ExamenTipoExamen> recargados = Arrays.asList(r);
-        when(examenTipoExamenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(examenTipoExamenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenTipoExamenDAO).crear(r);
+        verify(examenTipoExamenService).crear(r);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -204,7 +204,7 @@ public class ExamenTipoExamenModelTest {
 
         bean.btnModificarHandler();
 
-        verify(examenTipoExamenDAO, never()).actualizar(any());
+        verify(examenTipoExamenService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -217,12 +217,12 @@ public class ExamenTipoExamenModelTest {
         r.setIdTipoExamen(tipo);
         bean.setRegistro(r);
         List<ExamenTipoExamen> recargados = Arrays.asList(r);
-        when(examenTipoExamenDAO.actualizar(r)).thenReturn(r);
-        when(examenTipoExamenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(examenTipoExamenService.actualizar(r)).thenReturn(r);
+        when(examenTipoExamenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(examenTipoExamenDAO).actualizar(r);
+        verify(examenTipoExamenService).actualizar(r);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -231,22 +231,22 @@ public class ExamenTipoExamenModelTest {
 
     @Test
     public void getExamenes_cacheaEntreLlamadas() {
-        when(examenDAO.findRange(0, 100)).thenReturn(Arrays.asList(examen));
+        when(examenService.findRange(0, 100)).thenReturn(Arrays.asList(examen));
 
         bean.getExamenes();
         bean.getExamenes();
 
-        verify(examenDAO, times(1)).findRange(0, 100);
+        verify(examenService, times(1)).findRange(0, 100);
     }
 
     @Test
     public void getTiposExamen_cacheaEntreLlamadas() {
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
 
         bean.getTiposExamen();
         bean.getTiposExamen();
 
-        verify(tipoExamenDAO, times(1)).findRange(0, 100);
+        verify(tipoExamenService, times(1)).findRange(0, 100);
     }
 
     // ---- completarTiposExamen() ----
@@ -254,7 +254,7 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void completarTiposExamen_filtraPorNombreSinImportarMayusculas() {
         TipoExamen otro = nuevoTipo("Quimica sanguinea", true);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo, otro));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo, otro));
 
         List<TipoExamen> resultado = bean.completarTiposExamen("HEMA");
 
@@ -265,14 +265,14 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void completarTiposExamen_consultaVacia_devuelveTodosLosActivos() {
         TipoExamen otro = nuevoTipo("Quimica sanguinea", true);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo, otro));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo, otro));
 
         assertEquals(2, bean.completarTiposExamen("").size());
     }
 
     @Test
     public void completarTiposExamen_consultaNula_seTrataComoVacia() {
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
 
         assertEquals(1, bean.completarTiposExamen(null).size());
     }
@@ -280,7 +280,7 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void completarTiposExamen_excluyeLosInactivos() {
         TipoExamen inactivo = nuevoTipo("Hematologia vieja", false);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo, inactivo));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo, inactivo));
 
         List<TipoExamen> resultado = bean.completarTiposExamen("hema");
 
@@ -291,7 +291,7 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void completarTiposExamen_activoNulo_seIncluye() {
         TipoExamen sinEstado = nuevoTipo("Hematologia sin estado", null);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(sinEstado));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(sinEstado));
 
         assertEquals(1, bean.completarTiposExamen("hema").size());
     }
@@ -299,7 +299,7 @@ public class ExamenTipoExamenModelTest {
     @Test
     public void completarTiposExamen_nombreNulo_soloCoincideConConsultaVacia() {
         TipoExamen sinNombre = nuevoTipo(null, true);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(sinNombre));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(sinNombre));
 
         assertEquals(1, bean.completarTiposExamen("").size());
         assertEquals(0, bean.completarTiposExamen("hema").size());
@@ -311,18 +311,18 @@ public class ExamenTipoExamenModelTest {
         for (int i = 0; i < 25; i++) {
             muchos.add(nuevoTipo("Tipo " + i, true));
         }
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(muchos);
+        when(tipoExamenService.findRange(0, 100)).thenReturn(muchos);
 
         assertEquals(20, bean.completarTiposExamen("tipo").size());
     }
 
     @Test
     public void completarTiposExamen_cacheaElCatalogoEntreLlamadas() {
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
+        when(tipoExamenService.findRange(0, 100)).thenReturn(Arrays.asList(tipo));
 
         bean.completarTiposExamen("");
         bean.completarTiposExamen("hema");
 
-        verify(tipoExamenDAO, times(1)).findRange(0, 100);
+        verify(tipoExamenService, times(1)).findRange(0, 100);
     }
 }

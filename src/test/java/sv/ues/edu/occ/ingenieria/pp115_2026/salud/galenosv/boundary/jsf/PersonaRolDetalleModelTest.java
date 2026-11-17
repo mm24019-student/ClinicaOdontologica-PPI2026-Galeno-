@@ -14,9 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -37,11 +37,11 @@ import static org.mockito.Mockito.*;
 public class PersonaRolDetalleModelTest {
 
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Mock
-    private RolDAO rolDAO;
+    private RolService rolService;
     @Mock
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
     @Mock
     private FacesContext fc;
 
@@ -67,7 +67,7 @@ public class PersonaRolDetalleModelTest {
     public void completarRoles_filtraPorNombreSinImportarMayusculas() {
         Rol otro = new Rol(UUID.randomUUID());
         otro.setNombre("Recepcionista");
-        when(rolDAO.findRange(0, 100)).thenReturn(Arrays.asList(rol, otro));
+        when(rolService.findRange(0, 100)).thenReturn(Arrays.asList(rol, otro));
 
         List<Rol> resultado = bean.completarRoles("odonto");
 
@@ -77,12 +77,12 @@ public class PersonaRolDetalleModelTest {
 
     @Test
     public void completarRoles_cacheaElCatalogoEntreLlamadas() {
-        when(rolDAO.findRange(0, 100)).thenReturn(Arrays.asList(rol));
+        when(rolService.findRange(0, 100)).thenReturn(Arrays.asList(rol));
 
         bean.completarRoles("");
         bean.completarRoles("odo");
 
-        verify(rolDAO, times(1)).findRange(0, 100);
+        verify(rolService, times(1)).findRange(0, 100);
     }
 
     // ---- completarClinicas() ----
@@ -91,7 +91,7 @@ public class PersonaRolDetalleModelTest {
     public void completarClinicas_filtraPorNombreSinImportarMayusculas() {
         Clinica otra = new Clinica(UUID.randomUUID());
         otra.setNombre("Clinica Norte");
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(clinica, otra));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(clinica, otra));
 
         List<Clinica> resultado = bean.completarClinicas("central");
 
@@ -153,7 +153,7 @@ public class PersonaRolDetalleModelTest {
 
         bean.agregarRol();
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -167,7 +167,7 @@ public class PersonaRolDetalleModelTest {
 
         bean.agregarRol();
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -181,7 +181,7 @@ public class PersonaRolDetalleModelTest {
 
         bean.agregarRol();
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -199,7 +199,7 @@ public class PersonaRolDetalleModelTest {
 
         bean.agregarRol();
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_WARN, captor.getValue().getSeverity());
@@ -212,13 +212,13 @@ public class PersonaRolDetalleModelTest {
         bean.setNuevoRol(rol);
         bean.setNuevaClinica(clinica);
         PersonaRol recargado = new PersonaRol(UUID.randomUUID());
-        when(personaRolDAO.findByPersona(persona.getIdPersona()))
+        when(personaRolService.findByPersona(persona.getIdPersona()))
                 .thenReturn(Collections.singletonList(recargado));
 
         bean.agregarRol();
 
-        verify(personaRolDAO).crear(any(PersonaRol.class));
-        // Se limpia la selección y se recarga la lista desde el DAO.
+        verify(personaRolService).crear(any(PersonaRol.class));
+        // Se limpia la selección y se recarga la lista desde el Service.
         assertNull(bean.getNuevoRol());
         assertNull(bean.getNuevaClinica());
         assertEquals(1, bean.getRolesDePersona().size());
@@ -233,7 +233,7 @@ public class PersonaRolDetalleModelTest {
         bean.setWrappedData(Collections.emptyList());
         bean.setNuevoRol(rol);
         bean.setNuevaClinica(clinica);
-        doThrow(new RuntimeException("fallo bd")).when(personaRolDAO).crear(any());
+        doThrow(new RuntimeException("fallo bd")).when(personaRolService).crear(any());
 
         assertDoesNotThrow(() -> bean.agregarRol());
 
@@ -248,7 +248,7 @@ public class PersonaRolDetalleModelTest {
     public void eliminarRol_nulo_agregaMensajeDeErrorYNoLlamaAlDao() {
         bean.eliminarRol(null);
 
-        verify(personaRolDAO, never()).eliminar(any());
+        verify(personaRolService, never()).eliminar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -260,7 +260,7 @@ public class PersonaRolDetalleModelTest {
 
         bean.eliminarRol(sinId);
 
-        verify(personaRolDAO, never()).eliminar(any());
+        verify(personaRolService, never()).eliminar(any());
     }
 
     @Test
@@ -268,12 +268,12 @@ public class PersonaRolDetalleModelTest {
         UUID idPersonaRol = UUID.randomUUID();
         PersonaRol pr = new PersonaRol(idPersonaRol);
         bean.padreActual = persona;
-        when(personaRolDAO.findByPersona(persona.getIdPersona()))
+        when(personaRolService.findByPersona(persona.getIdPersona()))
                 .thenReturn(Collections.emptyList());
 
         bean.eliminarRol(pr);
 
-        verify(personaRolDAO).eliminar(idPersonaRol);
+        verify(personaRolService).eliminar(idPersonaRol);
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_INFO, captor.getValue().getSeverity());
@@ -284,7 +284,7 @@ public class PersonaRolDetalleModelTest {
         UUID idPersonaRol = UUID.randomUUID();
         PersonaRol pr = new PersonaRol(idPersonaRol);
         bean.padreActual = persona;
-        doThrow(new RuntimeException("fallo bd")).when(personaRolDAO).eliminar(idPersonaRol);
+        doThrow(new RuntimeException("fallo bd")).when(personaRolService).eliminar(idPersonaRol);
 
         assertDoesNotThrow(() -> bean.eliminarRol(pr));
 
@@ -299,7 +299,7 @@ public class PersonaRolDetalleModelTest {
     public void cargarDe_limpiaLaSeleccionDeRolYClinicaPrevia() {
         bean.setNuevoRol(rol);
         bean.setNuevaClinica(clinica);
-        when(personaRolDAO.findByPersona(persona.getIdPersona()))
+        when(personaRolService.findByPersona(persona.getIdPersona()))
                 .thenReturn(Collections.emptyList());
 
         bean.cargarDe(persona);

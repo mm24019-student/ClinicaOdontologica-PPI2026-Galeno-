@@ -14,11 +14,11 @@ import java.util.UUID;
 import org.primefaces.event.NodeSelectEvent;
 import org.primefaces.model.DefaultTreeNode;
 import org.primefaces.model.TreeNode;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
@@ -30,8 +30,8 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
  *
  * Hereda de AbstracdetallecrudModel: de ahí sale cargar solo los hijos del
  * padre, asignar el padre a cada paso nuevo y volver a filtrar tras guardar o
- * eliminar. Aquí se indica cómo buscar por padre (ProcedimientoPasoDAO), cómo
- * nace un paso nuevo y se ofrece el autocompletado de Rol (RolDAO).
+ * eliminar. Aquí se indica cómo buscar por padre (ProcedimientoPasoService), cómo
+ * nace un paso nuevo y se ofrece el autocompletado de Rol (RolService).
  *
  * @author antonio
  */
@@ -39,18 +39,18 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 @ViewScoped
 public class ProcedimientoPasoModel extends AbstracdetallecrudModel<ProcedimientoPaso, Procedimiento> {
 
-    // Inyectamos el DAO, que es quien guarda, busca y elimina
+    // Inyectamos el Service, que es quien guarda, busca y elimina
     // registros de ProcedimientoPaso en la base de datos.
     @Inject
-    private ProcedimientoPasoDAO pdDAO;
+    private ProcedimientoPasoService pdService;
 
-    // Inyectamos el DAO de Procedimiento por que necesitamos el UUId
+    // Inyectamos el Service de Procedimiento por que necesitamos el UUId
     @Inject
-    private RolDAO rolDAO;
+    private RolService rolService;
 
     // Guarda/lee la relación "este paso depende de otro paso".
     @Inject
-    private ProcedimientoPasoSecuenciaDAO secDAO;
+    private ProcedimientoPasoSecuenciaService secService;
 
     // Valor que se guarda en tipo_secuencia (máx. 20 caracteres) para las
     // dependencias creadas desde el campo "Depende de".
@@ -76,16 +76,16 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     private ProcedimientoPaso pasoPorSincronizar;
     private ProcedimientoPaso dependenciaPorSincronizar;
 
-    // Le decimos a la clase padre qué DAO debe usar para las operaciones del CRUD.
+    // Le decimos a la clase padre qué Service debe usar para las operaciones del CRUD.
     @Override
-    protected InterfaceDAO<ProcedimientoPaso> getDAO() {
-        return pdDAO;
+    protected InterfaceService<ProcedimientoPaso> getService() {
+        return pdService;
     }
 
     // ---- Los 3 métodos que pide AbstracDetalleCrudModel ----
     @Override
     protected List<ProcedimientoPaso> buscarPorPadre(UUID idPadre) {
-        return pdDAO.findByProcedimiento(idPadre);
+        return pdService.findByProcedimiento(idPadre);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
 
     public List<Rol> completarRoles(String query) {
         if (roles == null) {
-            roles = rolDAO.findRange(0, 100);
+            roles = rolService.findRange(0, 100);
         }
         return filtrarActivos(roles, query, Rol::getNombre, Rol::getActivo);
     }
@@ -211,7 +211,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         if (padreActual == null || padreActual.getIdProcedimiento() == null) {
             return mapa;
         }
-        for (ProcedimientoPasoSecuencia s : secDAO.findByProcedimiento(padreActual.getIdProcedimiento())) {
+        for (ProcedimientoPasoSecuencia s : secService.findByProcedimiento(padreActual.getIdProcedimiento())) {
             if (s.getIdProcedimientoPasoReferencia() != null && s.getIdProcedimientoPaso() != null) {
                 mapa.putIfAbsent(s.getIdProcedimientoPaso().getIdProcedimientoPaso(),
                         s.getIdProcedimientoPasoReferencia());
@@ -328,10 +328,10 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     }
 
     private void sincronizarSecuencia(ProcedimientoPaso paso, ProcedimientoPaso dep) {
-        List<ProcedimientoPasoSecuencia> actuales = secDAO.findByProcedimientoPaso(paso.getIdProcedimientoPaso());
+        List<ProcedimientoPasoSecuencia> actuales = secService.findByProcedimientoPaso(paso.getIdProcedimientoPaso());
         if (dep == null) {
             for (ProcedimientoPasoSecuencia s : actuales) {
-                secDAO.eliminar(s.getIdProcedimientoPasoSecuencia());
+                secService.eliminar(s.getIdProcedimientoPasoSecuencia());
             }
             return;
         }
@@ -340,7 +340,7 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
             s.setIdProcedimientoPaso(paso);
             s.setTipoSecuencia(TIPO_DEPENDENCIA);
             s.setIdProcedimientoPasoReferencia(dep.getIdProcedimientoPaso());
-            secDAO.crear(s);
+            secService.crear(s);
             return;
         }
         ProcedimientoPasoSecuencia s = actuales.get(0);
@@ -348,9 +348,9 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
         if (s.getTipoSecuencia() == null || s.getTipoSecuencia().isBlank()) {
             s.setTipoSecuencia(TIPO_DEPENDENCIA);
         }
-        secDAO.actualizar(s);
+        secService.actualizar(s);
         for (int i = 1; i < actuales.size(); i++) {
-            secDAO.eliminar(actuales.get(i).getIdProcedimientoPasoSecuencia());
+            secService.eliminar(actuales.get(i).getIdProcedimientoPasoSecuencia());
         }
     }
 
@@ -365,8 +365,8 @@ public class ProcedimientoPasoModel extends AbstracdetallecrudModel<Procedimient
     public void btnEliminarHandler(UUID id) {
         ProcedimientoPaso objetivo = id == null ? null : getRowData(id.toString());
         if (objetivo != null && !tieneRegistrosDependientes(objetivo)) {
-            for (ProcedimientoPasoSecuencia s : secDAO.findByProcedimientoPaso(id)) {
-                secDAO.eliminar(s.getIdProcedimientoPasoSecuencia());
+            for (ProcedimientoPasoSecuencia s : secService.findByProcedimientoPaso(id)) {
+                secService.eliminar(s.getIdProcedimientoPasoSecuencia());
             }
         }
         super.btnEliminarHandler(id);

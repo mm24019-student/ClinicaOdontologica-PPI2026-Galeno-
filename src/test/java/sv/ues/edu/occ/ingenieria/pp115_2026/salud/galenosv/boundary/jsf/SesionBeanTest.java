@@ -20,8 +20,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.PrimeFaces;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -30,16 +30,16 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 /**
  * Prueba de SesionBean (el selector de usuario y clínica de la cabecera). Es
  * quien decide qué usuarios se ven, qué clínica está fijada y cuándo se cierra
- * la sesión sola. Los DAO se simulan; lo que depende del FacesContext real
+ * la sesión sola. Los Service se simulan; lo que depende del FacesContext real
  * (refrescar y cerrarSesion) se prueba con un FacesContext simulado.
  */
 @ExtendWith(MockitoExtension.class)
 public class SesionBeanTest {
 
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Mock
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
 
     @InjectMocks
     private SesionBean bean;
@@ -74,7 +74,7 @@ public class SesionBeanTest {
 
     // Deja a "pr" con la sesión iniciada, tal como lo hace el selector de la cabecera.
     private void iniciarSesionCon(PersonaRol pr) {
-        when(personaRolDAO.listarConDetalle()).thenReturn(Arrays.asList(pr));
+        when(personaRolService.listarConDetalle()).thenReturn(Arrays.asList(pr));
         bean.setIdSeleccionado(pr.getIdPersonaRol().toString());
         bean.cambiar();
     }
@@ -86,7 +86,7 @@ public class SesionBeanTest {
         PersonaRol bueno = usuario("Ana", "Perez", rol("Odontologo", true), clinica("A", true));
         PersonaRol rolInactivo = usuario("Luis", "Gomez", rol("Asistente", false), clinica("A", true));
         PersonaRol clinicaInactiva = usuario("Eva", "Diaz", rol("Odontologo", true), clinica("B", false));
-        when(personaRolDAO.listarConDetalle()).thenReturn(Arrays.asList(bueno, rolInactivo, clinicaInactiva));
+        when(personaRolService.listarConDetalle()).thenReturn(Arrays.asList(bueno, rolInactivo, clinicaInactiva));
 
         List<PersonaRol> opciones = bean.getOpciones();
 
@@ -98,7 +98,7 @@ public class SesionBeanTest {
     public void getOpciones_conservaLosQueNoTienenRolOClinicaOTienenEstadoSinDefinir() {
         PersonaRol sinRolNiClinica = usuario("Ana", "Perez", null, null);
         PersonaRol estadoSinDefinir = usuario("Luis", "Gomez", rol("Asistente", null), clinica("A", null));
-        when(personaRolDAO.listarConDetalle()).thenReturn(Arrays.asList(sinRolNiClinica, estadoSinDefinir));
+        when(personaRolService.listarConDetalle()).thenReturn(Arrays.asList(sinRolNiClinica, estadoSinDefinir));
 
         assertEquals(2, bean.getOpciones().size());
     }
@@ -109,8 +109,8 @@ public class SesionBeanTest {
         Clinica b = clinica("B", true);
         PersonaRol deA = usuario("Ana", "Perez", rol("Odontologo", true), a);
         PersonaRol deB = usuario("Luis", "Gomez", rol("Odontologo", true), b);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
-        when(personaRolDAO.listarConDetalle()).thenReturn(Arrays.asList(deA, deB));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
+        when(personaRolService.listarConDetalle()).thenReturn(Arrays.asList(deA, deB));
         bean.setIdClinicaSeleccionada(a.getIdClinica().toString());
         bean.cambiarClinica();
 
@@ -127,7 +127,7 @@ public class SesionBeanTest {
         Clinica activa = clinica("A", true);
         Clinica inactiva = clinica("B", false);
         Clinica sinEstado = clinica("C", null);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(activa, inactiva, sinEstado));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(activa, inactiva, sinEstado));
 
         List<Clinica> resultado = bean.getClinicasTrabajo();
 
@@ -160,7 +160,7 @@ public class SesionBeanTest {
     public void cambiarClinica_idDeUnaClinicaActiva_laFijaComoClinicaDeTrabajo() {
         Clinica a = clinica("A", true);
         Clinica b = clinica("B", true);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
         bean.setIdClinicaSeleccionada(b.getIdClinica().toString());
 
         bean.cambiarClinica();
@@ -171,7 +171,7 @@ public class SesionBeanTest {
 
     @Test
     public void cambiarClinica_idQueNoEstaEntreLasActivas_quedaSinClinica() {
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Collections.singletonList(clinica("A", true)));
+        when(clinicaService.findRange(0, 100)).thenReturn(Collections.singletonList(clinica("A", true)));
         bean.setIdClinicaSeleccionada(UUID.randomUUID().toString());
 
         bean.cambiarClinica();
@@ -185,7 +185,7 @@ public class SesionBeanTest {
         Clinica a = clinica("A", true);
         PersonaRol ana = usuario("Ana", "Perez", rol("Odontologo", true), a);
         iniciarSesionCon(ana);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a));
         bean.setIdClinicaSeleccionada(a.getIdClinica().toString());
 
         bean.cambiarClinica();
@@ -199,7 +199,7 @@ public class SesionBeanTest {
         Clinica a = clinica("A", true);
         Clinica b = clinica("B", true);
         iniciarSesionCon(usuario("Ana", "Perez", rol("Odontologo", true), a));
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a, b));
         bean.setIdClinicaSeleccionada(b.getIdClinica().toString());
 
         bean.cambiarClinica();
@@ -232,7 +232,7 @@ public class SesionBeanTest {
     @Test
     public void perteneceAClinicaActual_conClinicaFijada_soloAceptaALosDeEsaClinica() {
         Clinica a = clinica("A", true);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a));
         bean.setIdClinicaSeleccionada(a.getIdClinica().toString());
         bean.cambiarClinica();
 
@@ -279,7 +279,7 @@ public class SesionBeanTest {
 
     @Test
     public void cambiar_idQueNoEstaEntreLasOpciones_quedaSinSesion() {
-        when(personaRolDAO.listarConDetalle()).thenReturn(
+        when(personaRolService.listarConDetalle()).thenReturn(
                 Arrays.asList(usuario("Ana", "Perez", rol("Odontologo", true), null)));
         bean.setIdSeleccionado(UUID.randomUUID().toString());
 
@@ -302,7 +302,7 @@ public class SesionBeanTest {
     @Test
     public void refrescar_siLaClinicaDeTrabajoYaNoEstaActiva_laQuita() {
         Clinica a = clinica("A", true);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a));
         bean.setIdClinicaSeleccionada(a.getIdClinica().toString());
         bean.cambiarClinica();
         a.setActivo(false);
@@ -330,7 +330,7 @@ public class SesionBeanTest {
         Clinica a = clinica("A", true);
         PersonaRol ana = usuario("Ana", "Perez", rol("Odontologo", true), a);
         iniciarSesionCon(ana);
-        when(clinicaDAO.findRange(0, 100)).thenReturn(Arrays.asList(a));
+        when(clinicaService.findRange(0, 100)).thenReturn(Arrays.asList(a));
 
         refrescarSinPeticion();
 

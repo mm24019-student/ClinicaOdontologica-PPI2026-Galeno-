@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 /**
@@ -32,7 +32,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 public class ProcedimientoModelTest {
  
     @Mock
-    private ProcedimientoDAO pdDAO;
+    private ProcedimientoService pdService;
     @Mock
     private ProcedimientoPasoModel procedimientoPasoModel;
     @Mock
@@ -41,11 +41,11 @@ public class ProcedimientoModelTest {
     @InjectMocks
     private ProcedimientoModel bean;
  
-    // ---- getDAO() / obtenerId() ----
+    // ---- getService() / obtenerId() ----
  
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(pdDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(pdService, bean.getService());
     }
  
     @Test
@@ -79,7 +79,7 @@ public class ProcedimientoModelTest {
     public void inicializar_cargaLosPrimeros100Procedimientos() {
         List<Procedimiento> esperado = Arrays.asList(
                 new Procedimiento(UUID.randomUUID()), new Procedimiento(UUID.randomUUID()));
-        when(pdDAO.findRange(0, 100)).thenReturn(esperado);
+        when(pdService.findRange(0, 100)).thenReturn(esperado);
  
         bean.inicializar();
  

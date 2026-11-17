@@ -6,9 +6,9 @@ import jakarta.inject.Named;
 import java.util.List;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
 
@@ -34,13 +34,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoSecuenciaModel
         extends AbstracdetallecrudModel<ProcedimientoPasoSecuencia, ProcedimientoPaso> {
 
-    // DAO de las secuencias: guarda, busca y elimina (y findByProcedimientoPaso).
+    // Service de las secuencias: guarda, busca y elimina (y findByProcedimientoPaso).
     @Inject
-    private ProcedimientoPasoSecuenciaDAO dao;
+    private ProcedimientoPasoSecuenciaService dao;
 
-    // DAO de los pasos: llena los combos y busca el nombre del paso de referencia.
+    // Service de los pasos: llena los combos y busca el nombre del paso de referencia.
     @Inject
-    private ProcedimientoPasoDAO pasoDAO;
+    private ProcedimientoPasoService pasoService;
 
     // Lista de pasos para los combos (se carga una sola vez, ver getPasos).
     private List<ProcedimientoPaso> pasos;
@@ -147,7 +147,7 @@ public class ProcedimientoPasoSecuenciaModel
             this.pasoReferenciaSeleccionado = getPasos().stream()
                     .filter(p -> idRef.equals(p.getIdProcedimientoPaso()))
                     .findFirst()
-                    .orElseGet(() -> pasoDAO.buscar(idRef));
+                    .orElseGet(() -> pasoService.buscar(idRef));
         } else {
             this.pasoReferenciaSeleccionado = null;
         }
@@ -189,9 +189,9 @@ public class ProcedimientoPasoSecuenciaModel
         this.pasoReferenciaSeleccionado = null;
     }
 
-    // Le dice a AbstracCrudModel qué DAO usar para el CRUD.
+    // Le dice a AbstracCrudModel qué Service usar para el CRUD.
     @Override
-    protected InterfaceDAO<ProcedimientoPasoSecuencia> getDAO() {
+    protected InterfaceService<ProcedimientoPasoSecuencia> getService() {
         return dao;
     }
 
@@ -224,7 +224,7 @@ public class ProcedimientoPasoSecuenciaModel
     // Lista para los dos combos (se carga solo la primera vez)
     public List<ProcedimientoPaso> getPasos() {
         if (pasos == null) {
-            pasos = pasoDAO.findRange(0, 100);
+            pasos = pasoService.findRange(0, 100);
         }
         return pasos;
     }
@@ -255,7 +255,7 @@ public class ProcedimientoPasoSecuenciaModel
         if (nombreEnCache != null) {
             return nombreEnCache;
         }
-        ProcedimientoPaso encontrado = pasoDAO.buscar(id);
+        ProcedimientoPaso encontrado = pasoService.buscar(id);
         return encontrado != null ? encontrado.getNombre() : id.toString();
     }
 }

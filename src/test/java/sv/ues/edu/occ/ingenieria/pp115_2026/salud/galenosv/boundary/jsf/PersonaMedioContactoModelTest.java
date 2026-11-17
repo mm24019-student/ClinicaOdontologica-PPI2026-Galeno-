@@ -11,8 +11,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
@@ -25,9 +25,9 @@ import static org.mockito.Mockito.*;
 public class PersonaMedioContactoModelTest {
 
     @Mock
-    private MedioContactoDAO medioContactoDAO;
+    private MedioContactoService medioContactoService;
     @Mock
-    private TipoMedioContactoDAO tipoMedioContactoDAO;
+    private TipoMedioContactoService tipoMedioContactoService;
     @Mock
     private FacesContext fc;
 
@@ -61,7 +61,7 @@ public class PersonaMedioContactoModelTest {
     public void cargarDe_conPersona_delegaEnFindByPersona() {
         Persona persona = new Persona(UUID.randomUUID());
         List<MedioContacto> esperado = Arrays.asList(new MedioContacto(UUID.randomUUID()));
-        when(medioContactoDAO.findByPersona(persona.getIdPersona())).thenReturn(esperado);
+        when(medioContactoService.findByPersona(persona.getIdPersona())).thenReturn(esperado);
 
         bean.cargarDe(persona);
 
@@ -73,7 +73,7 @@ public class PersonaMedioContactoModelTest {
         bean.cargarDe(null);
 
         assertTrue(bean.getregistros().isEmpty());
-        verifyNoInteractions(medioContactoDAO);
+        verifyNoInteractions(medioContactoService);
     }
 
     // ---- btnNuevoHandler() ----
@@ -99,7 +99,7 @@ public class PersonaMedioContactoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -109,32 +109,32 @@ public class PersonaMedioContactoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
     @Test
     public void btnCrearhandler_valorNoCumpleElFormato_agregaErrorYNoCrea() {
         TipoMedioContacto t = tipo("Teléfono", "^\\d{8}$", Boolean.TRUE);
-        when(tipoMedioContactoDAO.buscar(t.getIdTipoMedioContacto())).thenReturn(t);
+        when(tipoMedioContactoService.buscar(t.getIdTipoMedioContacto())).thenReturn(t);
         bean.setRegistro(medio(t, "abc"));
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
     @Test
     public void btnCrearhandler_valorCumpleElFormatoYSinPadre_creaElRegistro() {
         TipoMedioContacto t = tipo("Teléfono", "^\\d{8}$", Boolean.TRUE);
-        when(tipoMedioContactoDAO.buscar(t.getIdTipoMedioContacto())).thenReturn(t);
+        when(tipoMedioContactoService.buscar(t.getIdTipoMedioContacto())).thenReturn(t);
         MedioContacto mc = medio(t, "22345678");
         bean.setRegistro(mc);
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO).crear(mc);
+        verify(medioContactoService).crear(mc);
         assertMensaje(FacesMessage.SEVERITY_INFO);
     }
 
@@ -145,12 +145,12 @@ public class PersonaMedioContactoModelTest {
         MedioContacto mc = medio(t, "a@b.com");
         bean.padreActual = persona;
         bean.setRegistro(mc);
-        when(medioContactoDAO.existeMedioParaPersona(persona.getIdPersona(),
+        when(medioContactoService.existeMedioParaPersona(persona.getIdPersona(),
                 t.getIdTipoMedioContacto(), "a@b.com", mc.getIdMedioContacto())).thenReturn(true);
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -162,11 +162,11 @@ public class PersonaMedioContactoModelTest {
         bean.padreActual = persona;
         bean.setRegistro(mc);
         List<MedioContacto> recargados = Arrays.asList(mc);
-        when(medioContactoDAO.findByPersona(persona.getIdPersona())).thenReturn(recargados);
+        when(medioContactoService.findByPersona(persona.getIdPersona())).thenReturn(recargados);
 
         bean.btnCrearhandler(null);
 
-        verify(medioContactoDAO).crear(mc);
+        verify(medioContactoService).crear(mc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -178,7 +178,7 @@ public class PersonaMedioContactoModelTest {
 
         bean.btnModificarHandler();
 
-        verify(medioContactoDAO, never()).actualizar(any());
+        verify(medioContactoService, never()).actualizar(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -186,13 +186,13 @@ public class PersonaMedioContactoModelTest {
 
     @Test
     public void getTiposMedioContacto_cacheaEntreLlamadas() {
-        when(tipoMedioContactoDAO.findRange(0, 100))
+        when(tipoMedioContactoService.findRange(0, 100))
                 .thenReturn(Arrays.asList(new TipoMedioContacto(UUID.randomUUID())));
 
         bean.getTiposMedioContacto();
         bean.getTiposMedioContacto();
 
-        verify(tipoMedioContactoDAO, times(1)).findRange(0, 100);
+        verify(tipoMedioContactoService, times(1)).findRange(0, 100);
     }
 
     @Test
@@ -200,7 +200,7 @@ public class PersonaMedioContactoModelTest {
         TipoMedioContacto telefono = tipo("Teléfono", null, Boolean.TRUE);
         TipoMedioContacto telefonoViejo = tipo("Teléfono fijo", null, Boolean.FALSE);
         TipoMedioContacto correo = tipo("Correo", null, Boolean.TRUE);
-        when(tipoMedioContactoDAO.findRange(0, 100))
+        when(tipoMedioContactoService.findRange(0, 100))
                 .thenReturn(Arrays.asList(telefono, telefonoViejo, correo));
 
         List<TipoMedioContacto> resultado = bean.completarTiposMedioContacto("TEL");

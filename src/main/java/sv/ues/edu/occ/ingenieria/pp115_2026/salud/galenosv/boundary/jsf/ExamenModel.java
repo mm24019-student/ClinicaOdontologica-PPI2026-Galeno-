@@ -5,8 +5,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 
 @Named
@@ -14,14 +14,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 public class ExamenModel extends AbstracCrudTabsModel<Examen> {
 
     @Inject
-    private ExamenDAO eDAO;
+    private ExamenService eService;
 
     @Inject
     private ExamenTipoExamenModel examenTipoExamenModel;
 
     @Override
-    protected InterfaceDAO<Examen> getDAO() {
-        return eDAO;
+    protected InterfaceService<Examen> getService() {
+        return eService;
     }
 
      @Override

@@ -12,9 +12,9 @@ import java.util.UUID;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.event.TabChangeEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Consulta;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -27,7 +27,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
  *
  * Hereda de AbstracCrudTabsModel (que hereda de AbstracCrudModel): de ahí salen
  * el CRUD, la lista y el manejo de pestañas. Aquí se agrega el autocompletado
- * de Persona/Rol (PersonaRolDAO), el reseteo de los dos hijos y el único
+ * de Persona/Rol (PersonaRolService), el reseteo de los dos hijos y el único
  * listener onTabChange que decide cuál hijo debe cargarse.
  *
  * @author antonio
@@ -40,16 +40,16 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     // con el p:tab de Consulta.xhtml).
     private static final String TAB_PASOS = "Procedimientos";
 
-    // Inyectamos el DAO, que es quien guarda, busca y elimina
+    // Inyectamos el Service, que es quien guarda, busca y elimina
     // registros de consulta en la base de datos.
     @Inject
-    private ConsultaDAO cDAO;
+    private ConsultaService cService;
 
     @Inject
     private SesionBean sesionBean;
 
     @Inject
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
 
     // Necesarios para el tabChange unificado (ver onTabChange más abajo):
     // solo así sabemos a cuál de los dos hay que avisarle que se activó.
@@ -85,7 +85,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     }
 
     public List<PersonaRol> completarPacientesPorDocumento(String query) {
-        return personaRolDAO.buscarPacientesPorDocumento(query, idClinicaActual(), 20);
+        return personaRolService.buscarPacientesPorDocumento(query, idClinicaActual(), 20);
     }
 
     public void abrirBuscarPacientePorDocumento() {
@@ -98,10 +98,10 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
         PrimeFaces.current().executeScript("PF('dlgPacienteDoc').show()");
     }
 
-    // Le decimos a la clase padre qué DAO debe usar para las operaciones del CRUD.
+    // Le decimos a la clase padre qué Service debe usar para las operaciones del CRUD.
     @Override
-    protected InterfaceDAO<Consulta> getDAO() {
-        return cDAO;
+    protected InterfaceService<Consulta> getService() {
+        return cService;
     }
 
     public PersonaRol getPacienteEncontrado() {
@@ -118,7 +118,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     }
 
     public List<PersonaRol> completarPacientes(String query) {
-        return personaRolDAO.buscarPacientes(query, idClinicaActual(), 20);
+        return personaRolService.buscarPacientes(query, idClinicaActual(), 20);
     }
 
     public void abrirBuscarPaciente() {
@@ -219,7 +219,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     // Lista para el combo (se carga solo la primera vez que la página la pide).
     public List<PersonaRol> getPersonasRol() {
         if (personasRol == null) {
-            personasRol = personaRolDAO.findRange(0, 100);
+            personasRol = personaRolService.findRange(0, 100);
         }
         return personasRol;
     }
@@ -277,7 +277,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
     }
 
     // Sin filtros activos se comporta como siempre (findRange). Con fechas o
-    // con clínica de sesión usa la consulta filtrada del DAO.
+    // con clínica de sesión usa la consulta filtrada del Service.
     @Override
     protected void recargarLista() {
         UUID idClinica = idClinicaActual();
@@ -286,7 +286,7 @@ public class ConsultaModel extends AbstracCrudTabsModel<Consulta> {
             super.recargarLista();
             return;
         }
-        setWrappedData(cDAO.buscarConFiltro(inicioDelDia(fechaDesde),
+        setWrappedData(cService.buscarConFiltro(inicioDelDia(fechaDesde),
                 inicioDelDiaSiguiente(fechaHasta), idClinica, MAX_FILTRO));
     }
 

@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 import org.primefaces.PrimeFaces;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
@@ -22,10 +22,10 @@ public class SesionBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
 
     @Inject
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
 
     private PersonaRol personaRolActual;
     private String idSeleccionado;
@@ -45,7 +45,7 @@ public class SesionBean implements Serializable {
     // ven los usuarios de ESA clínica. Al cambiar de clínica, la sesión de un
     // usuario de otra clínica se cierra sola.
     public List<PersonaRol> getOpciones() {
-        return personaRolDAO.listarConDetalle().stream()
+        return personaRolService.listarConDetalle().stream()
                 .filter(pr -> pr.getIdRol() == null || !Boolean.FALSE.equals(pr.getIdRol().getActivo()))
                 .filter(pr -> pr.getIdClinica() == null || !Boolean.FALSE.equals(pr.getIdClinica().getActivo()))
                 .filter(this::perteneceAClinicaActual)
@@ -61,7 +61,7 @@ public class SesionBean implements Serializable {
     // Clínicas activas para el selector "Clínica de trabajo" (se consultan en
     // cada render, igual que las opciones de usuario, para ver cambios al instante).
     public List<Clinica> getClinicasTrabajo() {
-        return clinicaDAO.findRange(0, 100).stream()
+        return clinicaService.findRange(0, 100).stream()
                 .filter(c -> !Boolean.FALSE.equals(c.getActivo()))
                 .collect(java.util.stream.Collectors.toList());
     }

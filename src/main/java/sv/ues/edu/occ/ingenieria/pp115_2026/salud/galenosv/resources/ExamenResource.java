@@ -18,7 +18,7 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 
 @Path("examenes")
@@ -27,7 +27,7 @@ public class ExamenResource {
     private static final String HEADER_ERROR = "error-mensaje";
 
     @Inject
-    private ExamenDAO examenDAO;
+    private ExamenService examenService;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -39,7 +39,7 @@ public class ExamenResource {
                     .build();
         }
         try {
-            List<Examen> lista = examenDAO.findRange(first, max);
+            List<Examen> lista = examenService.findRange(first, max);
             return Response.ok(lista).build();
         } catch (Exception ex) {
             return Response.status(500).header(HEADER_ERROR, ex.getMessage()).build();
@@ -51,7 +51,7 @@ public class ExamenResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response contar() {
         try {
-            return Response.ok(examenDAO.contar()).build();
+            return Response.ok(examenService.contar()).build();
         } catch (Exception ex) {
             return Response.status(500).header(HEADER_ERROR, ex.getMessage()).build();
         }
@@ -62,7 +62,7 @@ public class ExamenResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response buscarPorId(@PathParam("id") UUID id) {
         try {
-            Examen encontrado = examenDAO.buscar(id);
+            Examen encontrado = examenService.buscar(id);
             if (encontrado == null) {
                 return Response.status(404).header(HEADER_ERROR, "No existe un examen con ese id").build();
             }
@@ -82,7 +82,7 @@ public class ExamenResource {
             if (examen.getIdExamen() == null) {
                 examen.setIdExamen(UUID.randomUUID());
             }
-            examenDAO.crear(examen);
+            examenService.crear(examen);
             URI ubicacion = uriInfo.getAbsolutePathBuilder()
                     .path(examen.getIdExamen().toString())
                     .build();
@@ -102,12 +102,12 @@ public class ExamenResource {
             return Response.status(422).header(HEADER_ERROR, "El examen no puede venir vacio").build();
         }
         try {
-            Examen existente = examenDAO.buscar(id);
+            Examen existente = examenService.buscar(id);
             if (existente == null) {
                 return Response.status(404).header(HEADER_ERROR, "No existe un examen con ese id").build();
             }
             examen.setIdExamen(id);
-            examenDAO.actualizar(examen);
+            examenService.actualizar(examen);
             return Response.noContent().build();
         } catch (Exception ex) {
             return Response.status(500).header(HEADER_ERROR, ex.getMessage()).build();
@@ -118,11 +118,11 @@ public class ExamenResource {
     @Path("{id}")
     public Response eliminar(@PathParam("id") UUID id) {
         try {
-            Examen existente = examenDAO.buscar(id);
+            Examen existente = examenService.buscar(id);
             if (existente == null) {
                 return Response.status(404).header(HEADER_ERROR, "No existe un examen con ese id").build();
             }
-            examenDAO.eliminar(id);
+            examenService.eliminar(id);
             return Response.noContent().build();
         } catch (Exception ex) {
             return Response.status(500).header(HEADER_ERROR, ex.getMessage()).build();

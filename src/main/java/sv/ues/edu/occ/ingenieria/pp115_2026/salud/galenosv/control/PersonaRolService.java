@@ -1,0 +1,154 @@
+package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control;
+
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
+import java.util.UUID;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
+
+/**
+ * @author oscar
+ */
+@Stateless
+@LocalBean
+public class PersonaRolService extends DefaultService<PersonaRol> {
+
+    @PersistenceContext(unitName = "Galeno-PU")
+    EntityManager em;
+
+    @Override
+    public EntityManager getEntityManager() {
+        return em;
+    }
+
+    // ---- Métodos "extra" para llenar y resolver los combos del formulario ----
+    // Devuelve todas las personas, no solo las asignadas a un rol.
+    public List<Persona> listarPersonas() {
+        TypedQuery<Persona> q = em.createNamedQuery("Persona.findAll", Persona.class);
+        q.setMaxResults(100);
+        return q.getResultList();
+    }
+
+    // Devuelve todos los roles, no solo los asignados a una persona.
+    public List<Rol> listarRoles() {
+        TypedQuery<Rol> q = em.createNamedQuery("Rol.findAll", Rol.class);
+        q.setMaxResults(100);
+        return q.getResultList();
+    }
+
+    // Devuelve todas las clinicas, no solo las asignadas a una persona.
+    public List<Clinica> listarClinicas() {
+        TypedQuery<Clinica> q = em.createNamedQuery("Clinica.findAll", Clinica.class);
+        q.setMaxResults(100);
+        return q.getResultList();
+    }
+
+    // Pacientes activos de la clínica cuyo nombre o apellido contiene el texto.
+    public List<PersonaRol> buscarPacientes(String texto, UUID idClinica, int max) {
+        return consultarPacientes(
+                "LOWER(CONCAT(p.nombres, ' ', p.apellidos)) LIKE :t", texto, idClinica, max);
+    }
+
+// Pacientes activos de la clínica que tienen un documento cuyo valor contiene el texto.
+    public List<PersonaRol> buscarPacientesPorDocumento(String texto, UUID idClinica, int max) {
+        return consultarPacientes(
+                "EXISTS (SELECT d2 FROM Documento d2 WHERE d2.idPersona = p AND LOWER(d2.valor) LIKE :t)",
+                texto, idClinica, max);
+    }
+
+    private List<PersonaRol> consultarPacientes(String condicionTexto, String texto, UUID idClinica, int max) {
+        String t = "%" + (texto == null ? "" : texto.trim().toLowerCase()) + "%";
+        StringBuilder jpql = new StringBuilder(
+                "SELECT DISTINCT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "LEFT JOIN FETCH p.documentoList d "
+                + "LEFT JOIN FETCH d.idTipoDocumento "
+                + "WHERE LOWER(r.nombre) = 'paciente' "
+                + "AND (r.activo IS NULL OR r.activo = true) "
+                + "AND " + condicionTexto + " ");
+        if (idClinica != null) {
+            jpql.append("AND c.idClinica = :idClinica ");
+        }
+        jpql.append("ORDER BY p.apellidos, p.nombres");
+        TypedQuery<PersonaRol> q = em.createQuery(jpql.toString(), PersonaRol.class);
+        q.setParameter("t", t);
+        if (idClinica != null) {
+            q.setParameter("idClinica", idClinica);
+        }
+        return q.getResultList().stream().limit(max).collect(java.util.stream.Collectors.toList());
+    }
+    
+    // Devuelve una persona por su id, o null si no existe.
+    public Persona buscarPersona(UUID id) {
+        return id == null ? null : em.find(Persona.class, id);
+    }
+
+    public Rol buscarRol(UUID id) {
+        return id == null ? null : em.find(Rol.class, id);
+    }
+
+    public Clinica buscarClinica(UUID id) {
+        return id == null ? null : em.find(Clinica.class, id);
+    }
+
+    // Devuelve solo los roles/clinica asignados a una persona especifica.
+    // Se usa en la pestana "Roles" dentro de la pantalla de Persona, en vez
+    // de traer siempre los 100 PersonaRol de todas las personas.
+        public List<PersonaRol> findByPersona(UUID idPersona) {
+        return getEntityManager().createQuery(
+                "SELECT DISTINCT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "WHERE p.idPersona = :id "
+                + "ORDER BY r.nombre, c.nombre",
+                PersonaRol.class)
+                .setParameter("id", idPersona)
+                .getResultList();
+    }
+
+    // Dice si el rol indicado ya tiene al menos una persona asignada. Si
+    // idClinica no es null, SOLO cuentan las asignaciones de esa clinica: una
+    // persona con el rol en otra clinica no cuenta como responsable aqui.
+    public boolean existePersonaAsignada(UUID idRol, UUID idClinica) {
+        if (idRol == null) {
+            return false;
+        }
+        StringBuilder jpql = new StringBuilder(
+                "SELECT COUNT(pr) FROM PersonaRol pr "
+                + "WHERE pr.idRol.idRol = :idRol AND pr.idPersona IS NOT NULL ");
+        if (idClinica != null) {
+            jpql.append("AND pr.idClinica.idClinica = :idClinica ");
+        }
+        TypedQuery<Long> q = em.createQuery(jpql.toString(), Long.class);
+        q.setParameter("idRol", idRol);
+        if (idClinica != null) {
+            q.setParameter("idClinica", idClinica);
+        }
+        return q.getSingleResult() > 0;
+    }
+
+// Devuelve todas las combinaciones persona/rol/clinica con sus relaciones
+    // ya cargadas (JOIN FETCH), porque las entidades son LAZY y el selector
+    // de sesion las lee fuera de la transaccion.
+    public List<PersonaRol> listarConDetalle() {
+        TypedQuery<PersonaRol> q = em.createQuery(
+                "SELECT pr FROM PersonaRol pr "
+                + "JOIN FETCH pr.idPersona p "
+                + "JOIN FETCH pr.idRol r "
+                + "LEFT JOIN FETCH pr.idClinica c "
+                + "ORDER BY p.apellidos, p.nombres, r.nombre",
+                PersonaRol.class);
+        q.setMaxResults(200);
+        return q.getResultList();
+    }
+
+}

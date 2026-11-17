@@ -18,14 +18,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class DocumentoResource extends AbstractResource<Documento> {
 
     @Inject
-    DocumentoDAO dao;
+    DocumentoService dao;
 
     public DocumentoResource() {
         super(Documento.class);
     }
 
     @Override
-    protected DefaultDAO<Documento> dao() {
+    protected DefaultService<Documento> dao() {
         return dao;
     }
 

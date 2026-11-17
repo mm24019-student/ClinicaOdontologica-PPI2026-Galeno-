@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
@@ -20,7 +20,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 
 /**
  * Prueba de MedioContactoModel (CRUD standalone). Mismo caso que
@@ -35,10 +35,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioCont
 public class MedioContactoModelTest {
 
     @Mock
-    private MedioContactoDAO medioContactoDAO;
+    private MedioContactoService medioContactoService;
 
     @Mock 
-    private TipoMedioContactoDAO tipoMedioContactoDAO;
+    private TipoMedioContactoService tipoMedioContactoService;
 
     @Mock
     private FacesContext fc;
@@ -56,7 +56,7 @@ public class MedioContactoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -70,7 +70,7 @@ public class MedioContactoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(medioContactoDAO, never()).crear(any());
+        verify(medioContactoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -83,11 +83,11 @@ public class MedioContactoModelTest {
         mc.setIdTipoMedioContacto(new TipoMedioContacto(UUID.randomUUID()));
         bean.setRegistro(mc);
         List<MedioContacto> recargados = Arrays.asList(mc);
-        when(medioContactoDAO.findRange(0, 100)).thenReturn(recargados);
+        when(medioContactoService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(medioContactoDAO).crear(mc);
+        verify(medioContactoService).crear(mc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -102,7 +102,7 @@ public class MedioContactoModelTest {
 
         bean.btnModificarHandler();
 
-        verify(medioContactoDAO, never()).actualizar(any());
+        verify(medioContactoService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -114,13 +114,13 @@ public class MedioContactoModelTest {
         mc.setIdPersona(new Persona(UUID.randomUUID()));
         mc.setIdTipoMedioContacto(new TipoMedioContacto(UUID.randomUUID()));
         bean.setRegistro(mc);
-        when(medioContactoDAO.actualizar(mc)).thenReturn(mc);
+        when(medioContactoService.actualizar(mc)).thenReturn(mc);
         List<MedioContacto> recargados = Arrays.asList(mc);
-        when(medioContactoDAO.findRange(0, 100)).thenReturn(recargados);
+        when(medioContactoService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(medioContactoDAO).actualizar(mc);
+        verify(medioContactoService).actualizar(mc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }

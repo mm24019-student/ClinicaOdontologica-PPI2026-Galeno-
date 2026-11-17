@@ -7,8 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
 import static org.mockito.Mockito.*;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class PersonaModelTest {
 
     @Mock
-    private PersonaDAO personaDAO;
+    private PersonaService personaService;
     @Mock
     private PersonaRolDetalleModel personaRolDetalleModel;
     @Mock
@@ -35,7 +35,7 @@ public class PersonaModelTest {
     @Mock
     private PersonaMedioContactoModel personaMedioContactoModel;
     @Mock
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
 
     @InjectMocks
     private PersonaModel bean;

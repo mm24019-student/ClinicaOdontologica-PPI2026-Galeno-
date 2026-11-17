@@ -3,8 +3,8 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 
@@ -12,7 +12,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
  * Convertidor JSF de Procedimiento: traduce entre el objeto y su UUID en texto para
  * que los combos y autocomplete de las páginas (nombre "procedimientoConverter") puedan
  * enviar y recibir la entidad. La lógica común está en AbstractEntityConverter;
- * aquí solo se indica qué DAO busca la entidad (dao) y cuál es su llave (id).
+ * aquí solo se indica qué Service busca la entidad (dao) y cuál es su llave (id).
  *
  * @author antonio
  *FacesConverter(value = "consultaConverter", managed = true) indica que esta clase es un convertidor de JSF para la entidad Consulta.
@@ -22,13 +22,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 @FacesConverter(value = "procedimientoConverter", managed = true)
 public class ProcedimientoConverter extends AbstractEntityConverter<Procedimiento> {
 
-   // DAO con el que se busca la entidad por su id cuando llega el texto del formulario.
+   // Service con el que se busca la entidad por su id cuando llega el texto del formulario.
     @Inject
-    private ProcedimientoDAO dao;
+    private ProcedimientoService dao;
  
-    // Le entrega a AbstractEntityConverter el DAO que debe usar.
+    // Le entrega a AbstractEntityConverter el Service que debe usar.
     @Override
-    protected InterfaceDAO<Procedimiento> dao() {
+    protected InterfaceService<Procedimiento> dao() {
         return dao;
     }
  

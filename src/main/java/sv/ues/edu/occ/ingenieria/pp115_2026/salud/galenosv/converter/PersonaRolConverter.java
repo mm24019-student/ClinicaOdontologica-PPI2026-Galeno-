@@ -3,8 +3,8 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.converter;
 import jakarta.faces.convert.FacesConverter;
 import jakarta.inject.Inject;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 
 /**
@@ -15,10 +15,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
 public class PersonaRolConverter extends AbstractEntityConverter<PersonaRol> {
 
     @Inject
-    private PersonaRolDAO dao;
+    private PersonaRolService dao;
 
     @Override
-    protected InterfaceDAO<PersonaRol> dao() {
+    protected InterfaceService<PersonaRol> dao() {
         return dao;
     }
 

@@ -8,8 +8,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
 
@@ -22,14 +22,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoSecuenciaResource extends AbstractResource<ProcedimientoPasoSecuencia> {
     
      @Inject
-    ProcedimientoPasoSecuenciaDAO dao;
+    ProcedimientoPasoSecuenciaService dao;
 
     public ProcedimientoPasoSecuenciaResource() {
         super(ProcedimientoPasoSecuencia.class);
     }
 
     @Override
-    protected DefaultDAO<ProcedimientoPasoSecuencia> dao() {
+    protected DefaultService<ProcedimientoPasoSecuencia> dao() {
         return dao;
     }
 

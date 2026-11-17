@@ -17,14 +17,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class ConsultaProcedimientoPasoResource extends AbstractResource<ConsultaProcedimientoPaso> {
 
     @Inject
-    ConsultaProcedimientoPasoDAO dao;
+    ConsultaProcedimientoPasoService dao;
 
     public ConsultaProcedimientoPasoResource() {
         super(ConsultaProcedimientoPaso.class);
     }
 
     @Override
-    protected DefaultDAO<ConsultaProcedimientoPaso> dao() {
+    protected DefaultService<ConsultaProcedimientoPaso> dao() {
         return dao;
     }
 

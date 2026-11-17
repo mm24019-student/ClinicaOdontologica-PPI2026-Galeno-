@@ -25,14 +25,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class ConsultaResource extends AbstractResource<Consulta> {
 
     @Inject
-    ConsultaDAO dao;
+    ConsultaService dao;
 
     public ConsultaResource() {
         super(Consulta.class);
     }
 
     @Override
-    protected DefaultDAO<Consulta> dao() {
+    protected DefaultService<Consulta> dao() {
         return dao;
     }
 

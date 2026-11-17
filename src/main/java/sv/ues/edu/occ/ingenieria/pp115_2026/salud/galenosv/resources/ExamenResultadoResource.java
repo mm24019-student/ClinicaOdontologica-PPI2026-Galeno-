@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
 
 @Path("examenes-resultado")
@@ -30,7 +30,7 @@ public class ExamenResultadoResource {
     private static final String HEADER_ERROR = "error-mensaje";
 
     @Inject
-    private ExamenResultadoDAO dao;
+    private ExamenResultadoService dao;
 
     private Map<String, Object> aMapa(ExamenResultado e) {
         Map<String, Object> m = new HashMap<>();

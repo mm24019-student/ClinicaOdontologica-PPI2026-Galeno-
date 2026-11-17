@@ -9,7 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 public class TipoDocumentoModelTest {
 
     @Mock
-    private TipoDocumentoDAO tipoDocumentoDAO;
+    private TipoDocumentoService tipoDocumentoService;
     @Mock
     private FacesContext fc;
 
@@ -56,7 +56,7 @@ public class TipoDocumentoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(tipoDocumentoDAO).crear(t);
+        verify(tipoDocumentoService).crear(t);
         assertMensaje(FacesMessage.SEVERITY_INFO);
     }
 
@@ -64,11 +64,11 @@ public class TipoDocumentoModelTest {
     public void btnCrearhandler_nombreDuplicado_agregaErrorYNoCrea() {
         TipoDocumento t = tipo("  DUI ", null);
         bean.setRegistro(t);
-        when(tipoDocumentoDAO.existeNombre("  DUI ", t.getIdTipoDocumento())).thenReturn(true);
+        when(tipoDocumentoService.existeNombre("  DUI ", t.getIdTipoDocumento())).thenReturn(true);
 
         bean.btnCrearhandler(null);
 
-        verify(tipoDocumentoDAO, never()).crear(any());
+        verify(tipoDocumentoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -79,7 +79,7 @@ public class TipoDocumentoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(tipoDocumentoDAO, never()).crear(any());
+        verify(tipoDocumentoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -87,11 +87,11 @@ public class TipoDocumentoModelTest {
     public void btnModificarHandler_nombreDuplicado_agregaErrorYNoActualiza() {
         TipoDocumento t = tipo("NIT", null);
         bean.setRegistro(t);
-        when(tipoDocumentoDAO.existeNombre("NIT", t.getIdTipoDocumento())).thenReturn(true);
+        when(tipoDocumentoService.existeNombre("NIT", t.getIdTipoDocumento())).thenReturn(true);
 
         bean.btnModificarHandler();
 
-        verify(tipoDocumentoDAO, never()).actualizar(any());
+        verify(tipoDocumentoService, never()).actualizar(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -99,11 +99,11 @@ public class TipoDocumentoModelTest {
     public void btnModificarHandler_nombreUnico_actualizaElRegistro() {
         TipoDocumento t = tipo("NIT", null);
         bean.setRegistro(t);
-        when(tipoDocumentoDAO.actualizar(t)).thenReturn(t);
+        when(tipoDocumentoService.actualizar(t)).thenReturn(t);
 
         bean.btnModificarHandler();
 
-        verify(tipoDocumentoDAO).actualizar(t);
+        verify(tipoDocumentoService).actualizar(t);
         assertMensaje(FacesMessage.SEVERITY_INFO);
     }
 }

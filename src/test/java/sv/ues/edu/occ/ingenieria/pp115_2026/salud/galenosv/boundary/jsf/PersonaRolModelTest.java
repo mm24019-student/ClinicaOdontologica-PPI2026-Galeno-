@@ -12,7 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 public class PersonaRolModelTest {
 
     @Mock
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     
     @Mock
     private FacesContext fc;
@@ -54,7 +54,7 @@ public class PersonaRolModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -69,7 +69,7 @@ public class PersonaRolModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -84,7 +84,7 @@ public class PersonaRolModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(personaRolDAO, never()).crear(any());
+        verify(personaRolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -98,11 +98,11 @@ public class PersonaRolModelTest {
         pr.setIdClinica(new Clinica(UUID.randomUUID()));
         bean.setRegistro(pr);
         List<PersonaRol> recargados = Arrays.asList(pr);
-        when(personaRolDAO.findRange(0, 100)).thenReturn(recargados);
+        when(personaRolService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(personaRolDAO).crear(pr);
+        verify(personaRolService).crear(pr);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -118,7 +118,7 @@ public class PersonaRolModelTest {
 
         bean.btnModificarHandler();
 
-        verify(personaRolDAO, never()).actualizar(any());
+        verify(personaRolService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -131,13 +131,13 @@ public class PersonaRolModelTest {
         pr.setIdRol(new Rol(UUID.randomUUID()));
         pr.setIdClinica(new Clinica(UUID.randomUUID()));
         bean.setRegistro(pr);
-        when(personaRolDAO.actualizar(pr)).thenReturn(pr);
+        when(personaRolService.actualizar(pr)).thenReturn(pr);
         List<PersonaRol> recargados = Arrays.asList(pr);
-        when(personaRolDAO.findRange(0, 100)).thenReturn(recargados);
+        when(personaRolService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(personaRolDAO).actualizar(pr);
+        verify(personaRolService).actualizar(pr);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }

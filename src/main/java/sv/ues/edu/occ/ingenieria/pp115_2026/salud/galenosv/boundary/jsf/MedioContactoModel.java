@@ -7,9 +7,9 @@ import jakarta.inject.Named;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.MedioContactoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.MedioContacto;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
@@ -18,16 +18,16 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
 public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
 
     @Inject
-    private MedioContactoDAO medioContactoDAO;
+    private MedioContactoService medioContactoService;
 
     @Inject
-    private TipoMedioContactoDAO tipoMedioContactoDAO;
+    private TipoMedioContactoService tipoMedioContactoService;
 
     private List<TipoMedioContacto> tiposMedioContacto;
 
     @Override
-    protected InterfaceDAO<MedioContacto> getDAO() {
-        return medioContactoDAO;
+    protected InterfaceService<MedioContacto> getService() {
+        return medioContactoService;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
 
     public List<TipoMedioContacto> getTiposMedioContacto() {
         if (tiposMedioContacto == null) {
-            tiposMedioContacto = tipoMedioContactoDAO.findRange(0, 100);
+            tiposMedioContacto = tipoMedioContactoService.findRange(0, 100);
         }
         return tiposMedioContacto;
     }
@@ -61,7 +61,7 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
     // Valida el valor contra la expresion regular del TipoMedioContacto, leida de
     // la base de datos en este momento (no de la lista cacheada en el bean).
     private boolean validarFormatoDelTipo() {
-        TipoMedioContacto tipo = tipoMedioContactoDAO.buscar(registro.getIdTipoMedioContacto().getIdTipoMedioContacto());
+        TipoMedioContacto tipo = tipoMedioContactoService.buscar(registro.getIdTipoMedioContacto().getIdTipoMedioContacto());
         if (tipo == null) {
             tipo = registro.getIdTipoMedioContacto();
         }
@@ -72,7 +72,7 @@ public class MedioContactoModel extends AbstracCrudModel<MedioContacto> {
     // Evita datos repetidos: la persona no puede tener dos veces el mismo medio
     // de contacto (mismo tipo y mismo valor).
     private boolean validarSinDuplicados() {
-        if (medioContactoDAO.existeMedioParaPersona(
+        if (medioContactoService.existeMedioParaPersona(
                 registro.getIdPersona().getIdPersona(),
                 registro.getIdTipoMedioContacto().getIdTipoMedioContacto(),
                 registro.getValor(),

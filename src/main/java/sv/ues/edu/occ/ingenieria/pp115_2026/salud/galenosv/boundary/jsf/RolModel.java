@@ -4,8 +4,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 /**
@@ -18,14 +18,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 public class RolModel extends AbstracCrudModel<Rol> {
 
     @Inject
-    private RolDAO rolDAO;
+    private RolService rolService;
     
     @Inject
     private SesionBean sesionBean;
 
     @Override
-    protected InterfaceDAO<Rol> getDAO() {
-        return rolDAO;
+    protected InterfaceService<Rol> getService() {
+        return rolService;
     }
 
     // Genera el UUID a mano y deja el registro activo por defecto.

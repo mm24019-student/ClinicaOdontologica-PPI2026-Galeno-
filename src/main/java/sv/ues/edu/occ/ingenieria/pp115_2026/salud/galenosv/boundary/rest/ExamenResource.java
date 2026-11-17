@@ -3,8 +3,8 @@ package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.rest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Path;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DefaultService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 
 /**
@@ -17,14 +17,14 @@ public class ExamenResource extends AbstractResource<Examen>{
     
     
     @Inject
-    ExamenDAO dao;
+    ExamenService dao;
 
     public ExamenResource() {
         super(Examen.class);
     }
 
     @Override
-    protected DefaultDAO<Examen> dao() {
+    protected DefaultService<Examen> dao() {
         return dao;
     }
     

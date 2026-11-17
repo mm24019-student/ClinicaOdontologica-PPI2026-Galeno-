@@ -14,7 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 /**
  * Prueba de RolModel, usado como implementación concreta representativa de
  * AbstracCrudModel: RolModel (como ClinicaModel, TipoDocumentoModel y
- * TipoMedioContactoModel) no agrega lógica propia más allá de conectar el DAO,
+ * TipoMedioContactoModel) no agrega lógica propia más allá de conectar el Service,
  * así que probar el flujo estándar (Nuevo -> Crear/Modificar/Eliminar,
  * selección de fila, getRowData/getRowKey) aquí cubre indirectamente a esas 4
  * clases también.
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 public class RolModelTest {
 
     @Mock
-    private RolDAO rolDAO;
+    private RolService rolService;
 
     @Mock
     private SesionBean sesionBean;
@@ -62,7 +62,7 @@ public class RolModelTest {
     public void btnCrearhandler_registroNulo_agregaMensajeDeErrorYNoCrea() {
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(rolDAO, never()).crear(any());
+        verify(rolService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -73,11 +73,11 @@ public class RolModelTest {
         Rol nuevo = new Rol(UUID.randomUUID());
         bean.setRegistro(nuevo);
         List<Rol> recargados = Arrays.asList(new Rol(UUID.randomUUID()));
-        when(rolDAO.findRange(0, 100)).thenReturn(recargados);
+        when(rolService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(rolDAO).crear(nuevo);
+        verify(rolService).crear(nuevo);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -90,7 +90,7 @@ public class RolModelTest {
     public void btnCrearhandler_daoLanzaExcepcion_agregaMensajeDeErrorSinReventar() {
         Rol nuevo = new Rol(UUID.randomUUID());
         bean.setRegistro(nuevo);
-        doThrow(new RuntimeException("fallo bd")).when(rolDAO).crear(nuevo);
+        doThrow(new RuntimeException("fallo bd")).when(rolService).crear(nuevo);
 
         assertDoesNotThrow(() -> bean.btnCrearhandler(mock(ActionEvent.class)));
 
@@ -104,7 +104,7 @@ public class RolModelTest {
     public void btnModificarHandler_registroNulo_agregaMensajeDeErrorYNoActualiza() {
         bean.btnModificarHandler();
 
-        verify(rolDAO, never()).actualizar(any());
+        verify(rolService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -115,12 +115,12 @@ public class RolModelTest {
         Rol existente = new Rol(UUID.randomUUID());
         bean.setRegistro(existente);
         List<Rol> recargados = Arrays.asList(existente);
-        when(rolDAO.actualizar(existente)).thenReturn(existente);
-        when(rolDAO.findRange(0, 100)).thenReturn(recargados);
+        when(rolService.actualizar(existente)).thenReturn(existente);
+        when(rolService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(rolDAO).actualizar(existente);
+        verify(rolService).actualizar(existente);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -133,7 +133,7 @@ public class RolModelTest {
     public void btnModificarHandler_daoLanzaExcepcion_agregaMensajeDeErrorSinReventar() {
         Rol existente = new Rol(UUID.randomUUID());
         bean.setRegistro(existente);
-        when(rolDAO.actualizar(existente)).thenThrow(new RuntimeException("fallo bd"));
+        when(rolService.actualizar(existente)).thenThrow(new RuntimeException("fallo bd"));
 
         assertDoesNotThrow(() -> bean.btnModificarHandler());
 
@@ -147,7 +147,7 @@ public class RolModelTest {
     public void btnEliminarHandlerConId_listaVacia_agregaMensajeDeErrorYNoElimina() {
         bean.btnEliminarHandler(UUID.randomUUID());
 
-        verify(rolDAO, never()).eliminar(any());
+        verify(rolService, never()).eliminar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -159,7 +159,7 @@ public class RolModelTest {
 
         bean.btnEliminarHandler((UUID) null);
 
-        verify(rolDAO, never()).eliminar(any());
+        verify(rolService, never()).eliminar(any());
     }
 
     @Test
@@ -167,11 +167,11 @@ public class RolModelTest {
         UUID id = UUID.randomUUID();
         bean.setWrappedData(Arrays.asList(new Rol(id)));
         List<Rol> recargados = Collections.emptyList();
-        when(rolDAO.findRange(0, 100)).thenReturn(recargados);
+        when(rolService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnEliminarHandler(id);
 
-        verify(rolDAO).eliminar(id);
+        verify(rolService).eliminar(id);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
@@ -183,7 +183,7 @@ public class RolModelTest {
     public void btnEliminarHandlerConId_daoLanzaExcepcion_agregaMensajeDeErrorSinReventar() {
         UUID id = UUID.randomUUID();
         bean.setWrappedData(Arrays.asList(new Rol(id)));
-        doThrow(new RuntimeException("fallo bd")).when(rolDAO).eliminar(id);
+        doThrow(new RuntimeException("fallo bd")).when(rolService).eliminar(id);
 
         assertDoesNotThrow(() -> bean.btnEliminarHandler(id));
 
@@ -197,7 +197,7 @@ public class RolModelTest {
     public void btnEliminarHandlerSinArgumentos_registroNulo_noHaceNada() {
         bean.btnEliminarHandler();
 
-        verify(rolDAO, never()).eliminar(any());
+        verify(rolService, never()).eliminar(any());
         verifyNoInteractions(fc);
     }
 
@@ -207,11 +207,11 @@ public class RolModelTest {
         Rol registro = new Rol(id);
         bean.setRegistro(registro);
         bean.setWrappedData(Arrays.asList(registro));
-        when(rolDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(rolService.findRange(0, 100)).thenReturn(Collections.emptyList());
 
         bean.btnEliminarHandler();
 
-        verify(rolDAO).eliminar(id);
+        verify(rolService).eliminar(id);
     }
 
     // ---- btnCancelar() ----
@@ -265,7 +265,7 @@ public class RolModelTest {
     @Test
     public void inicializar_cargaLosPrimeros100Registros() {
         List<Rol> esperado = Arrays.asList(new Rol(UUID.randomUUID()));
-        when(rolDAO.findRange(0, 100)).thenReturn(esperado);
+        when(rolService.findRange(0, 100)).thenReturn(esperado);
 
         bean.inicializar();
 

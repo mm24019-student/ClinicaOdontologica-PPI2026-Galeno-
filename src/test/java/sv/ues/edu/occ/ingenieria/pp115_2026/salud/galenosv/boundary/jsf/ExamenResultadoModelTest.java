@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class ExamenResultadoModelTest {
 
     @Mock
-    private ExamenResultadoDAO examenResultadoDAO;
+    private ExamenResultadoService examenResultadoService;
     @Mock
     private FacesContext fc;
 
@@ -46,11 +46,11 @@ public class ExamenResultadoModelTest {
         orden = new OrdenExamen(UUID.randomUUID());
     }
 
-    // ---- getDAO() / obtenerId() / metodos del padre ----
+    // ---- getService() / obtenerId() / metodos del padre ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(examenResultadoDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(examenResultadoService, bean.getService());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ExamenResultadoModelTest {
     @Test
     public void buscarPorPadre_delegaEnFindByOrdenExamen() {
         List<ExamenResultado> esperado = Arrays.asList(new ExamenResultado(UUID.randomUUID()));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(esperado);
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(esperado);
 
         assertEquals(esperado, bean.buscarPorPadre(orden.getIdOrdenExamen()));
     }
@@ -89,7 +89,7 @@ public class ExamenResultadoModelTest {
         bean.inicializar();
 
         assertTrue(bean.getregistros().isEmpty());
-        verifyNoInteractions(examenResultadoDAO);
+        verifyNoInteractions(examenResultadoService);
     }
 
     // ---- cargarDe() ----
@@ -97,7 +97,7 @@ public class ExamenResultadoModelTest {
     @Test
     public void cargarDe_ordenValida_cargaSoloSusResultadosYReseteaElEstado() {
         List<ExamenResultado> esperado = Arrays.asList(new ExamenResultado(UUID.randomUUID()));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(esperado);
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(esperado);
         bean.setRegistro(new ExamenResultado(UUID.randomUUID()));
         bean.setEstado(Estado_Crud.MODIFICAR);
 
@@ -113,7 +113,7 @@ public class ExamenResultadoModelTest {
         bean.cargarDe(null);
 
         assertTrue(bean.getregistros().isEmpty());
-        verify(examenResultadoDAO, never()).findByOrdenExamen(any());
+        verify(examenResultadoService, never()).findByOrdenExamen(any());
     }
 
     @Test
@@ -121,14 +121,14 @@ public class ExamenResultadoModelTest {
         bean.cargarDe(new OrdenExamen());
 
         assertTrue(bean.getregistros().isEmpty());
-        verify(examenResultadoDAO, never()).findByOrdenExamen(any());
+        verify(examenResultadoService, never()).findByOrdenExamen(any());
     }
 
     // ---- btnNuevoHandler() / crearRegistroNuevo() / configurarNuevoRegistro() ----
 
     @Test
     public void btnNuevoHandler_conOrdenActual_creaResultadoConFechaYLigadoALaOrden() {
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(Collections.emptyList());
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(Collections.emptyList());
         bean.cargarDe(orden);
 
         bean.btnNuevoHandler(mock(ActionEvent.class));
@@ -152,7 +152,7 @@ public class ExamenResultadoModelTest {
     @Test
     public void btnCrearhandler_exito_creaYRecargaSoloLosResultadosDeLaOrden() {
         List<ExamenResultado> delPadre = Arrays.asList(new ExamenResultado(UUID.randomUUID()));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList())
                 .thenReturn(delPadre);
         bean.cargarDe(orden);
@@ -161,7 +161,7 @@ public class ExamenResultadoModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenResultadoDAO).crear(nuevo);
+        verify(examenResultadoService).crear(nuevo);
         assertEquals(delPadre, bean.getregistros());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
@@ -171,12 +171,12 @@ public class ExamenResultadoModelTest {
 
     @Test
     public void btnCrearhandler_registroNulo_agregaMensajeDeErrorYNoCrea() {
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(Collections.emptyList());
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen())).thenReturn(Collections.emptyList());
         bean.cargarDe(orden);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(examenResultadoDAO, never()).crear(any());
+        verify(examenResultadoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -187,17 +187,17 @@ public class ExamenResultadoModelTest {
     @Test
     public void btnModificarHandler_exito_actualizaYRecargaSoloLosResultadosDeLaOrden() {
         List<ExamenResultado> delPadre = Arrays.asList(new ExamenResultado(UUID.randomUUID()));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList())
                 .thenReturn(delPadre);
         bean.cargarDe(orden);
         ExamenResultado existente = new ExamenResultado(UUID.randomUUID());
-        when(examenResultadoDAO.actualizar(existente)).thenReturn(existente);
+        when(examenResultadoService.actualizar(existente)).thenReturn(existente);
         bean.setRegistro(existente);
 
         bean.btnModificarHandler();
 
-        verify(examenResultadoDAO).actualizar(existente);
+        verify(examenResultadoService).actualizar(existente);
         assertEquals(delPadre, bean.getregistros());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
     }
@@ -208,7 +208,7 @@ public class ExamenResultadoModelTest {
     public void btnEliminarHandler_exito_eliminaYRecargaSoloLosResultadosDeLaOrden() {
         ExamenResultado existente = new ExamenResultado(UUID.randomUUID());
         List<ExamenResultado> antes = Arrays.asList(existente);
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(antes)
                 .thenReturn(Collections.emptyList());
         bean.cargarDe(orden);
@@ -216,7 +216,7 @@ public class ExamenResultadoModelTest {
 
         bean.btnEliminarHandler();
 
-        verify(examenResultadoDAO).eliminar(existente.getIdExamenResultado());
+        verify(examenResultadoService).eliminar(existente.getIdExamenResultado());
         assertTrue(bean.getregistros().isEmpty());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
     }
@@ -225,6 +225,6 @@ public class ExamenResultadoModelTest {
     public void btnEliminarHandler_registroNulo_noHaceNada() {
         bean.btnEliminarHandler();
 
-        verify(examenResultadoDAO, never()).eliminar(any());
+        verify(examenResultadoService, never()).eliminar(any());
     }
 }

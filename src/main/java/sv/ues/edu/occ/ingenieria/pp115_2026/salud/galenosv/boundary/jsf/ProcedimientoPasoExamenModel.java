@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.UUID;
 import org.primefaces.PrimeFaces;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoExamen;
@@ -25,7 +25,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
  * recargar). Igual que ProcedimientoPasoSecuenciaModel, busca los registros ya
  * cargados con un p:autoComplete (completarExamenes / onItemSelect) y ofrece el
- * combo de exámenes del catálogo (ExamenDAO) para el formulario.
+ * combo de exámenes del catálogo (ExamenService) para el formulario.
  *
  * @author antonio
  */
@@ -34,10 +34,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<ProcedimientoPasoExamen, ProcedimientoPaso> {
 
     @Inject
-    private ProcedimientoPasoExamenDAO ppeDAO;
+    private ProcedimientoPasoExamenService ppeService;
 
     @Inject
-    private ExamenDAO eDAO;
+    private ExamenService eService;
 
     private List<Examen> examenes;
 
@@ -172,7 +172,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
         nuevo.setObservaciones(observacionesPorAgregar == null || observacionesPorAgregar.isBlank()
                 ? OBSERVACION_POR_DEFECTO : observacionesPorAgregar.trim());
         try {
-            ppeDAO.crear(nuevo);
+            ppeService.crear(nuevo);
             examenPorAgregar = null;
             observacionesPorAgregar = null;
             cargarDe(paso);
@@ -193,7 +193,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
             return;
         }
         try {
-            ppeDAO.eliminar(UUID.fromString(idSeleccionado));
+            ppeService.eliminar(UUID.fromString(idSeleccionado));
             idSeleccionado = null;
             cargarDe(paso);
             mensaje(FacesMessage.SEVERITY_INFO, "Examen eliminado", "Examen quitado del paso");
@@ -251,8 +251,8 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     }
 
     @Override
-    protected InterfaceDAO<ProcedimientoPasoExamen> getDAO() {
-        return ppeDAO;
+    protected InterfaceService<ProcedimientoPasoExamen> getService() {
+        return ppeService;
     }
 
     @Override
@@ -271,7 +271,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ProcedimientoPasoExamen> buscarPorPadre(UUID idPadre) {
-        return ppeDAO.findByProcedimientoPaso(idPadre);
+        return ppeService.findByProcedimientoPaso(idPadre);
     }
 
     @Override
@@ -287,7 +287,7 @@ public class ProcedimientoPasoExamenModel extends AbstracdetallecrudModel<Proced
     // Opciones del selector de examen (se cargan una vez por vista)
     public List<Examen> getExamenes() {
         if (examenes == null) {
-            examenes = eDAO.findRange(0, 100);
+            examenes = eService.findRange(0, 100);
         }
         return examenes;
     }

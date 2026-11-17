@@ -12,8 +12,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
@@ -36,9 +36,9 @@ import static org.mockito.Mockito.*;
 public class PersonaDocumentoModelTest {
 
     @Mock
-    private DocumentoDAO documentoDAO;
+    private DocumentoService documentoService;
     @Mock
-    private TipoDocumentoDAO tipoDocumentoDAO;
+    private TipoDocumentoService tipoDocumentoService;
     @Mock
     private FacesContext fc;
 
@@ -51,7 +51,7 @@ public class PersonaDocumentoModelTest {
     public void cargarDe_conPersona_delegaEnDocumentoDaoFindByPersona() {
         Persona persona = new Persona(UUID.randomUUID());
         List<Documento> esperado = Arrays.asList(new Documento(UUID.randomUUID()));
-        when(documentoDAO.findByPersona(persona.getIdPersona())).thenReturn(esperado);
+        when(documentoService.findByPersona(persona.getIdPersona())).thenReturn(esperado);
 
         bean.cargarDe(persona);
 
@@ -63,7 +63,7 @@ public class PersonaDocumentoModelTest {
         bean.cargarDe(null);
 
         assertTrue(bean.getregistros().isEmpty());
-        verifyNoInteractions(documentoDAO);
+        verifyNoInteractions(documentoService);
     }
 
     // ---- asignarPadre() (vía btnNuevoHandler, heredado de AbstracCrudModel) ----
@@ -71,7 +71,7 @@ public class PersonaDocumentoModelTest {
     @Test
     public void btnNuevoHandler_asignaLaPersonaActualAlDocumentoNuevo() {
         Persona persona = new Persona(UUID.randomUUID());
-        when(documentoDAO.findByPersona(persona.getIdPersona())).thenReturn(Collections.emptyList());
+        when(documentoService.findByPersona(persona.getIdPersona())).thenReturn(Collections.emptyList());
         bean.cargarDe(persona); // fija padreActual
 
         bean.btnNuevoHandler(null);
@@ -90,7 +90,7 @@ public class PersonaDocumentoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(documentoDAO, never()).crear(any());
+        verify(documentoService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -106,11 +106,11 @@ public class PersonaDocumentoModelTest {
         bean.padreActual = persona;
         bean.setRegistro(doc);
         List<Documento> recargados = Arrays.asList(doc);
-        when(documentoDAO.findByPersona(persona.getIdPersona())).thenReturn(recargados);
+        when(documentoService.findByPersona(persona.getIdPersona())).thenReturn(recargados);
 
         bean.btnCrearhandler(null);
 
-        verify(documentoDAO).crear(doc);
+        verify(documentoService).crear(doc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -125,7 +125,7 @@ public class PersonaDocumentoModelTest {
 
         bean.btnModificarHandler();
 
-        verify(documentoDAO, never()).actualizar(any());
+        verify(documentoService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -140,13 +140,13 @@ public class PersonaDocumentoModelTest {
         doc.setIdPersona(persona);
         bean.padreActual = persona;
         bean.setRegistro(doc);
-        when(documentoDAO.actualizar(doc)).thenReturn(doc);
+        when(documentoService.actualizar(doc)).thenReturn(doc);
         List<Documento> recargados = Arrays.asList(doc);
-        when(documentoDAO.findByPersona(persona.getIdPersona())).thenReturn(recargados);
+        when(documentoService.findByPersona(persona.getIdPersona())).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(documentoDAO).actualizar(doc);
+        verify(documentoService).actualizar(doc);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -156,12 +156,12 @@ public class PersonaDocumentoModelTest {
 
     @Test
     public void getTiposDocumento_cacheaEntreLlamadas() {
-        when(tipoDocumentoDAO.findRange(0, 100)).thenReturn(Arrays.asList(new TipoDocumento(UUID.randomUUID())));
+        when(tipoDocumentoService.findRange(0, 100)).thenReturn(Arrays.asList(new TipoDocumento(UUID.randomUUID())));
 
         bean.getTiposDocumento();
         bean.getTiposDocumento();
 
-        verify(tipoDocumentoDAO, times(1)).findRange(0, 100);
+        verify(tipoDocumentoService, times(1)).findRange(0, 100);
     }
 
     // ---- completarTiposDocumento() ----
@@ -172,7 +172,7 @@ public class PersonaDocumentoModelTest {
         dui.setNombre("DUI");
         TipoDocumento pasaporte = new TipoDocumento(UUID.randomUUID());
         pasaporte.setNombre("Pasaporte");
-        when(tipoDocumentoDAO.findRange(0, 100)).thenReturn(Arrays.asList(dui, pasaporte));
+        when(tipoDocumentoService.findRange(0, 100)).thenReturn(Arrays.asList(dui, pasaporte));
 
         List<TipoDocumento> resultado = bean.completarTiposDocumento("dui");
 

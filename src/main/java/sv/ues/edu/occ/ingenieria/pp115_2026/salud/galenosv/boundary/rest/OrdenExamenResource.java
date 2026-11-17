@@ -16,14 +16,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class OrdenExamenResource extends AbstractResource<OrdenExamen> {
 
     @Inject
-    OrdenExamenDAO dao;
+    OrdenExamenService dao;
 
     public OrdenExamenResource() {
         super(OrdenExamen.class);
     }
 
     @Override
-    protected DefaultDAO<OrdenExamen> dao() {
+    protected DefaultService<OrdenExamen> dao() {
         return dao;
     }
 

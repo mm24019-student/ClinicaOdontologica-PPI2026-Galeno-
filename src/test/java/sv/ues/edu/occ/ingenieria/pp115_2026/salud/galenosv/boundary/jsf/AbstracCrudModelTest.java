@@ -14,7 +14,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -52,18 +52,18 @@ public class AbstracCrudModelTest {
 
         private static final long serialVersionUID = 1L;
 
-        private final transient InterfaceDAO<Item> dao;
+        private final transient InterfaceService<Item> dao;
         boolean dependientes = false;
         boolean valido = true;
         final List<Item> configurados = new ArrayList<>();
 
-        ItemModel(InterfaceDAO<Item> dao, FacesContext fc) {
+        ItemModel(InterfaceService<Item> dao, FacesContext fc) {
             this.dao = dao;
             this.fc = fc;
         }
 
         @Override
-        protected InterfaceDAO<Item> getDAO() {
+        protected InterfaceService<Item> getService() {
             return dao;
         }
 
@@ -97,7 +97,7 @@ public class AbstracCrudModelTest {
     }
 
     @Mock
-    private InterfaceDAO<Item> dao;
+    private InterfaceService<Item> dao;
     @Mock
     private FacesContext fc;
 

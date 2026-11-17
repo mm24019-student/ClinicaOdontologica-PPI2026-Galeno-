@@ -9,7 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 public class TipoMedioContactoModelTest {
 
     @Mock
-    private TipoMedioContactoDAO tipoMedioContactoDAO;
+    private TipoMedioContactoService tipoMedioContactoService;
     @Mock
     private FacesContext fc;
 
@@ -50,7 +50,7 @@ public class TipoMedioContactoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(tipoMedioContactoDAO).crear(tipo);
+        verify(tipoMedioContactoService).crear(tipo);
         assertMensaje(FacesMessage.SEVERITY_INFO);
     }
 
@@ -61,7 +61,7 @@ public class TipoMedioContactoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(tipoMedioContactoDAO).crear(tipo);
+        verify(tipoMedioContactoService).crear(tipo);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class TipoMedioContactoModelTest {
 
         bean.btnCrearhandler(null);
 
-        verify(tipoMedioContactoDAO, never()).crear(any());
+        verify(tipoMedioContactoService, never()).crear(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 
@@ -84,7 +84,7 @@ public class TipoMedioContactoModelTest {
 
         bean.btnModificarHandler();
 
-        verify(tipoMedioContactoDAO, never()).actualizar(any());
+        verify(tipoMedioContactoService, never()).actualizar(any());
         assertMensaje(FacesMessage.SEVERITY_ERROR);
     }
 }

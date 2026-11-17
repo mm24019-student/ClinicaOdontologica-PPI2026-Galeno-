@@ -4,8 +4,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
 /**
@@ -22,15 +22,15 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
 @ViewScoped
 public class TipoMedioContactoModel extends AbstracCrudModel<TipoMedioContacto> {
 
-    // Se inyecta el DAO específico de esta entidad; es el que hace el
+    // Se inyecta el Service específico de esta entidad; es el que hace el
     // trabajo real contra la base de datos (crear, buscar, actualizar, eliminar).
     @Inject
-    private TipoMedioContactoDAO tmcDAO;
+    private TipoMedioContactoService tmcService;
 
-    // AbstracCrudModel necesita saber cuál DAO usar; se lo devolvemos aquí.
+    // AbstracCrudModel necesita saber cuál Service usar; se lo devolvemos aquí.
     @Override
-    protected InterfaceDAO<TipoMedioContacto> getDAO() {
-        return tmcDAO;
+    protected InterfaceService<TipoMedioContacto> getService() {
+        return tmcService;
     }
 
     // Se llama cuando el usuario presiona "Nuevo": crea un registro en

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,7 +34,7 @@ public class AbstracCrudTabsModelTest {
         final transient List<String> eventos = new ArrayList<>();
 
         @Override
-        protected InterfaceDAO<Item> getDAO() {
+        protected InterfaceService<Item> getService() {
             return null; // no se usa en estos tests
         }
 

@@ -4,8 +4,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 
 /**
@@ -16,7 +16,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
  * ahí
  * salen los botones Nuevo/Guardar/Modificar/Eliminar, la lista de registros y
  * el
- * manejo de pestañas. Aquí solo se indica qué DAO usar, cómo nace un registro
+ * manejo de pestañas. Aquí solo se indica qué Service usar, cómo nace un registro
  * nuevo
  * y qué hijo hay que limpiar (resetearHijos).
  *
@@ -31,12 +31,12 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
 @ViewScoped
 public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento> {
 
-    // Inyectamos el ProcedimientoDAO para poder utilizar sus métodos en la clase
+    // Inyectamos el ProcedimientoService para poder utilizar sus métodos en la clase
     // ProcedimientoModel.
-    // Es el DAO que AbstracCrudModel usa para crear, actualizar, eliminar y listar
-    // (ver getDAO).
+    // Es el Service que AbstracCrudModel usa para crear, actualizar, eliminar y listar
+    // (ver getService).
     @Inject
-    private ProcedimientoDAO pdDAO;
+    private ProcedimientoService pdService;
 
     // Bean hijo de la pestaña "Pasos". Se inyecta para poder limpiarlo
     // (cargarDe(null))
@@ -54,12 +54,12 @@ public class ProcedimientoModel extends AbstracCrudTabsModel<Procedimiento> {
         ProcedimientoPasoModel.cargarDe(null);
     }
 
-    // Este es el método getDAO() que devuelve el ProcedimientoDAO inyectado,
+    // Este es el método getService() que devuelve el ProcedimientoService inyectado,
     // para que la clase AbstracCrudModel pueda utilizarlo para realizar operaciones
     // CRUD sobre la entidad Procedimiento.
     @Override
-    protected InterfaceDAO<Procedimiento> getDAO() {
-        return pdDAO;
+    protected InterfaceService<Procedimiento> getService() {
+        return pdService;
     }
 
     // Este es el método crearRegistroNuevoBase() (lo pide AbstracCrudTabsModel, que

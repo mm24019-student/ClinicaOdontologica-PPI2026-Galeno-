@@ -6,14 +6,14 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.ConverterException;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 
 /**
  * Superclase de todos los convertidores JSF de entidades. Un combo o
  * autocomplete
  * solo envía texto, así que el convertidor traduce entre la entidad y su UUID:
  * getAsString (entidad -> texto) y getAsObject (texto -> entidad, buscándola
- * con el DAO).
+ * con el Service).
  *
  * Patrón Template Method: aquí vive la lógica común (valor vacío, texto que no
  * es
@@ -25,8 +25,8 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
  */
 public abstract class AbstractEntityConverter<T> implements Converter<T> {
 
-    // DAO con el que se busca la entidad por su id.
-    protected abstract InterfaceDAO<T> dao();
+    // Service con el que se busca la entidad por su id.
+    protected abstract InterfaceService<T> dao();
 
     // Llave primaria (UUID) de la entidad.
     protected abstract UUID id(T entidad);

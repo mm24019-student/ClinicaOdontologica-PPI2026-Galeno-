@@ -16,9 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenResultado;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
@@ -37,11 +37,11 @@ import static org.mockito.Mockito.*;
 public class OrdenExamenModelTest {
 
     @Mock
-    private OrdenExamenDAO ordenExamenDAO;
+    private OrdenExamenService ordenExamenService;
     @Mock
-    private ExamenResultadoDAO examenResultadoDAO;
+    private ExamenResultadoService examenResultadoService;
     @Mock
-    private ConsultaProcedimientoPasoDAO consultaProcedimientoPasoDAO;
+    private ConsultaProcedimientoPasoService consultaProcedimientoPasoService;
     @Mock
     private ExamenResultadoModel examenResultadoModel;
     @Mock
@@ -62,11 +62,11 @@ public class OrdenExamenModelTest {
         return o;
     }
 
-    // ---- getDAO() / obtenerId() ----
+    // ---- getService() / obtenerId() ----
 
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(ordenExamenDAO, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(ordenExamenService, bean.getService());
     }
 
     @Test
@@ -154,7 +154,7 @@ public class OrdenExamenModelTest {
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(ordenExamenDAO, never()).crear(any());
+        verify(ordenExamenService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -164,7 +164,7 @@ public class OrdenExamenModelTest {
     public void btnCrearhandler_registroNulo_agregaMensajeDeErrorYNoCrea() {
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(ordenExamenDAO, never()).crear(any());
+        verify(ordenExamenService, never()).crear(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -175,11 +175,11 @@ public class OrdenExamenModelTest {
         OrdenExamen orden = ordenConConsulta();
         bean.setRegistro(orden);
         List<OrdenExamen> recargados = Arrays.asList(orden);
-        when(ordenExamenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(ordenExamenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(mock(ActionEvent.class));
 
-        verify(ordenExamenDAO).crear(orden);
+        verify(ordenExamenService).crear(orden);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -192,7 +192,7 @@ public class OrdenExamenModelTest {
 
         bean.btnModificarHandler();
 
-        verify(ordenExamenDAO, never()).actualizar(any());
+        verify(ordenExamenService, never()).actualizar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_ERROR, captor.getValue().getSeverity());
@@ -203,12 +203,12 @@ public class OrdenExamenModelTest {
         OrdenExamen orden = ordenConConsulta();
         bean.setRegistro(orden);
         List<OrdenExamen> recargados = Arrays.asList(orden);
-        when(ordenExamenDAO.actualizar(orden)).thenReturn(orden);
-        when(ordenExamenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(ordenExamenService.actualizar(orden)).thenReturn(orden);
+        when(ordenExamenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnModificarHandler();
 
-        verify(ordenExamenDAO).actualizar(orden);
+        verify(ordenExamenService).actualizar(orden);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertEquals(recargados, bean.getregistros());
     }
@@ -218,7 +218,7 @@ public class OrdenExamenModelTest {
     @Test
     public void tieneRegistrosDependientes_conResultados_devuelveTrue() {
         OrdenExamen orden = new OrdenExamen(UUID.randomUUID());
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Arrays.asList(new ExamenResultado(UUID.randomUUID())));
 
         assertTrue(bean.tieneRegistrosDependientes(orden));
@@ -227,7 +227,7 @@ public class OrdenExamenModelTest {
     @Test
     public void tieneRegistrosDependientes_sinResultados_devuelveFalse() {
         OrdenExamen orden = new OrdenExamen(UUID.randomUUID());
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList());
 
         assertFalse(bean.tieneRegistrosDependientes(orden));
@@ -238,12 +238,12 @@ public class OrdenExamenModelTest {
         OrdenExamen orden = new OrdenExamen(UUID.randomUUID());
         bean.setRegistro(orden);
         bean.setWrappedData(Arrays.asList(orden));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Arrays.asList(new ExamenResultado(UUID.randomUUID())));
 
         bean.btnEliminarHandler();
 
-        verify(ordenExamenDAO, never()).eliminar(any());
+        verify(ordenExamenService, never()).eliminar(any());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
         assertEquals(FacesMessage.SEVERITY_WARN, captor.getValue().getSeverity());
@@ -254,13 +254,13 @@ public class OrdenExamenModelTest {
         OrdenExamen orden = new OrdenExamen(UUID.randomUUID());
         bean.setRegistro(orden);
         bean.setWrappedData(Arrays.asList(orden));
-        when(examenResultadoDAO.findByOrdenExamen(orden.getIdOrdenExamen()))
+        when(examenResultadoService.findByOrdenExamen(orden.getIdOrdenExamen()))
                 .thenReturn(Collections.emptyList());
-        when(ordenExamenDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(ordenExamenService.findRange(0, 100)).thenReturn(Collections.emptyList());
 
         bean.btnEliminarHandler();
 
-        verify(ordenExamenDAO).eliminar(orden.getIdOrdenExamen());
+        verify(ordenExamenService).eliminar(orden.getIdOrdenExamen());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         ArgumentCaptor<FacesMessage> captor = ArgumentCaptor.forClass(FacesMessage.class);
         verify(fc).addMessage(isNull(), captor.capture());
@@ -271,13 +271,13 @@ public class OrdenExamenModelTest {
 
     @Test
     public void getPasosConsulta_cacheaEntreLlamadas() {
-        when(consultaProcedimientoPasoDAO.findRange(0, 100))
+        when(consultaProcedimientoPasoService.findRange(0, 100))
                 .thenReturn(Arrays.asList(paso("aaaaaaaa-0000-0000-0000-000000000001", "EN_PROCESO")));
 
         bean.getPasosConsulta();
         bean.getPasosConsulta();
 
-        verify(consultaProcedimientoPasoDAO, times(1)).findRange(0, 100);
+        verify(consultaProcedimientoPasoService, times(1)).findRange(0, 100);
     }
 
     // ---- completarPasosConsulta() ----
@@ -286,7 +286,7 @@ public class OrdenExamenModelTest {
     public void completarPasosConsulta_filtraPorEstadoSinImportarMayusculas() {
         ConsultaProcedimientoPaso enProceso = paso("aaaaaaaa-0000-0000-0000-000000000001", "EN_PROCESO");
         ConsultaProcedimientoPaso completado = paso("bbbbbbbb-0000-0000-0000-000000000002", "COMPLETADO");
-        when(consultaProcedimientoPasoDAO.findRange(0, 100))
+        when(consultaProcedimientoPasoService.findRange(0, 100))
                 .thenReturn(Arrays.asList(enProceso, completado));
 
         List<ConsultaProcedimientoPaso> resultado = bean.completarPasosConsulta("en_pro");
@@ -299,7 +299,7 @@ public class OrdenExamenModelTest {
     public void completarPasosConsulta_filtraPorFragmentoDelId() {
         ConsultaProcedimientoPaso enProceso = paso("aaaaaaaa-0000-0000-0000-000000000001", "EN_PROCESO");
         ConsultaProcedimientoPaso completado = paso("bbbbbbbb-0000-0000-0000-000000000002", "COMPLETADO");
-        when(consultaProcedimientoPasoDAO.findRange(0, 100))
+        when(consultaProcedimientoPasoService.findRange(0, 100))
                 .thenReturn(Arrays.asList(enProceso, completado));
 
         List<ConsultaProcedimientoPaso> resultado = bean.completarPasosConsulta("bbbbbbbb");
@@ -310,7 +310,7 @@ public class OrdenExamenModelTest {
 
     @Test
     public void completarPasosConsulta_consultaVaciaONula_devuelveTodos() {
-        when(consultaProcedimientoPasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(
+        when(consultaProcedimientoPasoService.findRange(0, 100)).thenReturn(Arrays.asList(
                 paso("aaaaaaaa-0000-0000-0000-000000000001", "EN_PROCESO"),
                 paso("bbbbbbbb-0000-0000-0000-000000000002", "COMPLETADO")));
 
@@ -321,7 +321,7 @@ public class OrdenExamenModelTest {
     @Test
     public void completarPasosConsulta_estadoNulo_soloCoincideConConsultaVaciaOPorId() {
         ConsultaProcedimientoPaso sinEstado = paso("aaaaaaaa-0000-0000-0000-000000000001", null);
-        when(consultaProcedimientoPasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(sinEstado));
+        when(consultaProcedimientoPasoService.findRange(0, 100)).thenReturn(Arrays.asList(sinEstado));
 
         assertEquals(1, bean.completarPasosConsulta("").size());
         assertEquals(1, bean.completarPasosConsulta("aaaaaaaa").size());
@@ -334,7 +334,7 @@ public class OrdenExamenModelTest {
         for (int i = 0; i < 25; i++) {
             muchos.add(paso(UUID.randomUUID().toString(), "EN_PROCESO"));
         }
-        when(consultaProcedimientoPasoDAO.findRange(0, 100)).thenReturn(muchos);
+        when(consultaProcedimientoPasoService.findRange(0, 100)).thenReturn(muchos);
 
         assertEquals(20, bean.completarPasosConsulta("en_proceso").size());
     }

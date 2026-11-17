@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 
 @Named
@@ -13,10 +13,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProced
 public class ConsultaProcedimientoPasoConverter extends AbstractEntityConverter<ConsultaProcedimientoPaso> {
 
     @Inject
-    private ConsultaProcedimientoPasoDAO dao;
+    private ConsultaProcedimientoPasoService dao;
 
     @Override
-    protected InterfaceDAO<ConsultaProcedimientoPaso> dao() {
+    protected InterfaceService<ConsultaProcedimientoPaso> dao() {
         return dao;
     }
 

@@ -9,7 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Prueba de UUIDFacesConverter (convierte String <-> UUID sin usar DAO).
+ * Prueba de UUIDFacesConverter (convierte String <-> UUID sin usar Service).
  *
  * @author antonio
  */

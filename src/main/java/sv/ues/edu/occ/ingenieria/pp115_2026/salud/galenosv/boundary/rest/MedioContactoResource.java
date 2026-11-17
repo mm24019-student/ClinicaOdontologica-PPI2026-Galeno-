@@ -16,14 +16,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class MedioContactoResource extends AbstractResource<MedioContacto> {
 
     @Inject
-    MedioContactoDAO dao;
+    MedioContactoService dao;
 
     public MedioContactoResource() {
         super(MedioContacto.class);
     }
 
     @Override
-    protected DefaultDAO<MedioContacto> dao() {
+    protected DefaultService<MedioContacto> dao() {
         return dao;
     }
 

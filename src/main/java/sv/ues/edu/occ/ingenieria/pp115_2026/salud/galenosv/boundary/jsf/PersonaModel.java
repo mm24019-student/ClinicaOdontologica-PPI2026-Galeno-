@@ -6,8 +6,8 @@ import jakarta.inject.Named;
 import java.util.Date;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 
 @Named
@@ -15,7 +15,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 public class PersonaModel extends AbstracCrudTabsModel<Persona> {
 
     @Inject
-    private PersonaDAO personaDAO;
+    private PersonaService personaService;
 
     // La asignación de Rol/Clinica ya no vive aquí: se delega por completo
     // a PersonaRolDetalleModel (AbstracdetallecrudModel<PersonaRol, Persona>),
@@ -36,8 +36,8 @@ public class PersonaModel extends AbstracCrudTabsModel<Persona> {
     // ajax (seleccionar fila, crear/actualizar rol, etc.) no lo regresen
     // siempre a "Datos de Persona".
     @Override
-    protected InterfaceDAO<Persona> getDAO() {
-        return personaDAO;
+    protected InterfaceService<Persona> getService() {
+        return personaService;
     }
 
     @Override

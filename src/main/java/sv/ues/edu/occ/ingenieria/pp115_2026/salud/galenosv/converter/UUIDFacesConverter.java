@@ -12,7 +12,7 @@ import java.util.UUID;
  * Convertidor JSF para campos de tipo UUID. Con forClass = UUID.class se aplica
  * solo,
  * a cualquier campo UUID de las vistas, sin declararlo en el XHTML.
- * Traduce texto <-> UUID sin usar ningún DAO (a diferencia de
+ * Traduce texto <-> UUID sin usar ningún Service (a diferencia de
  * AbstractEntityConverter,
  * que busca una entidad completa).
  *

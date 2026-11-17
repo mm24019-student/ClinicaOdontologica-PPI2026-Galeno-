@@ -5,8 +5,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
 /**
@@ -20,14 +20,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 @ViewScoped
 public class TipoDocumentoModel extends AbstracCrudModel<TipoDocumento> {
 
-    // DAO específico de esta entidad, inyectado por CDI.
+    // Service específico de esta entidad, inyectado por CDI.
     @Inject
-    private TipoDocumentoDAO tdDAO;
+    private TipoDocumentoService tdService;
 
-    // AbstracCrudModel necesita saber qué DAO usar internamente.
+    // AbstracCrudModel necesita saber qué Service usar internamente.
     @Override
-    protected InterfaceDAO<TipoDocumento> getDAO() {
-        return tdDAO;
+    protected InterfaceService<TipoDocumento> getService() {
+        return tdService;
     }
 
     // Se ejecuta al presionar "Nuevo": genera el UUID a mano (no es
@@ -50,7 +50,7 @@ public class TipoDocumentoModel extends AbstracCrudModel<TipoDocumento> {
     // documento (mismo nombre), ni al crear ni al modificar.
     @Override
     protected boolean validarAntesDeGuardar() {
-        if (tdDAO.existeNombre(registro.getNombre(), registro.getIdTipoDocumento())) {
+        if (tdService.existeNombre(registro.getNombre(), registro.getIdTipoDocumento())) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Tipo de documento duplicado",
                     "Ya existe un tipo de documento llamado " + registro.getNombre().trim());
             return false;

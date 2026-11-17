@@ -11,7 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 public class TipoExamenModelTest {
 
     @Mock
-    private TipoExamenDAO tipoExamenDAO;
+    private TipoExamenService tipoExamenService;
     @Mock
     private FacesContext fc;
 
@@ -51,11 +51,11 @@ public class TipoExamenModelTest {
         TipoExamen nuevo = new TipoExamen(UUID.randomUUID());
         bean.setRegistro(nuevo);
         List<TipoExamen> recargados = Arrays.asList(nuevo);
-        when(tipoExamenDAO.findRange(0, 100)).thenReturn(recargados);
+        when(tipoExamenService.findRange(0, 100)).thenReturn(recargados);
 
         bean.btnCrearhandler(null);
 
-        verify(tipoExamenDAO).crear(nuevo);
+        verify(tipoExamenService).crear(nuevo);
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
         assertNull(bean.getRegistro());
         assertEquals(recargados, bean.getregistros());
@@ -72,7 +72,7 @@ public class TipoExamenModelTest {
 
         bean.btnEliminarHandler();
 
-        verify(tipoExamenDAO).eliminar(existente.getIdTipoExamen());
+        verify(tipoExamenService).eliminar(existente.getIdTipoExamen());
         assertNull(bean.getRegistro());
         assertEquals(Estado_Crud.NINGUNO, bean.getEstado());
     }

@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Persona;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -41,11 +41,11 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
     private static final long serialVersionUID = 1L;
 
     @Inject
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
     @Inject
-    private RolDAO rolDAO;
+    private RolService rolService;
     @Inject
-    private ClinicaDAO clinicaDAO;
+    private ClinicaService clinicaService;
 
     private Rol nuevoRol;
     private Clinica nuevaClinica;
@@ -54,8 +54,8 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
     private List<Clinica> catalogoClinicas;
 
     @Override
-    protected InterfaceDAO<PersonaRol> getDAO() {
-        return personaRolDAO;
+    protected InterfaceService<PersonaRol> getService() {
+        return personaRolService;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
     // ---- Contrato con AbstracdetallecrudModel: Persona es el padre ----
     @Override
     protected List<PersonaRol> buscarPorPadre(UUID idPadre) {
-        return personaRolDAO.findByPersona(idPadre);
+        return personaRolService.findByPersona(idPadre);
     }
 
     @Override
@@ -119,14 +119,14 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
 
     public List<Rol> completarRoles(String query) {
         if (catalogoRoles == null) {
-            catalogoRoles = rolDAO.findRange(0, 100);
+            catalogoRoles = rolService.findRange(0, 100);
         }
         return filtrarActivos(catalogoRoles, query, Rol::getNombre, Rol::getActivo);
     }
 
     public List<Clinica> completarClinicas(String query) {
         if (catalogoClinicas == null) {
-            catalogoClinicas = clinicaDAO.findRange(0, 100);
+            catalogoClinicas = clinicaService.findRange(0, 100);
         }
         return filtrarActivos(catalogoClinicas, query, Clinica::getNombre, Clinica::getActivo);
     }
@@ -189,7 +189,7 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
             asignarPadre(pr, padreActual);
             pr.setIdRol(nuevoRol);
             pr.setIdClinica(nuevaClinica);
-            personaRolDAO.crear(pr);
+            personaRolService.crear(pr);
             mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Rol agregado con exito", "Rol asignado");
             cargarDe(padreActual);
         } catch (Exception ex) {
@@ -206,7 +206,7 @@ public class PersonaRolDetalleModel extends AbstracdetallecrudModel<PersonaRol, 
             return;
         }
         try {
-            personaRolDAO.eliminar(pr.getIdPersonaRol());
+            personaRolService.eliminar(pr.getIdPersonaRol());
             mensaje = new FacesMessage(FacesMessage.SEVERITY_INFO, "Rol quitado con exito", "Rol eliminado");
             cargarDe(padreActual);
         } catch (Exception ex) {

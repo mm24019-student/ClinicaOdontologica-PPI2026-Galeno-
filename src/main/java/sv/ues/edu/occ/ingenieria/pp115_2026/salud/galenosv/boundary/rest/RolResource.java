@@ -11,14 +11,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class RolResource extends AbstractResource<Rol> {
 
     @Inject
-    RolDAO dao;
+    RolService dao;
 
     public RolResource() {
         super(Rol.class);
     }
 
     @Override
-    protected DefaultDAO<Rol> dao() {
+    protected DefaultService<Rol> dao() {
         return dao;
     }
 }

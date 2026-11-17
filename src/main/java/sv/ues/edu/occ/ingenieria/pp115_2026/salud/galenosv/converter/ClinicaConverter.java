@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ClinicaService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 
 @Named
@@ -13,10 +13,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Clinica;
 public class ClinicaConverter extends AbstractEntityConverter<Clinica> {
 
     @Inject
-    private ClinicaDAO dao;
+    private ClinicaService dao;
 
     @Override
-    protected InterfaceDAO<Clinica> dao() {
+    protected InterfaceService<Clinica> dao() {
         return dao;
     }
 

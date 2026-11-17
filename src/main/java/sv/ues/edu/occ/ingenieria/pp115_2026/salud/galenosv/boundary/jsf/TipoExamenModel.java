@@ -4,8 +4,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 
 @Named
@@ -13,11 +13,11 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 public class TipoExamenModel extends AbstracCrudModel<TipoExamen> {
 
     @Inject
-    private TipoExamenDAO teDAO;
+    private TipoExamenService teService;
 
     @Override
-    protected InterfaceDAO<TipoExamen> getDAO() {
-        return teDAO;
+    protected InterfaceService<TipoExamen> getService() {
+        return teService;
     }
 
     @Override

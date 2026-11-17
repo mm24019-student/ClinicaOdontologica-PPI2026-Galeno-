@@ -4,8 +4,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoMedioContactoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioContacto;
 
 @Named
@@ -13,10 +13,10 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoMedioConta
 public class TipoMedioContactoConverter extends AbstractEntityConverter<TipoMedioContacto> {
 
     @Inject
-    private TipoMedioContactoDAO dao;
+    private TipoMedioContactoService dao;
 
     @Override
-    protected InterfaceDAO<TipoMedioContacto> dao() {
+    protected InterfaceService<TipoMedioContacto> dao() {
         return dao;
     }
 

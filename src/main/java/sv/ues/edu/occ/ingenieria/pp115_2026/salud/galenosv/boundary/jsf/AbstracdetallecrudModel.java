@@ -41,7 +41,7 @@ public abstract class AbstracdetallecrudModel<T, P> extends AbstracCrudModel<T> 
     protected P padreActual;
 
     // ---- Lo único que cada subclase de detalle debe implementar ----
-    // Trae de la base solo los hijos del padre indicado (una query en el DAO).
+    // Trae de la base solo los hijos del padre indicado (una query en el Service).
     protected abstract List<T> buscarPorPadre(UUID idPadre);
 
     // UUID (llave primaria) del padre.

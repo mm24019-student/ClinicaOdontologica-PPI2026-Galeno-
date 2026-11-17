@@ -11,14 +11,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class TipoDocumentoResource extends AbstractResource<TipoDocumento> {
 
     @Inject
-    TipoDocumentoDAO dao;
+    TipoDocumentoService dao;
 
     public TipoDocumentoResource() {
         super(TipoDocumento.class);
     }
 
     @Override
-    protected DefaultDAO<TipoDocumento> dao() {
+    protected DefaultService<TipoDocumento> dao() {
         return dao;
     }
 

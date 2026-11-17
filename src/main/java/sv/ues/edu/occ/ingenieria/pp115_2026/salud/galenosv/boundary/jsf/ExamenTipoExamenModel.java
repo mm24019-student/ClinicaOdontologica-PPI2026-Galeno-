@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenTipoExamenService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Examen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ExamenTipoExamen;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
@@ -20,21 +20,21 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoExamen;
 public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
 
     @Inject
-    private ExamenTipoExamenDAO eteDAO;
+    private ExamenTipoExamenService eteService;
 
     @Inject
-    private ExamenDAO eDAO;
+    private ExamenService eService;
 
     @Inject
-    private TipoExamenDAO teDAO;
+    private TipoExamenService teService;
 
     private List<Examen> examenes;
     private List<TipoExamen> tiposExamen;
     private Examen examenPadre;
 
     @Override
-    protected InterfaceDAO<ExamenTipoExamen> getDAO() {
-        return eteDAO;
+    protected InterfaceService<ExamenTipoExamen> getService() {
+        return eteService;
     }
 
     @Override
@@ -62,14 +62,14 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
     // Opciones de los selectores (se cargan una vez por vista)
     public List<Examen> getExamenes() {
         if (examenes == null) {
-            examenes = eDAO.findRange(0, 100);
+            examenes = eService.findRange(0, 100);
         }
         return examenes;
     }
 
     public List<TipoExamen> getTiposExamen() {
         if (tiposExamen == null) {
-            tiposExamen = teDAO.findRange(0, 100);
+            tiposExamen = teService.findRange(0, 100);
         }
         return tiposExamen;
     }
@@ -83,7 +83,7 @@ public class ExamenTipoExamenModel extends AbstracCrudModel<ExamenTipoExamen> {
         if (examen != null && examen.getIdExamen() != null) {
 
             setWrappedData(
-                    eteDAO.findByExamen(examen.getIdExamen())
+                    eteService.findByExamen(examen.getIdExamen())
             );
 
         } else {

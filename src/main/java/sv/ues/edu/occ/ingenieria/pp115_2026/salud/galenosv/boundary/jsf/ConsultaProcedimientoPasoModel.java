@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.PersonaRolService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.PersonaRol;
@@ -24,7 +24,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
  * Hereda de AbstracdetallecrudModel (cargar por padre, asignar padre,
  * recargar). Aquí se agrega el combo de Estado (PENDIENTE, EN_PROCESO,
  * COMPLETADO, CANCELADO) y el autocompletado de Persona/Rol responsable
- * (PersonaRolDAO).
+ * (PersonaRolService).
  *
  * @author antonio
  */
@@ -38,13 +38,13 @@ public class ConsultaProcedimientoPasoModel
     private static final List<String> ESTADOS = List.of("PENDIENTE", "EN_PROCESO", "COMPLETADO", "CANCELADO");
 
     @Inject
-    private ConsultaProcedimientoPasoDAO pasoDAO;
+    private ConsultaProcedimientoPasoService pasoService;
 
     @Inject
-    private PersonaRolDAO personaRolDAO;
+    private PersonaRolService personaRolService;
 
     @Inject
-    private ProcedimientoPasoDAO procedimientoPasoDAO;
+    private ProcedimientoPasoService procedimientoPasoService;
 
     @Inject
     private SesionBean sesionBean;
@@ -54,8 +54,8 @@ public class ConsultaProcedimientoPasoModel
     private List<PersonaRol> personasRol;
 
     @Override
-    protected InterfaceDAO<ConsultaProcedimientoPaso> getDAO() {
-        return pasoDAO;
+    protected InterfaceService<ConsultaProcedimientoPaso> getService() {
+        return pasoService;
     }
 
     //Activamos que si ah iniciado secion se motrara el boton nuevo 
@@ -121,7 +121,7 @@ public class ConsultaProcedimientoPasoModel
             UUID idProc = idProcedimientoDelPadre();
             pasosDisponibles = idProc == null
                     ? java.util.Collections.emptyList()
-                    : procedimientoPasoDAO.findByProcedimiento(idProc);
+                    : procedimientoPasoService.findByProcedimiento(idProc);
         }
         return pasosDisponibles;
     }
@@ -134,7 +134,7 @@ public class ConsultaProcedimientoPasoModel
     // ---- Los 3 métodos que pide AbstracdetallecrudModel ----
     @Override
     protected List<ConsultaProcedimientoPaso> buscarPorPadre(UUID idPadre) {
-        return pasoDAO.findByConsultaProcedimiento(idPadre);
+        return pasoService.findByConsultaProcedimiento(idPadre);
     }
 
     @Override
@@ -171,7 +171,7 @@ public class ConsultaProcedimientoPasoModel
     // Lista para el autoComplete de Persona/Rol (se carga solo la primera vez).
     public List<PersonaRol> getPersonasRol() {
         if (personasRol == null) {
-            personasRol = personaRolDAO.findRange(0, 100);
+            personasRol = personaRolService.findRange(0, 100);
         }
         return personasRol;
     }

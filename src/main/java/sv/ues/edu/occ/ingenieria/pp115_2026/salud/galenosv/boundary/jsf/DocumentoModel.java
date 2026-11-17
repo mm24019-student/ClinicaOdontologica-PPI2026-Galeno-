@@ -5,9 +5,9 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import java.util.UUID;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.DocumentoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.TipoDocumentoService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Documento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
@@ -16,15 +16,15 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 public class DocumentoModel extends AbstracCrudModel<Documento> {
 
     @Inject
-    private DocumentoDAO documentoDAO;
+    private DocumentoService documentoService;
 
     @Inject
-    private TipoDocumentoDAO tipoDocumentoDAO;
+    private TipoDocumentoService tipoDocumentoService;
 
 
     @Override
-    protected InterfaceDAO<Documento> getDAO() {
-        return documentoDAO;
+    protected InterfaceService<Documento> getService() {
+        return documentoService;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     // Valida el valor contra la expresion regular del TipoDocumento, leida de la
     // base de datos en este momento (no de la lista cacheada en el bean).
     private boolean validarFormatoDelTipo() {
-        TipoDocumento tipo = tipoDocumentoDAO.buscar(registro.getIdTipoDocumento().getIdTipoDocumento());
+        TipoDocumento tipo = tipoDocumentoService.buscar(registro.getIdTipoDocumento().getIdTipoDocumento());
         if (tipo == null) {
             tipo = registro.getIdTipoDocumento();
         }
@@ -60,12 +60,12 @@ public class DocumentoModel extends AbstracCrudModel<Documento> {
     // tipo, y el mismo numero de un tipo no puede estar en dos documentos.
     private boolean validarSinDuplicados() {
         UUID idTipo = registro.getIdTipoDocumento().getIdTipoDocumento();
-        if (documentoDAO.existeTipoParaPersona(registro.getIdPersona().getIdPersona(), idTipo, registro.getIdDocumento())) {
+        if (documentoService.existeTipoParaPersona(registro.getIdPersona().getIdPersona(), idTipo, registro.getIdDocumento())) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Documento duplicado",
                     "Esta persona ya tiene registrado un documento de tipo " + registro.getIdTipoDocumento().getNombre());
             return false;
         }
-        if (documentoDAO.existeValorParaTipo(registro.getValor(), idTipo, registro.getIdDocumento())) {
+        if (documentoService.existeValorParaTipo(registro.getValor(), idTipo, registro.getIdDocumento())) {
             mensaje(FacesMessage.SEVERITY_ERROR, "Documento duplicado",
                     "Ya existe un documento de tipo " + registro.getIdTipoDocumento().getNombre()
                     + " con el número " + registro.getValor());

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.RolService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,14 +16,14 @@ import static org.mockito.Mockito.when;
 public class RolConverterTest {
 
     @Mock
-    private RolDAO rolDAO;
+    private RolService rolService;
 
     @InjectMocks
     private RolConverter converter;
 
     @Test
     public void dao_devuelveElDaoInyectado() {
-        assertSame(rolDAO, converter.dao());
+        assertSame(rolService, converter.dao());
     }
 
     @Test
@@ -36,7 +36,7 @@ public class RolConverterTest {
     public void getAsObject_uuidValido_buscaLaEntidadEnElDao() {
         UUID id = UUID.randomUUID();
         Rol esperada = new Rol(id);
-        when(rolDAO.buscar(id)).thenReturn(esperada);
+        when(rolService.buscar(id)).thenReturn(esperada);
 
         assertSame(esperada, converter.getAsObject(null, null, id.toString()));
     }

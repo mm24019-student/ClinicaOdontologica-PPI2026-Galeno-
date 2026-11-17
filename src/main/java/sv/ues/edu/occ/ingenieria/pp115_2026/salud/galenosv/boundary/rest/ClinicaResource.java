@@ -11,14 +11,14 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
 public class ClinicaResource extends AbstractResource<Clinica> {
 
     @Inject
-    ClinicaDAO dao;
+    ClinicaService dao;
 
     public ClinicaResource() {
         super(Clinica.class);
     }
 
     @Override
-    protected DefaultDAO<Clinica> dao() {
+    protected DefaultService<Clinica> dao() {
         return dao;
     }
 }

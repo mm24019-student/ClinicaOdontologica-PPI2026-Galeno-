@@ -8,10 +8,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ConsultaProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ExamenResultadoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.InterfaceService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.OrdenExamenService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 
@@ -20,13 +20,13 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.OrdenExamen;
 public class OrdenExamenModel extends AbstracCrudTabsModel<OrdenExamen> {
 
     @Inject
-    private OrdenExamenDAO oeDAO;
+    private OrdenExamenService oeService;
 
     @Inject
-    private ExamenResultadoDAO erDAO;
+    private ExamenResultadoService erService;
 
     @Inject
-    private ConsultaProcedimientoPasoDAO cppDAO;
+    private ConsultaProcedimientoPasoService cppService;
 
     @Inject
     private ExamenResultadoModel examenResultadoModel;
@@ -34,8 +34,8 @@ public class OrdenExamenModel extends AbstracCrudTabsModel<OrdenExamen> {
     private List<ConsultaProcedimientoPaso> pasosConsulta;
 
     @Override
-    protected InterfaceDAO<OrdenExamen> getDAO() {
-        return oeDAO;
+    protected InterfaceService<OrdenExamen> getService() {
+        return oeService;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class OrdenExamenModel extends AbstracCrudTabsModel<OrdenExamen> {
 
     @Override
     protected boolean tieneRegistrosDependientes(OrdenExamen registro) {
-        return !erDAO.findByOrdenExamen(registro.getIdOrdenExamen()).isEmpty();
+        return !erService.findByOrdenExamen(registro.getIdOrdenExamen()).isEmpty();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class OrdenExamenModel extends AbstracCrudTabsModel<OrdenExamen> {
 
     public List<ConsultaProcedimientoPaso> getPasosConsulta() {
         if (pasosConsulta == null) {
-            pasosConsulta = cppDAO.findRange(0, 100);
+            pasosConsulta = cppService.findRange(0, 100);
         }
         return pasosConsulta;
     }

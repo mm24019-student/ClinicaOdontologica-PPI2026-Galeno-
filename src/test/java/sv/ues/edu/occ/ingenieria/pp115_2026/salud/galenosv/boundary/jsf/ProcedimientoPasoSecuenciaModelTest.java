@@ -21,8 +21,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.primefaces.event.SelectEvent;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoDAO;
-import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaDAO;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoService;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.ProcedimientoPasoSecuenciaService;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
 
@@ -41,9 +41,9 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoP
 public class ProcedimientoPasoSecuenciaModelTest {
  
     @Mock
-    private ProcedimientoPasoSecuenciaDAO dao;
+    private ProcedimientoPasoSecuenciaService dao;
     @Mock
-    private ProcedimientoPasoDAO pasoDAO;
+    private ProcedimientoPasoService pasoService;
  
     @InjectMocks
     private ProcedimientoPasoSecuenciaModel bean;
@@ -75,11 +75,11 @@ public class ProcedimientoPasoSecuenciaModelTest {
         return event;
     }
  
-    // ---- getDAO() / obtenerId() / los 3 métodos del detalle ----
+    // ---- getService() / obtenerId() / los 3 métodos del detalle ----
  
     @Test
-    public void getDAO_devuelveElDaoInyectado() {
-        assertSame(dao, bean.getDAO());
+    public void getService_devuelveElDaoInyectado() {
+        assertSame(dao, bean.getService());
     }
  
     @Test
@@ -168,7 +168,7 @@ public class ProcedimientoPasoSecuenciaModelTest {
     public void btnSeleccionarRegistro_referenciaEnElCatalogo_fijaElPasoSinBuscarPorId() {
         ProcedimientoPaso referencia = nuevoPaso("Anestesia local");
         ProcedimientoPasoSecuencia s = nuevaSecuencia("SIGUIENTE", referencia.getIdProcedimientoPaso());
-        when(pasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(referencia));
+        when(pasoService.findRange(0, 100)).thenReturn(Arrays.asList(referencia));
         bean.setWrappedData(Arrays.asList(s));
  
         bean.btnSeleccionarRegistro(s.getIdProcedimientoPasoSecuencia());
@@ -176,15 +176,15 @@ public class ProcedimientoPasoSecuenciaModelTest {
         assertSame(s, bean.getRegistro());
         assertEquals(Estado_Crud.MODIFICAR, bean.getEstado());
         assertSame(referencia, bean.getPasoReferenciaSeleccionado());
-        verify(pasoDAO, never()).buscar(any());
+        verify(pasoService, never()).buscar(any());
     }
  
     @Test
     public void btnSeleccionarRegistro_referenciaFueraDelCatalogo_laBuscaPorId() {
         ProcedimientoPaso referencia = nuevoPaso("Paso lejano");
         ProcedimientoPasoSecuencia s = nuevaSecuencia("SIGUIENTE", referencia.getIdProcedimientoPaso());
-        when(pasoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
-        when(pasoDAO.buscar(referencia.getIdProcedimientoPaso())).thenReturn(referencia);
+        when(pasoService.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(pasoService.buscar(referencia.getIdProcedimientoPaso())).thenReturn(referencia);
         bean.setWrappedData(Arrays.asList(s));
  
         bean.btnSeleccionarRegistro(s.getIdProcedimientoPasoSecuencia());
@@ -196,8 +196,8 @@ public class ProcedimientoPasoSecuenciaModelTest {
     public void btnSeleccionarRegistro_referenciaInexistente_dejaPasoReferenciaEnNull() {
         UUID idReferencia = UUID.randomUUID();
         ProcedimientoPasoSecuencia s = nuevaSecuencia("SIGUIENTE", idReferencia);
-        when(pasoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
-        when(pasoDAO.buscar(idReferencia)).thenReturn(null);
+        when(pasoService.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(pasoService.buscar(idReferencia)).thenReturn(null);
         bean.setWrappedData(Arrays.asList(s));
  
         bean.btnSeleccionarRegistro(s.getIdProcedimientoPasoSecuencia());
@@ -214,7 +214,7 @@ public class ProcedimientoPasoSecuenciaModelTest {
         bean.btnSeleccionarRegistro(s.getIdProcedimientoPasoSecuencia());
  
         assertNull(bean.getPasoReferenciaSeleccionado());
-        verifyNoInteractions(pasoDAO);
+        verifyNoInteractions(pasoService);
     }
  
     @Test
@@ -292,7 +292,7 @@ public class ProcedimientoPasoSecuenciaModelTest {
     @Test
     public void etiqueta_tipoConReferencia_devuelveTipoYNombreDelPaso() {
         ProcedimientoPaso referencia = nuevoPaso("Anestesia local");
-        when(pasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(referencia));
+        when(pasoService.findRange(0, 100)).thenReturn(Arrays.asList(referencia));
  
         String resultado = bean.etiqueta(nuevaSecuencia("SIGUIENTE", referencia.getIdProcedimientoPaso()));
  
@@ -374,19 +374,19 @@ public class ProcedimientoPasoSecuenciaModelTest {
  
     @Test
     public void getPasos_cacheaElCatalogoEntreLlamadas() {
-        when(pasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(nuevoPaso("Anestesia local")));
+        when(pasoService.findRange(0, 100)).thenReturn(Arrays.asList(nuevoPaso("Anestesia local")));
  
         bean.getPasos();
         bean.getPasos();
  
-        verify(pasoDAO, times(1)).findRange(0, 100);
+        verify(pasoService, times(1)).findRange(0, 100);
     }
  
     @Test
     public void completarPasos_filtraPorNombreSinImportarMayusculas() {
         ProcedimientoPaso anestesia = nuevoPaso("Anestesia local");
         ProcedimientoPaso limpieza = nuevoPaso("Limpieza dental");
-        when(pasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(anestesia, limpieza));
+        when(pasoService.findRange(0, 100)).thenReturn(Arrays.asList(anestesia, limpieza));
  
         List<ProcedimientoPaso> resultado = bean.completarPasos("ANEST");
  
@@ -399,23 +399,23 @@ public class ProcedimientoPasoSecuenciaModelTest {
     @Test
     public void nombrePaso_idNulo_devuelveCadenaVaciaSinConsultar() {
         assertEquals("", bean.nombrePaso(null));
-        verifyNoInteractions(pasoDAO);
+        verifyNoInteractions(pasoService);
     }
  
     @Test
     public void nombrePaso_pasoEnElCatalogo_devuelveSuNombreSinBuscarPorId() {
         ProcedimientoPaso paso = nuevoPaso("Anestesia local");
-        when(pasoDAO.findRange(0, 100)).thenReturn(Arrays.asList(paso));
+        when(pasoService.findRange(0, 100)).thenReturn(Arrays.asList(paso));
  
         assertEquals("Anestesia local", bean.nombrePaso(paso.getIdProcedimientoPaso()));
-        verify(pasoDAO, never()).buscar(any());
+        verify(pasoService, never()).buscar(any());
     }
  
     @Test
     public void nombrePaso_pasoFueraDelCatalogo_loBuscaPorId() {
         ProcedimientoPaso lejano = nuevoPaso("Paso lejano");
-        when(pasoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
-        when(pasoDAO.buscar(lejano.getIdProcedimientoPaso())).thenReturn(lejano);
+        when(pasoService.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(pasoService.buscar(lejano.getIdProcedimientoPaso())).thenReturn(lejano);
  
         assertEquals("Paso lejano", bean.nombrePaso(lejano.getIdProcedimientoPaso()));
     }
@@ -423,8 +423,8 @@ public class ProcedimientoPasoSecuenciaModelTest {
     @Test
     public void nombrePaso_pasoInexistente_devuelveElUuidEnTexto() {
         UUID id = UUID.randomUUID();
-        when(pasoDAO.findRange(0, 100)).thenReturn(Collections.emptyList());
-        when(pasoDAO.buscar(id)).thenReturn(null);
+        when(pasoService.findRange(0, 100)).thenReturn(Collections.emptyList());
+        when(pasoService.buscar(id)).thenReturn(null);
  
         assertEquals(id.toString(), bean.nombrePaso(id));
     }

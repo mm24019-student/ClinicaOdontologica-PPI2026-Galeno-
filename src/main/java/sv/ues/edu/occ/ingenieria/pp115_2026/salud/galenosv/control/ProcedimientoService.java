@@ -1,0 +1,34 @@
+package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control;
+
+import jakarta.ejb.LocalBean;
+import jakarta.ejb.Stateless;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Procedimiento;
+
+/**
+ * Service (acceso a datos) de Procedimiento. Hereda de DefaultService todo el CRUD
+ * (crear, buscar, actualizar, eliminar, findRange); aquí solo se entrega el
+ * EntityManager de la unidad de persistencia "Galeno-PU". Lo usan
+ * ProcedimientoModel, ConsultaProcedimientoModel y ProcedimientoConverter.
+ *
+ * @author antonio
+ */
+//Utilizamo Stateless para que que la clase no guarde estado entre invocacionnes.
+@Stateless
+//Utilizamos LocalBean para poder utiilizar la clase en el mismo proyecto sin necesidad de crear metodos de acceso.
+@LocalBean
+//Heredamos de DefaultService para poder utilizar los metodos genericos de la clase y implementamos 
+public class ProcedimientoService extends DefaultService<Procedimiento>{
+
+    //Creamos un EntityManager para poder realizar las operaciones de persistencia en la base de datos.
+    @PersistenceContext(unitName = "Galeno-PU")
+    private EntityManager em;
+
+//Retornamos el EntityManager para poder utilizarlo en la clase padre que seria DefaultService.
+    @Override
+    public EntityManager getEntityManager() {
+        return em;
+    }
+
+}
