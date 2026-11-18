@@ -179,7 +179,10 @@ public class ConsultaServiceTest {
 
         dao.buscarCitas(null, null, null, idRol, null, null, 10);
 
-        assertTrue(jpqlGenerado().contains("WHERE pr.idRol.idRol = :idRol ORDER BY"));
+        assertTrue(jpqlGenerado().contains("WHERE (c.idPersonaRol.idRol.idRol = :idRol OR EXISTS "
+                + "(SELECT cpp FROM ConsultaProcedimientoPaso cpp "
+                + "WHERE cpp.idConsultaProcedimiento.idConsulta = c "
+                + "AND cpp.idProcedimientoPaso.idRol.idRol = :idRol)) ORDER BY"));
         verify(query).setParameter("idRol", idRol);
     }
 

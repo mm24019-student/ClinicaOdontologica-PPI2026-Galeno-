@@ -59,7 +59,10 @@ public class ConsultaService extends DefaultService<Consulta> {
             condiciones.add("pr.idClinica.idClinica = :idClinica");
         }
         if (idRol != null) {
-            condiciones.add("pr.idRol.idRol = :idRol");
+            condiciones.add("(c.idPersonaRol.idRol.idRol = :idRol OR EXISTS "
+                    + "(SELECT cpp FROM ConsultaProcedimientoPaso cpp "
+                    + "WHERE cpp.idConsultaProcedimiento.idConsulta = c "
+                    + "AND cpp.idProcedimientoPaso.idRol.idRol = :idRol))");
         }
         if (desde != null) {
             condiciones.add("c.fechaInicio >= :desde");
