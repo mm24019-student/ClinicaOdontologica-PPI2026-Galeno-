@@ -39,7 +39,7 @@ public class ConsultaService extends DefaultService<Consulta> {
     //  - idClinica:      clínica de la persona/rol que registró la consulta
     // Trae persona, rol y clínica con JOIN FETCH porque la tabla los muestra
     // y las relaciones son LAZY. Las más recientes primero.
-    public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica,
+    public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica, UUID idRol,
             Date desde, Date hastaExclusivo, int max) {
         List<String> condiciones = new ArrayList<>();
         if (valorDocumento != null && !valorDocumento.isBlank()) {
@@ -57,6 +57,9 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idClinica != null) {
             condiciones.add("pr.idClinica.idClinica = :idClinica");
+        }
+        if (idRol != null) {
+            condiciones.add("pr.idRol.idRol = :idRol");
         }
         if (desde != null) {
             condiciones.add("c.fechaInicio >= :desde");
@@ -85,6 +88,9 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idClinica != null) {
             q.setParameter("idClinica", idClinica);
+        }
+        if (idRol != null) {
+            q.setParameter("idRol", idRol);
         }
         if (desde != null) {
             q.setParameter("desde", desde);

@@ -14,7 +14,7 @@ public class CorsResponseFilter implements ContainerResponseFilter {
     public static final String METODOS = "GET, POST, PUT, DELETE, OPTIONS, HEAD";
     public final static int MAX_AGE = 60 * 60 * 45;
     public final static String DEFAULT_ALLOWED_HEADERS = "origin, accept, content-type, Total-registros";
-    public final static String DEFAULT_EXPOSED_HEADERS = "location,info, Total-registros";
+    public final static String DEFAULT_EXPOSED_HEADERS = "location,info, Total-registros, Wrong-Parameter, error-mensaje";
 
     @Override
     public void filter(ContainerRequestContext reqCtx, ContainerResponseContext respCtx) throws IOException {
@@ -22,13 +22,12 @@ public class CorsResponseFilter implements ContainerResponseFilter {
         headers.add("Access-Control-Allow-Origin", "*");
         headers.add("Access-Control-Allow-Headers", getCabecerasPermitidas(reqCtx));
         headers.add("Access-Control-Expose-Headers", getCabecerasExpuestas(reqCtx));
-        headers.add("Access-Control-Allow-Credentials", "true");
         headers.add("Access-Control-Allow-Methods", METODOS);
         headers.add("Access-Control-Max-Age", MAX_AGE);
     }
 
     String getCabecerasPermitidas(ContainerRequestContext ctx) {
-        List<String> headers = ctx.getHeaders().get("Access-Control-Allow-Headers");
+        List<String> headers = ctx.getHeaders().get("Access-Control-Request-Headers");
         return crearListaCabeceras(headers, DEFAULT_ALLOWED_HEADERS);
     }
 

@@ -13,6 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +47,7 @@ public class ConsultaResource extends AbstractResource<Consulta> {
     public Response buscar(@QueryParam("tipoDocumento") String tipoDocumento,
             @QueryParam("valorDocumento") String valorDocumento,
             @QueryParam("idClinica") String idClinica,
+            @QueryParam("idRol") String idRol,
             @QueryParam("desde") String desde,
             @QueryParam("hasta") String hasta,
             @QueryParam("max") @DefaultValue("100") int max) {
@@ -55,9 +57,10 @@ public class ConsultaResource extends AbstractResource<Consulta> {
         try {
             UUID tipo = uuidOpcional(tipoDocumento);
             UUID clinica = uuidOpcional(idClinica);
+            UUID rol = uuidOpcional(idRol);
             Date inicio = inicioDelDia(desde);
             Date fin = inicioDelDiaSiguiente(hasta);
-            List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, inicio, fin, max);
+            List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol, inicio, fin, max);
             return ok(citas);
         } catch (Exception ex) {
             return manejar(ex, "filtros");
@@ -180,15 +183,23 @@ public class ConsultaResource extends AbstractResource<Consulta> {
         if (texto == null || texto.isBlank()) {
             return null;
         }
-        LocalDate dia = LocalDate.parse(texto.trim());
-        return Date.from(dia.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        try {
+            LocalDate dia = LocalDate.parse(texto.trim());
+            return Date.from(dia.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (DateTimeParseException ex) {
+            throw new IllegalArgumentException("La fecha '" + texto.trim() + "' no tiene el formato yyyy-MM-dd", ex);
+        }
     }
 
     private static Date inicioDelDiaSiguiente(String texto) {
         if (texto == null || texto.isBlank()) {
             return null;
         }
-        LocalDate dia = LocalDate.parse(texto.trim()).plusDays(1);
-        return Date.from(dia.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        try {
+            LocalDate dia = LocalDate.parse(texto.trim()).plusDays(1);
+            return Date.from(dia.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        } catch (DateTimeParseException ex) {
+            throw new IllegalArgumentException("La fecha '" + texto.trim() + "' no tiene el formato yyyy-MM-dd", ex);
+        }
     }
 }

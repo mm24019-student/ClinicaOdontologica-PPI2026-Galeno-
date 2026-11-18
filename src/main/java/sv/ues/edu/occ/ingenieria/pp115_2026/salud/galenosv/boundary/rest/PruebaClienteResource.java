@@ -1,18 +1,11 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.rest;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.List;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 
-@Path("pruebacliente")
 public class PruebaClienteResource {
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
     public String probar() {
         GalenoClient c = new GalenoClient();
         StringBuilder sb = new StringBuilder();

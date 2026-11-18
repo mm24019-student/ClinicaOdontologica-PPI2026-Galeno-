@@ -197,11 +197,11 @@ public abstract class AbstractResource<T> {
         return Response.ok(GalenoJson.get().toJson(entidad), MediaType.APPLICATION_JSON).build(); // 200
     }
 
-    protected Response wrong(String campo) {
+    protected static Response wrong(String campo) {
         return Response.status(422).header("Wrong-Parameter", campo).build();                    // 422
     }
 
-    protected Response wrong(String campo, String mensaje) {
+    protected static Response wrong(String campo, String mensaje) {
         return Response.status(422).header("Wrong-Parameter", campo)
                 .type("text/plain; charset=UTF-8").entity(mensaje).build();                      // 422
     }
@@ -219,7 +219,7 @@ public abstract class AbstractResource<T> {
     //  - IllegalStateException SIN causa     -> 422 (regla de negocio del Service, con su mensaje)
     //  - violacion de integridad de la BD    -> 422 (duplicado o registro en uso)
     //  - cualquier otra                      -> 500
-    protected Response manejar(Exception ex, String campo) {
+    protected static Response manejar(Exception ex, String campo) {
         for (Throwable t = ex; t != null; t = t.getCause()) {
             if (t instanceof IllegalArgumentException) {
                 return wrong(campo);
@@ -234,7 +234,7 @@ public abstract class AbstractResource<T> {
                 }
             }
         }
-        Logger.getLogger(getClass().getName()).log(Level.SEVERE, ex.getMessage(), ex);
+        Logger.getLogger(AbstractResource.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();                   // 500
     }
 

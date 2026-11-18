@@ -169,4 +169,28 @@ public class ConsultaServiceTest {
         verify(query).setParameter("idClinica", idClinica);
         verify(query).setMaxResults(25);
     }
+
+    @Test
+    public void buscarCitas_conIdRol_agregaElFiltroYElParametro() {
+        UUID idRol = UUID.randomUUID();
+        when(em.createQuery(anyString(), eq(Consulta.class))).thenReturn(query);
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
+
+        dao.buscarCitas(null, null, null, idRol, null, null, 10);
+
+        assertTrue(jpqlGenerado().contains("WHERE pr.idRol.idRol = :idRol ORDER BY"));
+        verify(query).setParameter("idRol", idRol);
+    }
+
+    @Test
+    public void buscarCitas_sinIdRol_noAgregaElFiltroNiElParametro() {
+        when(em.createQuery(anyString(), eq(Consulta.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
+
+        dao.buscarCitas(null, null, null, null, null, null, 10);
+
+        assertFalse(jpqlGenerado().contains(":idRol"));
+        verify(query, never()).setParameter(eq("idRol"), any());
+    }
 }
