@@ -57,6 +57,7 @@ public class PersonaRolService extends DefaultService<PersonaRol> {
 
 // Pacientes activos de la clínica que tienen un documento cuyo valor contiene el texto.
     public List<PersonaRol> buscarPacientesPorDocumento(String texto, UUID idClinica, int max) {
+         em.clear();
         return consultarPacientes(
                 "EXISTS (SELECT d2 FROM Documento d2 WHERE d2.idPersona = p AND LOWER(d2.valor) LIKE :t)",
                 texto, idClinica, max);
@@ -83,6 +84,10 @@ public class PersonaRolService extends DefaultService<PersonaRol> {
         if (idClinica != null) {
             q.setParameter("idClinica", idClinica);
         }
+        // Siempre leer de la BD: evita que Persona.documentoList venga vacío
+        // desde la caché compartida de EclipseLink (documentos creados después).
+        q.setHint("eclipselink.refresh", "true");
+        q.setHint("eclipselink.refresh.cascade", "CascadeAllParts");
         return q.getResultList().stream().limit(max).collect(java.util.stream.Collectors.toList());
     }
     

@@ -123,6 +123,7 @@ public class ConsultaService extends DefaultService<Consulta> {
     }
 
     public List<Consulta> buscarConFiltro(Date desde, Date hastaExclusivo, UUID idClinica, int max) {
+        em.clear();
         List<String> condiciones = new ArrayList<>();
         if (desde != null) {
             condiciones.add("c.fechaInicio >= :desde");
