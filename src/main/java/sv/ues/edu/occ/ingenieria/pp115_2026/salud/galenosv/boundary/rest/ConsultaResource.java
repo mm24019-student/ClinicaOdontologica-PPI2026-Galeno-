@@ -5,6 +5,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.TypedQuery;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -42,18 +43,8 @@ public class ConsultaResource extends AbstractResource<Consulta> {
     //   &idPersona=<uuid>&idPersonaRol=<uuid>&idRol=<uuid>
     //   &desde=yyyy-MM-dd&hasta=yyyy-MM-dd&max=100
     // Cualquier filtro vacio simplemente no se aplica.
-    @GET
-    @Path("buscar")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response buscar(@QueryParam("tipoDocumento") String tipoDocumento,
-            @QueryParam("valorDocumento") String valorDocumento,
-            @QueryParam("idClinica") String idClinica,
-            @QueryParam("idPersona") String idPersona,
-            @QueryParam("idPersonaRol") String idPersonaRol,
-            @QueryParam("idRol") String idRol,
-            @QueryParam("desde") String desde,
-            @QueryParam("hasta") String hasta,
-            @QueryParam("max") @DefaultValue("100") int max) {
+    public Response buscar(String tipoDocumento, String valorDocumento, String idClinica,
+            String idPersona, String idPersonaRol, String idRol, String desde, String hasta, int max) {
         if (max <= 0) {
             return wrong("max");
         }
@@ -67,6 +58,41 @@ public class ConsultaResource extends AbstractResource<Consulta> {
             Date fin = inicioDelDiaSiguiente(hasta);
             List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol,
                     persona, personaRol, inicio, fin, max);
+            return ok(citas);
+        } catch (Exception ex) {
+            return manejar(ex, "filtros");
+        }
+    }
+
+    @GET
+    @Path("buscar")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response buscar(@QueryParam("tipoDocumento") String tipoDocumento,
+            @QueryParam("valorDocumento") String valorDocumento,
+            @QueryParam("idClinica") String idClinica,
+            @QueryParam("idPersona") String idPersona,
+            @QueryParam("idPersonaRol") String idPersonaRol,
+            @QueryParam("idRol") String idRol,
+            @QueryParam("desde") String desde,
+            @QueryParam("hasta") String hasta,
+            @QueryParam("max") @DefaultValue("100") int max,
+            @QueryParam("ocultarTerminadas") @DefaultValue("false") boolean ocultarTerminadas,
+            @QueryParam("soloPendientesParaRol") @DefaultValue("false") boolean soloPendientesParaRol,
+            @HeaderParam("X-Id-Persona-Rol") String idActorPersonaRol) {
+        if (max <= 0) {
+            return wrong("max");
+        }
+        try {
+            UUID tipo = uuidOpcional(tipoDocumento);
+            UUID clinica = uuidOpcional(idClinica);
+            UUID persona = uuidOpcional(idPersona);
+            UUID personaRol = uuidOpcional(idPersonaRol);
+            UUID rol = uuidOpcional(idRol);
+            Date inicio = inicioDelDia(desde);
+            Date fin = inicioDelDiaSiguiente(hasta);
+            List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol,
+                    persona, personaRol, inicio, fin, max,
+                    ocultarTerminadas, soloPendientesParaRol, uuidOpcional(idActorPersonaRol));
             return ok(citas);
         } catch (Exception ex) {
             return manejar(ex, "filtros");

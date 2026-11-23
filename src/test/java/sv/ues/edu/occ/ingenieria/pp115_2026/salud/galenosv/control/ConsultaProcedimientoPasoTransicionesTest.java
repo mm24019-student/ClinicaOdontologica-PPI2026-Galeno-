@@ -23,6 +23,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProced
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.Rol;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,6 +38,8 @@ public class ConsultaProcedimientoPasoTransicionesTest {
     private static final String JPQL_PASO_DE_CONSULTA = "SELECT p FROM ConsultaProcedimientoPaso p "
             + "WHERE p.idConsultaProcedimiento.idConsultaProcedimiento = :idConsulta "
             + "AND p.idProcedimientoPaso.idProcedimientoPaso = :idPaso";
+    private static final String JPQL_ROL_ACTOR = "SELECT pr.idRol.idRol FROM PersonaRol pr "
+            + "WHERE pr.idPersonaRol = :id";
 
     @Mock
     private EntityManager em;
@@ -155,5 +158,36 @@ public class ConsultaProcedimientoPasoTransicionesTest {
 
         assertTrue(ex.getMessage().contains("anterior"));
         assertEquals("EN_PROCESO", actual.getEstado());
+    }
+
+    @Test
+    public void debeSalirTrasAvanzar_cuandoElPasoActivadoCambiaDeRol() {
+        UUID idRolActual = UUID.randomUUID();
+        UUID idRolDestino = UUID.randomUUID();
+        UUID idActor = UUID.randomUUID();
+        ProcedimientoPaso destino = new ProcedimientoPaso(UUID.randomUUID());
+        destino.setIdRol(new Rol(idRolDestino));
+        ConsultaProcedimientoPaso paso = pasoActual(destino);
+        TypedQuery<UUID> queryRol = org.mockito.Mockito.mock(TypedQuery.class);
+        when(em.createQuery(JPQL_ROL_ACTOR, UUID.class)).thenReturn(queryRol);
+        when(queryRol.setParameter("id", idActor)).thenReturn(queryRol);
+        when(queryRol.getResultList()).thenReturn(List.of(idRolActual));
+
+        assertTrue(dao.debeSalirTrasAvanzar(paso, idActor));
+    }
+
+    @Test
+    public void debeSalirTrasAvanzar_cuandoElPasoActivadoMantieneElRol() {
+        UUID idRol = UUID.randomUUID();
+        UUID idActor = UUID.randomUUID();
+        ProcedimientoPaso destino = new ProcedimientoPaso(UUID.randomUUID());
+        destino.setIdRol(new Rol(idRol));
+        ConsultaProcedimientoPaso paso = pasoActual(destino);
+        TypedQuery<UUID> queryRol = org.mockito.Mockito.mock(TypedQuery.class);
+        when(em.createQuery(JPQL_ROL_ACTOR, UUID.class)).thenReturn(queryRol);
+        when(queryRol.setParameter("id", idActor)).thenReturn(queryRol);
+        when(queryRol.getResultList()).thenReturn(List.of(idRol));
+
+        assertFalse(dao.debeSalirTrasAvanzar(paso, idActor));
     }
 }
