@@ -1,6 +1,7 @@
 package sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.boundary.rest;
 
 import jakarta.ws.rs.core.Response;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +34,9 @@ public class ConsultaProcedimientoPasoResourceTest {
         Response respuesta = recurso.avanzar(id.toString());
 
         assertEquals(200, respuesta.getStatus());
-        assertSame(siguiente, respuesta.getEntity());
+        Map<?, ?> datos = (Map<?, ?>) respuesta.getEntity();
+        assertEquals(siguiente.getIdConsultaProcedimientoPaso().toString(), datos.get("idConsultaProcedimientoPaso"));
+        assertEquals("EN_PROCESO", datos.get("estado"));
         verify(dao).avanzar(id);
     }
 
@@ -60,7 +63,9 @@ public class ConsultaProcedimientoPasoResourceTest {
         Response respuesta = recurso.retroceder(id.toString());
 
         assertEquals(200, respuesta.getStatus());
-        assertSame(anterior, respuesta.getEntity());
+        Map<?, ?> datos = (Map<?, ?>) respuesta.getEntity();
+        assertEquals(anterior.getIdConsultaProcedimientoPaso().toString(), datos.get("idConsultaProcedimientoPaso"));
+        assertEquals("EN_PROCESO", datos.get("estado"));
         verify(dao).retroceder(id);
     }
 

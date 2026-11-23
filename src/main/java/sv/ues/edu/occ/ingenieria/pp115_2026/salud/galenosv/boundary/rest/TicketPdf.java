@@ -133,22 +133,16 @@ public final class TicketPdf {
     }
 
     private static PdfPTable tablaPasos(List<Paso> pasos, Font etiqueta, Font normal, Font pequeno) {
-        PdfPTable tabla = new PdfPTable(new float[]{2.2f, 1.1f, 1.8f, 1.4f, 2f});
+        PdfPTable tabla = new PdfPTable(new float[]{2.2f, 1.1f, 1.4f, 2f});
         tabla.setWidthPercentage(100);
         tabla.setSpacingBefore(4f);
         encabezado(tabla, "Paso", etiqueta);
         encabezado(tabla, "Estado", etiqueta);
-        encabezado(tabla, "Responsable", etiqueta);
         encabezado(tabla, "Fecha", etiqueta);
         encabezado(tabla, "Registro", etiqueta);
         for (Paso paso : pasos) {
             celda(tabla, texto(paso.nombre), normal);
             celda(tabla, texto(paso.estado), normal);
-            String resp = texto(paso.persona);
-            if (paso.rol != null && !paso.rol.isBlank()) {
-                resp = resp + " (" + paso.rol + ")";
-            }
-            celda(tabla, resp.trim(), normal);
             celda(tabla, fecha(paso.fechaInicio), pequeno);
             celda(tabla, paso.valor == null ? "" : paso.valor.trim().replace("\n", " "), pequeno);
         }

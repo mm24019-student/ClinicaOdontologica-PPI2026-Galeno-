@@ -196,4 +196,20 @@ public class ConsultaServiceTest {
         assertFalse(jpqlGenerado().contains(":idRol"));
         verify(query, never()).setParameter(eq("idRol"), any());
     }
+
+    @Test
+    public void buscarCitas_conIdPersonaYIdPersonaRol_agregaLosFiltrosYParametros() {
+        UUID idPersona = UUID.randomUUID();
+        UUID idPersonaRol = UUID.randomUUID();
+        when(em.createQuery(anyString(), eq(Consulta.class))).thenReturn(query);
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
+
+        dao.buscarCitas(null, null, null, null, idPersona, idPersonaRol, null, null, 10);
+
+        assertTrue(jpqlGenerado().contains("WHERE c.idPersonaRol.idPersona.idPersona = :idPersona "
+                + "AND c.idPersonaRol.idPersonaRol = :idPersonaRol ORDER BY"));
+        verify(query).setParameter("idPersona", idPersona);
+        verify(query).setParameter("idPersonaRol", idPersonaRol);
+    }
 }

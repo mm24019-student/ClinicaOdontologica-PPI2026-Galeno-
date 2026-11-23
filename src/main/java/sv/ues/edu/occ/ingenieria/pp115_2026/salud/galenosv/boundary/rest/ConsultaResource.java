@@ -39,6 +39,7 @@ public class ConsultaResource extends AbstractResource<Consulta> {
 
     // GET /resources/consulta/buscar
     //   ?tipoDocumento=<uuid>&valorDocumento=<texto>&idClinica=<uuid>
+    //   &idPersona=<uuid>&idPersonaRol=<uuid>&idRol=<uuid>
     //   &desde=yyyy-MM-dd&hasta=yyyy-MM-dd&max=100
     // Cualquier filtro vacio simplemente no se aplica.
     @GET
@@ -47,6 +48,8 @@ public class ConsultaResource extends AbstractResource<Consulta> {
     public Response buscar(@QueryParam("tipoDocumento") String tipoDocumento,
             @QueryParam("valorDocumento") String valorDocumento,
             @QueryParam("idClinica") String idClinica,
+            @QueryParam("idPersona") String idPersona,
+            @QueryParam("idPersonaRol") String idPersonaRol,
             @QueryParam("idRol") String idRol,
             @QueryParam("desde") String desde,
             @QueryParam("hasta") String hasta,
@@ -57,10 +60,13 @@ public class ConsultaResource extends AbstractResource<Consulta> {
         try {
             UUID tipo = uuidOpcional(tipoDocumento);
             UUID clinica = uuidOpcional(idClinica);
+            UUID persona = uuidOpcional(idPersona);
+            UUID personaRol = uuidOpcional(idPersonaRol);
             UUID rol = uuidOpcional(idRol);
             Date inicio = inicioDelDia(desde);
             Date fin = inicioDelDiaSiguiente(hasta);
-            List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol, inicio, fin, max);
+            List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol,
+                    persona, personaRol, inicio, fin, max);
             return ok(citas);
         } catch (Exception ex) {
             return manejar(ex, "filtros");

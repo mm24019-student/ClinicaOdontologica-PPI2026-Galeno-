@@ -10,6 +10,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.control.*;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.*;
@@ -46,7 +48,7 @@ public class ConsultaProcedimientoPasoResource extends AbstractResource<Consulta
             return wrong("id");
         }
         try {
-            return Response.ok(dao.avanzar(uuid), MediaType.APPLICATION_JSON).build();
+            return respuestaPaso(dao.avanzar(uuid));
         } catch (IllegalStateException ex) {
             return ex.getCause() == null ? conflicto(ex) : manejar(ex, "id");
         } catch (Exception ex) {
@@ -63,12 +65,20 @@ public class ConsultaProcedimientoPasoResource extends AbstractResource<Consulta
             return wrong("id");
         }
         try {
-            return Response.ok(dao.retroceder(uuid), MediaType.APPLICATION_JSON).build();
+            return respuestaPaso(dao.retroceder(uuid));
         } catch (IllegalStateException ex) {
             return ex.getCause() == null ? conflicto(ex) : manejar(ex, "id");
         } catch (Exception ex) {
             return manejar(ex, "id");
         }
+    }
+
+    private static Response respuestaPaso(ConsultaProcedimientoPaso paso) {
+        Map<String, Object> datos = new LinkedHashMap<>();
+        datos.put("idConsultaProcedimientoPaso", String.valueOf(paso.getIdConsultaProcedimientoPaso()));
+        datos.put("estado", paso.getEstado());
+        datos.put("valor", paso.getValor());
+        return Response.ok(datos, MediaType.APPLICATION_JSON).build();
     }
 
     private static Response conflicto(IllegalStateException ex) {

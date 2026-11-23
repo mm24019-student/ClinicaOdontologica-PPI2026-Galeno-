@@ -41,6 +41,11 @@ public class ConsultaService extends DefaultService<Consulta> {
     // y las relaciones son LAZY. Las más recientes primero.
     public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica, UUID idRol,
             Date desde, Date hastaExclusivo, int max) {
+        return buscarCitas(idTipoDocumento, valorDocumento, idClinica, idRol, null, null, desde, hastaExclusivo, max);
+    }
+
+    public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica, UUID idRol,
+            UUID idPersona, UUID idPersonaRol, Date desde, Date hastaExclusivo, int max) {
         List<String> condiciones = new ArrayList<>();
         if (valorDocumento != null && !valorDocumento.isBlank()) {
             StringBuilder documento = new StringBuilder(
@@ -57,6 +62,12 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idClinica != null) {
             condiciones.add("pr.idClinica.idClinica = :idClinica");
+        }
+        if (idPersona != null) {
+            condiciones.add("c.idPersonaRol.idPersona.idPersona = :idPersona");
+        }
+        if (idPersonaRol != null) {
+            condiciones.add("c.idPersonaRol.idPersonaRol = :idPersonaRol");
         }
         if (idRol != null) {
             condiciones.add("(c.idPersonaRol.idRol.idRol = :idRol OR EXISTS "
@@ -91,6 +102,12 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idClinica != null) {
             q.setParameter("idClinica", idClinica);
+        }
+        if (idPersona != null) {
+            q.setParameter("idPersona", idPersona);
+        }
+        if (idPersonaRol != null) {
+            q.setParameter("idPersonaRol", idPersonaRol);
         }
         if (idRol != null) {
             q.setParameter("idRol", idRol);
