@@ -46,6 +46,13 @@ public class ConsultaService extends DefaultService<Consulta> {
 
     public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica, UUID idRol,
             UUID idPersona, UUID idPersonaRol, Date desde, Date hastaExclusivo, int max) {
+        return buscarCitas(idTipoDocumento, valorDocumento, idClinica, idRol, idPersona, idPersonaRol,
+                desde, hastaExclusivo, max, false, false, null);
+    }
+
+    public List<Consulta> buscarCitas(UUID idTipoDocumento, String valorDocumento, UUID idClinica, UUID idRol,
+            UUID idPersona, UUID idPersonaRol, Date desde, Date hastaExclusivo, int max,
+            boolean ocultarTerminadas, boolean soloPendientesParaRol, UUID idActorPersonaRol) {
         List<String> condiciones = new ArrayList<>();
         if (valorDocumento != null && !valorDocumento.isBlank()) {
             StringBuilder documento = new StringBuilder(
@@ -74,6 +81,19 @@ public class ConsultaService extends DefaultService<Consulta> {
                     + "(SELECT cpp FROM ConsultaProcedimientoPaso cpp "
                     + "WHERE cpp.idConsultaProcedimiento.idConsulta = c "
                     + "AND cpp.idProcedimientoPaso.idRol.idRol = :idRol))");
+        }
+        if (ocultarTerminadas) {
+            condiciones.add("EXISTS (SELECT cpPendiente FROM ConsultaProcedimiento cpPendiente "
+                    + "WHERE cpPendiente.idConsulta = c) "
+                    + "AND NOT EXISTS (SELECT cppPendiente FROM ConsultaProcedimientoPaso cppPendiente "
+                    + "WHERE cppPendiente.idConsultaProcedimiento.idConsulta = c "
+                    + "AND cppPendiente.estado NOT IN ('COMPLETADO', 'CANCELADO'))");
+        }
+        if (soloPendientesParaRol && idActorPersonaRol != null) {
+            condiciones.add("NOT EXISTS (SELECT cppAtendido FROM ConsultaProcedimientoPaso cppAtendido "
+                    + "WHERE cppAtendido.idConsultaProcedimiento.idConsulta = c "
+                    + "AND cppAtendido.idPersonaRol.idPersonaRol = :idActorPersonaRol "
+                    + "AND cppAtendido.estado = 'COMPLETADO')");
         }
         if (desde != null) {
             condiciones.add("c.fechaInicio >= :desde");
@@ -111,6 +131,9 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idRol != null) {
             q.setParameter("idRol", idRol);
+        }
+        if (soloPendientesParaRol && idActorPersonaRol != null) {
+            q.setParameter("idActorPersonaRol", idActorPersonaRol);
         }
         if (desde != null) {
             q.setParameter("desde", desde);

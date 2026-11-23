@@ -31,6 +31,8 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
     private static final String JPQL_PASO_DE_CONSULTA = "SELECT p FROM ConsultaProcedimientoPaso p "
             + "WHERE p.idConsultaProcedimiento.idConsultaProcedimiento = :idConsulta "
             + "AND p.idProcedimientoPaso.idProcedimientoPaso = :idPaso";
+    private static final String JPQL_ROL_ACTOR = "SELECT pr.idRol.idRol FROM PersonaRol pr "
+            + "WHERE pr.idPersonaRol = :id";
 
     @PersistenceContext(unitName = "Galeno-PU")
     private EntityManager em;
@@ -61,7 +63,12 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
     }
 
     public ConsultaProcedimientoPaso avanzar(UUID id) {
+        return avanzar(id, null);
+    }
+
+    public ConsultaProcedimientoPaso avanzar(UUID id, UUID idActor) {
         ConsultaProcedimientoPaso actual = pasoPorId(id);
+        validarActor(actual, idActor);
         if (actual.getIdProcedimientoPaso() == null) {
             throw new IllegalStateException("El paso actual no tiene un paso definido");
         }
@@ -71,12 +78,17 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
         }
         actual.setEstado("COMPLETADO");
         actual.setFechaFin(new Date());
-        actualizar(actual);
+        super.actualizar(actual);
         return activar(siguiente, actual.getIdConsultaProcedimiento());
     }
 
     public ConsultaProcedimientoPaso retroceder(UUID id) {
+        return retroceder(id, null);
+    }
+
+    public ConsultaProcedimientoPaso retroceder(UUID id, UUID idActor) {
         ConsultaProcedimientoPaso actual = pasoPorId(id);
+        validarActor(actual, idActor);
         if (actual.getIdProcedimientoPaso() == null) {
             throw new IllegalStateException("El paso actual no tiene un paso definido");
         }
@@ -86,8 +98,66 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
         }
         actual.setEstado("PENDIENTE");
         actual.setFechaFin(null);
-        actualizar(actual);
+        super.actualizar(actual);
         return activar(anterior, actual.getIdConsultaProcedimiento());
+    }
+
+    public void validarActor(ConsultaProcedimientoPaso paso, UUID idActor) {
+        if (idActor == null || paso == null || paso.getIdProcedimientoPaso() == null
+                || paso.getIdProcedimientoPaso().getIdRol() == null) {
+            return;
+        }
+        UUID idRolPaso = paso.getIdProcedimientoPaso().getIdRol().getIdRol();
+        UUID idRolActor = getEntityManager().createQuery(JPQL_ROL_ACTOR, UUID.class)
+                .setParameter("id", idActor)
+                .getResultList().stream().findFirst().orElse(null);
+        if (idRolActor == null) {
+            throw new IllegalStateException("El rol seleccionado no es válido");
+        }
+        if (!Objects.equals(idRolPaso, idRolActor)) {
+            throw new IllegalStateException("El rol seleccionado no corresponde al paso actual");
+        }
+    }
+
+    public UUID idRolDe(ConsultaProcedimientoPaso paso) {
+        return paso == null ? null : idRolDe(paso.getIdProcedimientoPaso());
+    }
+
+    public UUID idRolDe(ProcedimientoPaso paso) {
+        if (paso == null || paso.getIdRol() == null) {
+            return null;
+        }
+        return paso.getIdRol().getIdRol();
+    }
+
+    public String nombreRolDe(ProcedimientoPaso paso) {
+        if (paso == null || paso.getIdRol() == null) {
+            return null;
+        }
+        return paso.getIdRol().getNombre();
+    }
+
+    public boolean esPasoInicial(ConsultaProcedimientoPaso paso) {
+        return paso == null || paso.getIdProcedimientoPaso() == null
+                || anteriorDe(paso.getIdProcedimientoPaso()) == null;
+    }
+
+    public boolean debeSalirTrasAvanzar(ConsultaProcedimientoPaso paso, UUID idActor) {
+        if (paso == null || paso.getIdProcedimientoPaso() == null) {
+            return false;
+        }
+        UUID idRolDestino = idRolDe(paso);
+        UUID idRolReferencia = idActor == null
+                ? idRolDe(anteriorDe(paso.getIdProcedimientoPaso()))
+                : idRolActor(idActor);
+        return idRolDestino != null && idRolReferencia != null
+                && !Objects.equals(idRolDestino, idRolReferencia);
+    }
+
+    private UUID idRolActor(UUID idActor) {
+        return getEntityManager().createQuery(JPQL_ROL_ACTOR, UUID.class)
+                .setParameter("id", idActor)
+                .getResultList().stream().findFirst().orElse(null);
     }
 
     private ConsultaProcedimientoPaso pasoPorId(UUID id) {
@@ -101,7 +171,10 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
         return paso;
     }
 
-    private ProcedimientoPaso siguienteDe(ProcedimientoPaso actual) {
+    public ProcedimientoPaso siguienteDe(ProcedimientoPaso actual) {
+        if (actual == null || actual.getIdProcedimientoPaso() == null) {
+            return null;
+        }
         if (Boolean.TRUE.equals(actual.getIndicaFin())) {
             return null;
         }
@@ -118,7 +191,10 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
                 .orElse(null);
     }
 
-    private ProcedimientoPaso anteriorDe(ProcedimientoPaso actual) {
+    public ProcedimientoPaso anteriorDe(ProcedimientoPaso actual) {
+        if (actual == null || actual.getIdProcedimientoPaso() == null) {
+            return null;
+        }
         List<ProcedimientoPasoSecuencia> secuencias = getEntityManager()
                 .createQuery(JPQL_ANTERIORES, ProcedimientoPasoSecuencia.class)
                 .setParameter("id", actual.getIdProcedimientoPaso())
@@ -169,6 +245,24 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
             registro.setIdPersonaRol(responsableDe(registro));
         }
         super.crear(registro);
+    }
+
+    @Override
+    public ConsultaProcedimientoPaso actualizar(ConsultaProcedimientoPaso registro) {
+        if (registro == null || registro.getIdConsultaProcedimientoPaso() == null) {
+            return super.actualizar(registro);
+        }
+        ConsultaProcedimientoPaso anterior = buscar(registro.getIdConsultaProcedimientoPaso());
+        if (anterior != null) {
+            if (registro.getIdPersonaRol() == null) {
+                registro.setIdPersonaRol(anterior.getIdPersonaRol());
+            } else if (anterior.getIdPersonaRol() != null
+                    && !Objects.equals(anterior.getIdPersonaRol().getIdPersonaRol(),
+                            registro.getIdPersonaRol().getIdPersonaRol())) {
+                throw new IllegalStateException("No se puede cambiar el responsable del paso");
+            }
+        }
+        return super.actualizar(registro);
     }
 
     private PersonaRol responsableDe(ConsultaProcedimientoPaso paso) {
