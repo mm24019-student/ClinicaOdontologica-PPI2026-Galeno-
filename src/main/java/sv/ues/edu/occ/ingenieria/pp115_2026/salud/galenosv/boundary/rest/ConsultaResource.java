@@ -141,6 +141,7 @@ public class ConsultaResource extends AbstractResource<Consulta> {
     }
 
     private Consulta cargarConsulta(UUID id) {
+        em.clear();
         TypedQuery<Consulta> q = em.createQuery(
                 "SELECT DISTINCT c FROM Consulta c "
                 + "LEFT JOIN FETCH c.idPersonaRol pr "

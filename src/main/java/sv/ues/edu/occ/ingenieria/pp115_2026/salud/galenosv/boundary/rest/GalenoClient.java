@@ -14,7 +14,7 @@ import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.TipoDocumento;
 public class GalenoClient {
 
     // Ajusta puerto y contexto a como despliegas el WAR
-    private static final String BASE_URL = "http://localhost:9080/GalenoSV-1.0-SNAPSHOT/resources";
+    private static final String BASE_URL = "http://localhost:9080/galeno/resources";
 
     private final Client client = ClientBuilder.newClient();
     private final String baseUrl;
