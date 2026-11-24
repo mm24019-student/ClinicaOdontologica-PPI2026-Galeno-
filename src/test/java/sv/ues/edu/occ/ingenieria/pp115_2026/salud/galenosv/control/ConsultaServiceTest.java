@@ -181,8 +181,12 @@ public class ConsultaServiceTest {
 
         assertTrue(jpqlGenerado().contains("WHERE (c.idPersonaRol.idRol.idRol = :idRol OR EXISTS "
                 + "(SELECT cpp FROM ConsultaProcedimientoPaso cpp "
+                + "LEFT JOIN cpp.idProcedimientoPaso pp "
+                + "LEFT JOIN pp.idRol ppr "
+                + "LEFT JOIN cpp.idPersonaRol prPaso "
+                + "LEFT JOIN prPaso.idRol prr "
                 + "WHERE cpp.idConsultaProcedimiento.idConsulta = c "
-                + "AND cpp.idProcedimientoPaso.idRol.idRol = :idRol)) ORDER BY"));
+                + "AND (ppr.idRol = :idRol OR prr.idRol = :idRol))) ORDER BY"));
         verify(query).setParameter("idRol", idRol);
     }
 
@@ -211,5 +215,34 @@ public class ConsultaServiceTest {
                 + "AND c.idPersonaRol.idPersonaRol = :idPersonaRol ORDER BY"));
         verify(query).setParameter("idPersona", idPersona);
         verify(query).setParameter("idPersonaRol", idPersonaRol);
+    }
+
+    @Test
+    public void buscarCitas_ocultarTerminadas_mantieneSoloConsultasConPasosPendientes() {
+        when(em.createQuery(anyString(), eq(Consulta.class))).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
+
+        dao.buscarCitas(null, null, null, null, null, null, null, null, 10, true, false, null);
+
+        String jpql = jpqlGenerado();
+        assertTrue(jpql.contains("cppPendiente.estado IN ('PENDIENTE', 'EN_PROCESO')"));
+        assertFalse(jpql.contains("cppPendiente.estado NOT IN"));
+    }
+
+    @Test
+    public void buscarCitas_soloPendientesParaRol_filtraPorRolYNoPorElActor() {
+        UUID idRol = UUID.randomUUID();
+        UUID idActor = UUID.randomUUID();
+        when(em.createQuery(anyString(), eq(Consulta.class))).thenReturn(query);
+        when(query.setParameter(anyString(), any())).thenReturn(query);
+        when(query.getResultList()).thenReturn(Collections.emptyList());
+
+        dao.buscarCitas(null, null, null, idRol, null, null, null, null, 10, false, true, idActor);
+
+        String jpql = jpqlGenerado();
+        assertTrue(jpql.contains("cppPendienteRol.estado IN ('PENDIENTE', 'EN_PROCESO')"));
+        assertTrue(jpql.contains("pprPendiente.idRol = :idRol"));
+        assertFalse(jpql.contains("idActorPersonaRol"));
+        verify(query, never()).setParameter(eq("idActorPersonaRol"), any());
     }
 }

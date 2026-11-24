@@ -48,7 +48,7 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
         return getEntityManager().createQuery(
                 "SELECT DISTINCT e FROM ConsultaProcedimientoPaso e "
                 + "JOIN FETCH e.idConsultaProcedimiento cp "
-                + "JOIN FETCH e.idProcedimientoPaso pp "
+                + "LEFT JOIN FETCH e.idProcedimientoPaso pp "
                 + "LEFT JOIN FETCH pp.idProcedimiento "
                 + "LEFT JOIN FETCH pp.idRol "
                 + "LEFT JOIN FETCH e.idPersonaRol pr "
@@ -87,6 +87,10 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
     }
 
     public ConsultaProcedimientoPaso retroceder(UUID id, UUID idActor) {
+        return retroceder(id, idActor, null);
+    }
+
+    public ConsultaProcedimientoPaso retroceder(UUID id, UUID idActor, String motivo) {
         ConsultaProcedimientoPaso actual = pasoPorId(id);
         validarActor(actual, idActor);
         if (actual.getIdProcedimientoPaso() == null) {
@@ -99,7 +103,17 @@ public class ConsultaProcedimientoPasoService extends DefaultService<ConsultaPro
         actual.setEstado("PENDIENTE");
         actual.setFechaFin(null);
         super.actualizar(actual);
-        return activar(anterior, actual.getIdConsultaProcedimiento());
+        ConsultaProcedimientoPaso activado = activar(anterior, actual.getIdConsultaProcedimiento());
+        if (motivo != null && !motivo.isBlank()) {
+            activado.setValor(unirMotivo(activado.getValor(), motivo.trim()));
+            actualizar(activado);
+        }
+        return activado;
+    }
+
+    private static String unirMotivo(String valorActual, String motivo) {
+        String valor = valorActual == null ? "" : valorActual.trim();
+        return valor.isEmpty() ? motivo : valor + "\n" + motivo;
     }
 
     public void validarActor(ConsultaProcedimientoPaso paso, UUID idActor) {

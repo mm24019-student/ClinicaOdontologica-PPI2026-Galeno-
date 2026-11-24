@@ -9,6 +9,7 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.LinkedHashMap;
@@ -69,14 +70,15 @@ public class ConsultaProcedimientoPasoResource extends AbstractResource<Consulta
     }
 
     public Response retroceder(@PathParam("id") String id) {
-        return retroceder(id, null);
+        return retroceder(id, null, null);
     }
 
     @POST
     @Path("{id}/retroceder")
     @Produces(MediaType.APPLICATION_JSON)
     public Response retroceder(@PathParam("id") String id,
-            @HeaderParam("X-Id-Persona-Rol") String idPersonaRol) {
+            @HeaderParam("X-Id-Persona-Rol") String idPersonaRol,
+            @QueryParam("motivo") String motivo) {
         UUID uuid = aUuid(id);
         if (uuid == null) {
             return wrong("id");
@@ -84,7 +86,7 @@ public class ConsultaProcedimientoPasoResource extends AbstractResource<Consulta
         UUID actor = uuidOpcional(idPersonaRol);
         try {
             ConsultaProcedimientoPaso resultado = actor == null
-                    ? dao.retroceder(uuid) : dao.retroceder(uuid, actor);
+                    ? dao.retroceder(uuid, null, motivo) : dao.retroceder(uuid, actor, motivo);
             return respuestaPaso(resultado, actor);
         } catch (IllegalStateException ex) {
             return ex.getCause() == null ? conflicto(ex) : manejar(ex, "id");
@@ -100,7 +102,7 @@ public class ConsultaProcedimientoPasoResource extends AbstractResource<Consulta
             if (actor != null) {
                 try {
                     dao.validarActor(registro, actor);
-                } catch (IllegalStateException ex) {
+                } catch (RuntimeException ex) {
                     return "idPersonaRol";
                 }
             }

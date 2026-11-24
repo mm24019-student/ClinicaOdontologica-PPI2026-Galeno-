@@ -17,7 +17,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimiento;
 import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ConsultaProcedimientoPaso;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPaso;
+import sv.ues.edu.occ.ingenieria.pp115_2026.salud.galenosv.entity.ProcedimientoPasoSecuencia;
 
 /**
  *
@@ -35,7 +38,7 @@ public class ConsultaProcedimientoPasoServiceTest {
     private static final String JPQL_POR_CONSULTA_PROCEDIMIENTO
             = "SELECT DISTINCT e FROM ConsultaProcedimientoPaso e "
             + "JOIN FETCH e.idConsultaProcedimiento cp "
-            + "JOIN FETCH e.idProcedimientoPaso pp "
+            + "LEFT JOIN FETCH e.idProcedimientoPaso pp "
             + "LEFT JOIN FETCH pp.idProcedimiento "
             + "LEFT JOIN FETCH pp.idRol "
             + "LEFT JOIN FETCH e.idPersonaRol pr "
@@ -47,6 +50,16 @@ public class ConsultaProcedimientoPasoServiceTest {
  
     private static final String JPQL_CONTAR_ORDENES
             = "SELECT COUNT(o) FROM OrdenExamen o WHERE o.idConsultaProcedimientoPaso.idConsultaProcedimientoPaso = :id";
+
+    private static final String JPQL_ANTERIORES
+            = "SELECT s FROM ProcedimientoPasoSecuencia s "
+            + "WHERE s.idProcedimientoPaso.idProcedimientoPaso = :id "
+            + "AND s.idProcedimientoPasoReferencia IS NOT NULL";
+
+    private static final String JPQL_PASO_DE_CONSULTA
+            = "SELECT p FROM ConsultaProcedimientoPaso p "
+            + "WHERE p.idConsultaProcedimiento.idConsultaProcedimiento = :idConsulta "
+            + "AND p.idProcedimientoPaso.idProcedimientoPaso = :idPaso";
  
     @Mock
     private EntityManager em;
@@ -56,8 +69,15 @@ public class ConsultaProcedimientoPasoServiceTest {
  
     @Mock
     private TypedQuery<Long> queryConteo;
- 
+
+    @Mock
+    private TypedQuery<ProcedimientoPasoSecuencia> querySecuencias;
+
+    @Mock
+    private TypedQuery<ConsultaProcedimientoPaso> queryPasoConsulta;
+
     @InjectMocks
+
     private ConsultaProcedimientoPasoService dao;
  
     private void ordenesAsociadas(UUID idPaso, Long total) {
@@ -102,6 +122,51 @@ public class ConsultaProcedimientoPasoServiceTest {
         assertTrue(dao.findByConsultaProcedimiento(idPadre).isEmpty());
     }
  
+    @Test
+    public void retroceder_conMotivo_agregaElMotivoAlPasoAnterior() {
+        UUID idActual = UUID.randomUUID();
+        UUID idDefinicionActual = UUID.randomUUID();
+        UUID idDefinicionAnterior = UUID.randomUUID();
+        UUID idConsultaProcedimiento = UUID.randomUUID();
+        UUID idPasoAnterior = UUID.randomUUID();
+        ConsultaProcedimiento consultaProcedimiento = new ConsultaProcedimiento(idConsultaProcedimiento);
+        ProcedimientoPaso definicionActual = new ProcedimientoPaso(idDefinicionActual);
+        ProcedimientoPaso definicionAnterior = new ProcedimientoPaso(idDefinicionAnterior);
+        ConsultaProcedimientoPaso actual = new ConsultaProcedimientoPaso(idActual);
+        actual.setIdConsultaProcedimiento(consultaProcedimiento);
+        actual.setIdProcedimientoPaso(definicionActual);
+        actual.setEstado("EN_PROCESO");
+        actual.setValor("Nota del paso actual");
+        ConsultaProcedimientoPaso anterior = new ConsultaProcedimientoPaso(idPasoAnterior);
+        anterior.setIdConsultaProcedimiento(consultaProcedimiento);
+        anterior.setIdProcedimientoPaso(definicionAnterior);
+        anterior.setValor("Nota anterior");
+        ProcedimientoPasoSecuencia secuencia = new ProcedimientoPasoSecuencia();
+        secuencia.setTipoSecuencia("ANTERIOR");
+        secuencia.setIdProcedimientoPasoReferencia(idDefinicionAnterior);
+        String motivo = "Devolución desde Paso B: Falta información";
+
+        when(em.find(ConsultaProcedimientoPaso.class, idActual)).thenReturn(actual);
+        when(em.find(ConsultaProcedimientoPaso.class, idPasoAnterior)).thenReturn(anterior);
+        when(em.createQuery(JPQL_ANTERIORES, ProcedimientoPasoSecuencia.class)).thenReturn(querySecuencias);
+        when(querySecuencias.setParameter("id", idDefinicionActual)).thenReturn(querySecuencias);
+        when(querySecuencias.getResultList()).thenReturn(Collections.singletonList(secuencia));
+        when(em.find(ProcedimientoPaso.class, idDefinicionAnterior)).thenReturn(definicionAnterior);
+        when(em.createQuery(JPQL_PASO_DE_CONSULTA, ConsultaProcedimientoPaso.class)).thenReturn(queryPasoConsulta);
+        when(queryPasoConsulta.setParameter("idConsulta", idConsultaProcedimiento)).thenReturn(queryPasoConsulta);
+        when(queryPasoConsulta.setParameter("idPaso", idDefinicionAnterior)).thenReturn(queryPasoConsulta);
+        when(queryPasoConsulta.getResultList()).thenReturn(Collections.singletonList(anterior));
+        when(em.merge(any(ConsultaProcedimientoPaso.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ConsultaProcedimientoPaso resultado = dao.retroceder(idActual, null, motivo);
+
+        assertSame(anterior, resultado);
+        assertEquals("PENDIENTE", actual.getEstado());
+        assertNull(actual.getFechaFin());
+        assertEquals("EN_PROCESO", resultado.getEstado());
+        assertEquals("Nota anterior\n" + motivo, resultado.getValor());
+    }
+
     // ---- eliminar() ----
  
     @Test

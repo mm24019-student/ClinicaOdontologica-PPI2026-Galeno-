@@ -58,7 +58,7 @@ public class ConsultaProcedimientoPasoResourceTest {
         UUID id = UUID.randomUUID();
         ConsultaProcedimientoPaso anterior = new ConsultaProcedimientoPaso(UUID.randomUUID());
         anterior.setEstado("EN_PROCESO");
-        when(dao.retroceder(id)).thenReturn(anterior);
+        when(dao.retroceder(id, null, null)).thenReturn(anterior);
 
         Response respuesta = recurso.retroceder(id.toString());
 
@@ -66,13 +66,13 @@ public class ConsultaProcedimientoPasoResourceTest {
         Map<?, ?> datos = (Map<?, ?>) respuesta.getEntity();
         assertEquals(anterior.getIdConsultaProcedimientoPaso().toString(), datos.get("idConsultaProcedimientoPaso"));
         assertEquals("EN_PROCESO", datos.get("estado"));
-        verify(dao).retroceder(id);
+        verify(dao).retroceder(id, null, null);
     }
 
     @Test
     public void retroceder_sinAnterior_devuelve409ConMensaje() {
         UUID id = UUID.randomUUID();
-        when(dao.retroceder(id)).thenThrow(new IllegalStateException("No hay un paso anterior para este procedimiento"));
+        when(dao.retroceder(id, null, null)).thenThrow(new IllegalStateException("No hay un paso anterior para este procedimiento"));
 
         Response respuesta = recurso.retroceder(id.toString());
 
