@@ -79,21 +79,29 @@ public class ConsultaService extends DefaultService<Consulta> {
         if (idRol != null) {
             condiciones.add("(c.idPersonaRol.idRol.idRol = :idRol OR EXISTS "
                     + "(SELECT cpp FROM ConsultaProcedimientoPaso cpp "
+                    + "LEFT JOIN cpp.idProcedimientoPaso pp "
+                    + "LEFT JOIN pp.idRol ppr "
+                    + "LEFT JOIN cpp.idPersonaRol prPaso "
+                    + "LEFT JOIN prPaso.idRol prr "
                     + "WHERE cpp.idConsultaProcedimiento.idConsulta = c "
-                    + "AND cpp.idProcedimientoPaso.idRol.idRol = :idRol))");
+                    + "AND (ppr.idRol = :idRol OR prr.idRol = :idRol)))");
         }
         if (ocultarTerminadas) {
-            condiciones.add("EXISTS (SELECT cpPendiente FROM ConsultaProcedimiento cpPendiente "
-                    + "WHERE cpPendiente.idConsulta = c) "
-                    + "AND NOT EXISTS (SELECT cppPendiente FROM ConsultaProcedimientoPaso cppPendiente "
+            condiciones.add("EXISTS (SELECT cppPendiente FROM ConsultaProcedimientoPaso cppPendiente "
                     + "WHERE cppPendiente.idConsultaProcedimiento.idConsulta = c "
-                    + "AND cppPendiente.estado NOT IN ('COMPLETADO', 'CANCELADO'))");
+                    + "AND (cppPendiente.estado IN ('PENDIENTE', 'EN_PROCESO') "
+                    + "OR cppPendiente.estado IS NULL))");
         }
-        if (soloPendientesParaRol && idActorPersonaRol != null) {
-            condiciones.add("NOT EXISTS (SELECT cppAtendido FROM ConsultaProcedimientoPaso cppAtendido "
-                    + "WHERE cppAtendido.idConsultaProcedimiento.idConsulta = c "
-                    + "AND cppAtendido.idPersonaRol.idPersonaRol = :idActorPersonaRol "
-                    + "AND cppAtendido.estado = 'COMPLETADO')");
+        if (soloPendientesParaRol && idRol != null) {
+            condiciones.add("EXISTS (SELECT cppPendienteRol FROM ConsultaProcedimientoPaso cppPendienteRol "
+                    + "LEFT JOIN cppPendienteRol.idProcedimientoPaso ppPendiente "
+                    + "LEFT JOIN ppPendiente.idRol pprPendiente "
+                    + "LEFT JOIN cppPendienteRol.idPersonaRol prPendiente "
+                    + "LEFT JOIN prPendiente.idRol prrPendiente "
+                    + "WHERE cppPendienteRol.idConsultaProcedimiento.idConsulta = c "
+                    + "AND (pprPendiente.idRol = :idRol OR prrPendiente.idRol = :idRol) "
+                    + "AND (cppPendienteRol.estado IN ('PENDIENTE', 'EN_PROCESO') "
+                    + "OR cppPendienteRol.estado IS NULL))");
         }
         if (desde != null) {
             condiciones.add("c.fechaInicio >= :desde");
@@ -131,9 +139,6 @@ public class ConsultaService extends DefaultService<Consulta> {
         }
         if (idRol != null) {
             q.setParameter("idRol", idRol);
-        }
-        if (soloPendientesParaRol && idActorPersonaRol != null) {
-            q.setParameter("idActorPersonaRol", idActorPersonaRol);
         }
         if (desde != null) {
             q.setParameter("desde", desde);

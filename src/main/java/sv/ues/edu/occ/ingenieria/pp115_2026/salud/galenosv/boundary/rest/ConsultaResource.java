@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 import jakarta.persistence.TypedQuery;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -77,8 +76,7 @@ public class ConsultaResource extends AbstractResource<Consulta> {
             @QueryParam("hasta") String hasta,
             @QueryParam("max") @DefaultValue("100") int max,
             @QueryParam("ocultarTerminadas") @DefaultValue("false") boolean ocultarTerminadas,
-            @QueryParam("soloPendientesParaRol") @DefaultValue("false") boolean soloPendientesParaRol,
-            @HeaderParam("X-Id-Persona-Rol") String idActorPersonaRol) {
+            @QueryParam("soloPendientesParaRol") @DefaultValue("false") boolean soloPendientesParaRol) {
         if (max <= 0) {
             return wrong("max");
         }
@@ -92,7 +90,7 @@ public class ConsultaResource extends AbstractResource<Consulta> {
             Date fin = inicioDelDiaSiguiente(hasta);
             List<Consulta> citas = dao.buscarCitas(tipo, valorDocumento, clinica, rol,
                     persona, personaRol, inicio, fin, max,
-                    ocultarTerminadas, soloPendientesParaRol, uuidOpcional(idActorPersonaRol));
+                    ocultarTerminadas, soloPendientesParaRol, null);
             return ok(citas);
         } catch (Exception ex) {
             return manejar(ex, "filtros");
