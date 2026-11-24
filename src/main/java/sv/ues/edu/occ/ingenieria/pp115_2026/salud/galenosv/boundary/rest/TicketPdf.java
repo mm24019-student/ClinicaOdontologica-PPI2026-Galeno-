@@ -70,11 +70,11 @@ public final class TicketPdf {
             PdfWriter.getInstance(doc, salida);
             doc.open();
 
-            Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, new Color(42, 27, 101));
-            Font subtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, new Color(0, 136, 127));
-            Font etiqueta = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.DARK_GRAY);
+            Font titulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Color.BLACK);
+            Font subtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.BLACK);
+            Font etiqueta = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
             Font normal = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
-            Font pequeno = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.DARK_GRAY);
+            Font pequeno = FontFactory.getFont(FontFactory.HELVETICA, 9, Color.BLACK);
 
             Paragraph pTitulo = new Paragraph("GalenoSV - Comprobante de cita", titulo);
             pTitulo.setAlignment(Element.ALIGN_CENTER);
@@ -152,7 +152,7 @@ public final class TicketPdf {
     private static void fila(PdfPTable tabla, String et, String valor, Font etiqueta, Font normal) {
         PdfPCell c1 = new PdfPCell(new Phrase(et, etiqueta));
         c1.setPadding(5f);
-        c1.setBackgroundColor(new Color(238, 241, 247));
+        c1.setBackgroundColor(Color.WHITE);
         tabla.addCell(c1);
         PdfPCell c2 = new PdfPCell(new Phrase(valor == null || valor.isBlank() ? "-" : valor, normal));
         c2.setPadding(5f);
@@ -162,7 +162,7 @@ public final class TicketPdf {
     private static void encabezado(PdfPTable tabla, String texto, Font etiqueta) {
         PdfPCell c = new PdfPCell(new Phrase(texto, etiqueta));
         c.setPadding(4f);
-        c.setBackgroundColor(new Color(42, 27, 101));
+        c.setBackgroundColor(Color.BLACK);
         c.setPhrase(new Phrase(texto, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
         tabla.addCell(c);
     }
