@@ -300,3 +300,46 @@ h2 {
     min-width: 150px !important;
     max-width: 240px !important;
 }
+
+/* ===== Página de bienvenida (index.html) ===== */
+body.pagina-bienvenida {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--marino-oscuro), var(--marino) 55%, var(--teal-oscuro)) !important;
+}
+
+.bienvenida {
+    max-width: 520px;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0;
+    padding: 48px 40px;
+}
+.bienvenida img {
+    max-height: 180px;
+    width: auto;
+    margin-bottom: 12px;
+}
+.bienvenida h1 {
+    font-size: clamp(30px, 5vw, 44px);
+    margin: 8px 0 12px;
+}
+.bienvenida p {
+    color: var(--texto);
+    font-size: 16px;
+    margin: 0 0 32px;
+}
+.bienvenida a.ui-button {
+    display: inline-block;
+    font-size: 17px;
+    padding: 14px 34px !important;
+    text-decoration: none;
+    background: var(--marino) !important;
+    color: white !important;
+}
+.bienvenida a.ui-button:hover {
+    background: var(--teal) !important;
+    border-color: var(--teal) !important;
+}
